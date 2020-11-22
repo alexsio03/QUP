@@ -1,0 +1,53 @@
+.queue {
+    list-style-type: none;
+    padding: 15px;
+}
+
+.queue li {
+    margin: 0 20px;
+}
+
+ol.q-list li {
+    margin-right: 15px;
+    font-size: larger;
+}
+
+.friends-list {
+    background-color: rgba(15, 76, 117, 0.5);
+    border: black;
+    border-style: solid;
+    border-width: 2px;
+}
+
+.friends-list ul {
+    list-style-type: none;
+    padding: 10px 30px;
+}
+
+.friends-list ul li {
+    font-size: large;
+    color: rgb(187, 225, 250);
+    margin: 40px 0;
+}
+
+.friends-list ul li i {
+    margin: 0 10px;
+}
+
+.q-item {
+    margin-left: 2%;
+    background-color: rgba(15, 76, 117, 0.5);
+    border: black;
+    border-style: solid;
+    border-width: 2px;
+}
+
+.users {
+    list-style-type: none;
+}
+
+.nav-item span {
+    display: block;
+    text-align: center;
+    margin-top: 10px;
+}
