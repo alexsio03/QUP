@@ -1,7 +1,14 @@
 body {
     background-color: rgba(27, 38, 44);
-    background-image: url("https://www.transparenttextures.com/patterns/dark-geometric.png");
+    /* background-image: url("https://www.transparenttextures.com/patterns/dark-geometric.png"); */
     color: rgb(50, 130, 184);
+}
+
+img {
+    object-fit: cover;
+    border-radius: 50%;
+    height: 164px;
+    width: 164px;
 }
 
 a {

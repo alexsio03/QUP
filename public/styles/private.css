@@ -7,14 +7,30 @@
     margin: 0 20px;
 }
 
+.queue li img {
+    object-fit: cover;
+    border-radius: 50%;
+    height: 32px;
+    width: 32px;
+    margin-right: 10px;
+}
+
 ol.q-list li {
     margin-right: 15px;
     font-size: larger;
 }
 
+.friend-img {
+    object-fit: cover;
+    border-radius: 50%;
+    height: 64px;
+    width: 64px;
+    margin-right: 10px;
+}
+
 .friends-list {
     text-align: center;
-    background-color: rgba(15, 76, 117, 0.5);
+    background-color: rgba(15, 76, 117, 0.6);
     margin-top: 20px;
     border: black;
     border-style: solid;
@@ -27,7 +43,7 @@ ol.q-list li {
 }
 
 .friends-list ul li {
-    font-size: large;
+    font-size: x-large;
     color: rgb(187, 225, 250);
     margin: 40px 0;
 }
@@ -39,7 +55,7 @@ ol.q-list li {
 .q-item {
     margin-left: 2%;
     margin-top: 20px;
-    background-color: rgba(15, 76, 117, 0.5);
+    background-color: rgba(15, 76, 117, 0.6);
     border: black;
     border-style: solid;
     border-width: 2px;
