@@ -28,7 +28,7 @@
     </div>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-9">
+            <div class="col-10">
                 <!-- Will be a React component eventually, temp class item -->
                 <div class="q-item rounded-lg">
                     <h1>Game: Counter Strike Global Offensive (temp)</h1>
@@ -66,43 +66,78 @@
                         <li><a href=""><i class="fas fa-user-plus fa-2x"></i></a></li>
                     </ul>
                 </div>
+                <div class="q-item rounded-lg">
+                    <h1>Game: Warzone (temp)</h1>
+                    <!-- Limit this array to the num of available users in party, make user input??? !maybe have pre-defined for bigger games! -->
+                    <ul class="nav d-flex justify-content-around">
+                        <!-- OnClick = user profile -->
+                        <li class="nav-item">
+                            <a class="nav-link" href=""><i class="fas fa-user fa-5x"></i><span>User 1</span></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href=""><i class="fas fa-user fa-5x"></i><span>User 2</span></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href=""><i class="fas fa-user fa-5x"></i><span>User 3</span></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href=""><i class="fas fa-user fa-5x"></i><span>User 4</span></a>
+                        </li>
+                    </ul>
+                    <hr>
+                    <ul class="nav queue">
+                        <li>
+                            <h4>QUEUE:</h4>
+                        </li>
+                        <!-- EJS for loop of users in queue -->
+                        <li>
+                            <ol class="nav q-list">
+                                <li><a href="">User 5,</a></li>
+                                <li><a href="">User 6</a></li>
+                            </ol>
+                        </li>
+                        <li><a href=""><i class="fas fa-user-plus fa-2x"></i></a></li>
+                    </ul>
+                </div>
             </div>
             <!-- Will have to list out user's friends, most likely using EJS and for loop -->
-            <div class="col-3 friends-list rounded-left">
-                <ul>
-                    <li>
-                        <i class="fas fa-user fa-2x"></i>
-                        <a href="">Friend</a>
-                    </li>
-                    <li>
-                        <i class="fas fa-user fa-2x"></i>
-                        <a href="">Friend</a>
-                    </li>
-                    <li>
-                        <i class="fas fa-user fa-2x"></i>
-                        <a href="">Friend</a>
-                    </li>
-                    <li>
-                        <i class="fas fa-user fa-2x"></i>
-                        <a href="">Friend</a>
-                    </li>
-                    <li>
-                        <i class="fas fa-user fa-2x"></i>
-                        <a href="">Friend</a>
-                    </li>
-                    <li>
-                        <i class="fas fa-user fa-2x"></i>
-                        <a href="">Friend</a>
-                    </li>
-                    <li>
-                        <i class="fas fa-user fa-2x"></i>
-                        <a href="">Friend</a>
-                    </li>
-                    <li>
-                        <i class="fas fa-user fa-2x"></i>
-                        <a href="">Friend</a>
-                    </li>
-                </ul>
+            <div class="col-2 friends-list rounded-left">
+                <div>
+                    <ul>
+                        <li>
+                            <i class="fas fa-user fa-2x"></i>
+                            <a href="">Friend</a>
+                        </li>
+                        <li>
+                            <i class="fas fa-user fa-2x"></i>
+                            <a href="">Friend</a>
+                        </li>
+                        <li>
+                            <i class="fas fa-user fa-2x"></i>
+                            <a href="">Friend</a>
+                        </li>
+                        <li>
+                            <i class="fas fa-user fa-2x"></i>
+                            <a href="">Friend</a>
+                        </li>
+                        <li>
+                            <i class="fas fa-user fa-2x"></i>
+                            <a href="">Friend</a>
+                        </li>
+                        <li>
+                            <i class="fas fa-user fa-2x"></i>
+                            <a href="">Friend</a>
+                        </li>
+                        <li>
+                            <i class="fas fa-user fa-2x"></i>
+                            <a href="">Friend</a>
+                        </li>
+                        <li>
+                            <i class="fas fa-user fa-2x"></i>
+                            <a href="">Friend</a>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>

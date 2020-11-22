@@ -13,7 +13,9 @@ ol.q-list li {
 }
 
 .friends-list {
+    text-align: center;
     background-color: rgba(15, 76, 117, 0.5);
+    margin-top: 20px;
     border: black;
     border-style: solid;
     border-width: 2px 0 2px 2px;
@@ -36,6 +38,7 @@ ol.q-list li {
 
 .q-item {
     margin-left: 2%;
+    margin-top: 20px;
     background-color: rgba(15, 76, 117, 0.5);
     border: black;
     border-style: solid;
