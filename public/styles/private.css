@@ -16,7 +16,7 @@ ol.q-list li {
     background-color: rgba(15, 76, 117, 0.5);
     border: black;
     border-style: solid;
-    border-width: 2px;
+    border-width: 2px 0 2px 2px;
 }
 
 .friends-list ul {
