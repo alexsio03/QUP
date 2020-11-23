@@ -5,13 +5,6 @@ body {
     font-family: 'Lato', sans-serif;
 }
 
-img {
-    object-fit: cover;
-    border-radius: 50%;
-    height: 164px;
-    width: 164px;
-}
-
 a {
     color: rgb(187, 225, 250);
 }

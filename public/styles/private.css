@@ -7,6 +7,13 @@
     margin: 0 20px;
 }
 
+img {
+    object-fit: cover;
+    border-radius: 50%;
+    height: 164px;
+    width: 164px;
+}
+
 .queue li img {
     object-fit: cover;
     border-radius: 50%;
@@ -63,6 +70,7 @@ ol.q-list li {
 
 #status {
     font-size: small;
+    color: rgb(50, 130, 184);
 }
 
 .q-item {
