@@ -22,8 +22,8 @@
         <!-- Should be global navbar, unless in settings or profile area, use EJS template -->
         <nav class="navbar">
             <div class="d-flex justify-content-around">
-                <a class="nav-link nav-header" href="private.html">Private</a>
                 <a class="nav-link nav-header active" href="#">Public</a>
+                <a class="nav-link nav-header" href="private.html">Private</a>
                 <a class="nav-link nav-header" href="#">Profile</a>
             </div>
             <a class="settings" href="#"><i class="fas fa-cog fa-2x"></i></a>
@@ -35,7 +35,7 @@
     </div>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-9 col-6-md col-4-sm">
+            <div class="col-8">
                 <!-- Will be a React component eventually, temp class item -->
                 <div class="q-item shadow rounded-lg">
                     <h1>Game: Counter Strike Global Offensive (temp)</h1>
@@ -152,7 +152,7 @@
                 <div class="q-item shadow rounded-lg">
                     <h1>Game: Warzone (temp)</h1>
                     <!-- Limit this array to the num of available users in party, make user input??? !maybe have pre-defined for bigger games! -->
-                    <ul class="nav d-flex justify-content-around">
+                    <ul class="nav users d-flex justify-content-around">
                         <!-- OnClick = user profile -->
                         <li class="nav-item">
                             <a class="nav-link" href="">
@@ -189,6 +189,7 @@
                     </ul>
                 </div>
             </div>
+            <div class="col-1"></div>
             <!-- Will have to list out user's friends, most likely using EJS and for loop -->
             <div class="col-3 h-50 shadow friends-list rounded-left">
                 <div>
