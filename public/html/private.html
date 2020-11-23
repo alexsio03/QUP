@@ -12,6 +12,9 @@
     <link rel="stylesheet" href="../styles/private.css">
     <!-- Font Awesome Icons -->
     <script src="https://kit.fontawesome.com/b8ae0a3d98.js" crossorigin="anonymous"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap" rel="stylesheet">
 </head>
 
 <body>
@@ -28,13 +31,13 @@
     </div>
     <div class="upper d-flex justify-content-between">
         <a href=""><i class="fas fa-plus-circle fa-2x"></i> <h2 class="create">Create Queue</h2></a>
-        <input class="col-md-2" placeholder="Search for a Friend... 🔍" type="text">
+        <input class="col-md-3" placeholder="Search for a Friend... 🔍" type="text">
     </div>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-10">
+            <div class="col-9 col-6-md col-4-sm">
                 <!-- Will be a React component eventually, temp class item -->
-                <div class="q-item rounded-lg">
+                <div class="q-item shadow rounded-lg">
                     <h1>Game: Counter Strike Global Offensive (temp)</h1>
                     <!-- Limit this array to the num of available users in party, make user input??? !maybe have pre-defined for bigger games! -->
                     <ul class="nav d-flex justify-content-around">
@@ -76,7 +79,7 @@
                         <li><a href=""><i class="fas fa-user-plus fa-2x"></i></a></li>
                     </ul>
                 </div>
-                <div class="q-item rounded-lg">
+                <div class="q-item shadow rounded-lg">
                     <h1>Game: Warzone (temp)</h1>
                     <!-- Limit this array to the num of available users in party, make user input??? !maybe have pre-defined for bigger games! -->
                     <ul class="nav d-flex justify-content-around">
@@ -111,7 +114,7 @@
                 </div>
             </div>
             <!-- Will have to list out user's friends, most likely using EJS and for loop -->
-            <div class="col-2 friends-list rounded-left">
+            <div class="col-3 shadow friends-list rounded-left">
                 <div>
                     <ul>
                         <li>
@@ -173,6 +176,9 @@
             </div>
         </div>
     </div>
+    <footer>
+        <br>
+    </footer>
 
     <!-- BOOTSTRAP SCRIPTS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"

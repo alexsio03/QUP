@@ -2,6 +2,7 @@ body {
     background-color: rgba(27, 38, 44);
     /* background-image: url("https://www.transparenttextures.com/patterns/dark-geometric.png"); */
     color: rgb(50, 130, 184);
+    font-family: 'Lato', sans-serif;
 }
 
 img {
@@ -24,11 +25,13 @@ a:hover {
 }
 
 nav {
-    background-color: rgba(15, 76, 117, 0.8);
+    background-image: linear-gradient(rgb(15, 76, 117), rgb(27, 38, 44));
+    font-weight: bold;
+    letter-spacing: 2px;
 }
 
 .nav-header {
-    margin: 0 100px;
+    margin: 10px 100px;
     font-size: large;
 }
 

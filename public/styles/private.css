@@ -52,7 +52,7 @@ ol.q-list li {
 }
 
 .friends-list ul li {
-    font-size: medium;
+    font-size: 1vw;
     color: rgb(187, 225, 250);
     margin: 40px 0;
 }
@@ -72,6 +72,11 @@ ol.q-list li {
     border: black;
     border-style: solid;
     border-width: 2px;
+}
+
+.q-item h1 {
+    letter-spacing: 1px;
+    font-weight: 600;
 }
 
 .users {
