@@ -26,6 +26,10 @@
             <a class="settings" href="#"><i class="fas fa-cog fa-2x"></i></a>
         </nav>
     </div>
+    <div class="upper d-flex justify-content-between">
+        <a href=""><i class="fas fa-plus-circle fa-2x"></i> <h2 class="create">Create Queue</h2></a>
+        <input class="col-md-2" placeholder="Search for a Friend... 🔍" type="text">
+    </div>
     <div class="container-fluid">
         <div class="row">
             <div class="col-10">
@@ -36,10 +40,16 @@
                     <ul class="nav d-flex justify-content-around">
                         <!-- OnClick = user profile -->
                         <li class="nav-item">
-                            <a class="nav-link" href=""><img src="../assets/IMG_3463.jpg" alt=""><span>User 1</span></a>
+                            <a class="nav-link" href="">
+                                <img src="../assets/IMG_3463.jpg" alt="">
+                                <span>User 1</span>
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href=""><img src="../assets/IMG_3463.jpg" alt=""><span>User 2</span></a>
+                            <a class="nav-link" href="">
+                                <img src="../assets/IMG_3463.jpg" alt="">
+                                <span>User 2</span>
+                            </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href=""><img src="../assets/IMG_3463.jpg" alt=""><span>User 3</span></a>
@@ -48,7 +58,7 @@
                             <a class="nav-link" href=""><img src="../assets/IMG_3463.jpg" alt=""><span>User 4</span></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href=""><img src="../assets/IMG_3463.jpg" alt=""></i><span>User 5</span></a>
+                            <a class="nav-link" href=""><img src="../assets/IMG_3463.jpg" alt=""><span>User 5</span></a>
                         </li>
                     </ul>
                     <hr>
@@ -72,16 +82,16 @@
                     <ul class="nav d-flex justify-content-around">
                         <!-- OnClick = user profile -->
                         <li class="nav-item">
-                            <a class="nav-link" href=""><i class="fas fa-user fa-5x"></i><span>User 1</span></a>
+                            <a class="nav-link" href=""><img src="../assets/IMG_3463.jpg" alt=""><span>User 1</span></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href=""><i class="fas fa-user fa-5x"></i><span>User 2</span></a>
+                            <a class="nav-link" href=""><img src="../assets/IMG_3463.jpg" alt=""><span>User 2</span></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href=""><i class="fas fa-user fa-5x"></i><span>User 3</span></a>
+                            <a class="nav-link" href=""><img src="../assets/IMG_3463.jpg" alt=""><span>User 3</span></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href=""><i class="fas fa-user fa-5x"></i><span>User 4</span></a>
+                            <a class="nav-link" href=""><img src="../assets/IMG_3463.jpg" alt=""><span>User 4</span></a>
                         </li>
                     </ul>
                     <hr>
@@ -92,11 +102,11 @@
                         <!-- EJS for loop of users in queue -->
                         <li>
                             <ol class="nav q-list">
-                                <li><a href="">User 5,</a></li>
-                                <li><a href="">User 6</a></li>
+                                <li><a href=""><img src="../assets/IMG_3463.jpg" alt="">User 5,</a></li>
+                                <li><a href=""><img src="../assets/IMG_3463.jpg" alt="">User 6</a></li>
                             </ol>
                         </li>
-                        <li><a href=""><i class="fas fa-user-plus fa-2x"></i></a></li>
+                        <li class="locked"><i class="fas fa-lock fa-2x"></i></li>
                     </ul>
                 </div>
             </div>
@@ -105,36 +115,58 @@
                 <div>
                     <ul>
                         <li>
-                            <img class="friend-img" src="../assets/IMG_3463.jpg" alt="">
-                            <a href="">Friend</a>
+                            <div class="row">
+                                <img class="friend-img" src="../assets/IMG_3463.jpg" alt="">
+                                <div>
+                                    <a href="">Friend</a>
+                                    <span id="status">Status: Looking to play</span>
+                                </div>
+                            </div>
                         </li>
                         <li>
-                            <img class="friend-img" src="../assets/IMG_3463.jpg" alt="">
-                            <a href="">Friend</a>
+                            <div class="row">
+                                <img class="friend-img" src="../assets/IMG_3463.jpg" alt="">
+                                <div>
+                                    <a href="">Friend</a>
+                                    <span id="status">Status: Looking to play</span>
+                                </div>
+                            </div>
                         </li>
                         <li>
-                            <img class="friend-img" src="../assets/IMG_3463.jpg" alt="">
-                            <a href="">Friend</a>
+                            <div class="row">
+                                <img class="friend-img" src="../assets/IMG_3463.jpg" alt="">
+                                <div>
+                                    <a href="">Friend</a>
+                                    <span id="status">Status: Looking to play</span>
+                                </div>
+                            </div>
                         </li>
                         <li>
-                            <img class="friend-img" src="../assets/IMG_3463.jpg" alt="">
-                            <a href="">Friend</a>
+                            <div class="row">
+                                <img class="friend-img" src="../assets/IMG_3463.jpg" alt="">
+                                <div>
+                                    <a href="">Friend</a>
+                                    <span id="status">Status: Looking to play</span>
+                                </div>
+                            </div>
                         </li>
                         <li>
-                            <img class="friend-img" src="../assets/IMG_3463.jpg" alt="">
-                            <a href="">Friend</a>
+                            <div class="row">
+                                <img class="friend-img" src="../assets/IMG_3463.jpg" alt="">
+                                <div>
+                                    <a href="">Friend</a>
+                                    <span id="status">Status: Looking to play</span>
+                                </div>
+                            </div>
                         </li>
                         <li>
-                            <i class="fas fa-user fa-2x"></i>
-                            <a href="">Friend</a>
-                        </li>
-                        <li>
-                            <i class="fas fa-user fa-2x"></i>
-                            <a href="">Friend</a>
-                        </li>
-                        <li>
-                            <i class="fas fa-user fa-2x"></i>
-                            <a href="">Friend</a>
+                            <div class="row">
+                                <img class="friend-img" src="../assets/IMG_3463.jpg" alt="">
+                                <div>
+                                    <a href="">Friend</a>
+                                    <span id="status">Status: Looking to play</span>
+                                </div>
+                            </div>
                         </li>
                     </ul>
                 </div>

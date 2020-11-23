@@ -15,9 +15,19 @@
     margin-right: 10px;
 }
 
+.locked {
+    color: rgb(187, 225, 250);
+}
+
 ol.q-list li {
     margin-right: 15px;
     font-size: larger;
+}
+
+.friend-info {
+    text-align: left;
+    display: flex;
+    align-items:center;
 }
 
 .friend-img {
@@ -29,7 +39,6 @@ ol.q-list li {
 }
 
 .friends-list {
-    text-align: center;
     background-color: rgba(15, 76, 117, 0.6);
     margin-top: 20px;
     border: black;
@@ -43,13 +52,17 @@ ol.q-list li {
 }
 
 .friends-list ul li {
-    font-size: x-large;
+    font-size: medium;
     color: rgb(187, 225, 250);
     margin: 40px 0;
 }
 
 .friends-list ul li i {
     margin: 0 10px;
+}
+
+#status {
+    font-size: small;
 }
 
 .q-item {
@@ -65,7 +78,24 @@ ol.q-list li {
     list-style-type: none;
 }
 
-.nav-item span {
+.upper a {
+    margin: 20px 3% 0 3%;
+}
+
+.upper input {
+    margin-top: 20px;
+}
+
+.upper a:hover {
+    text-decoration: none;
+}
+
+.create {
+    margin-left: 10px;
+    display: inline;
+}
+
+span {
     display: block;
     text-align: center;
     margin-top: 10px;
