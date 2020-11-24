@@ -59,7 +59,7 @@ ol.q-list li {
 }
 
 .friends-list ul li {
-    font-size: 1vw;
+    font-size: large;
     color: rgb(187, 225, 250);
     margin: 40px 0;
 }
