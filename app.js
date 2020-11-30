@@ -1,6 +1,6 @@
-import express from "express";
-import bodyParser from "body-parser";
-import ejs from "ejs";
+const express = require("express");
+const bodyParser = require("body-parser");
+const ejs = require("ejs");
 
 const app = express();
 
@@ -13,6 +13,13 @@ app.get("/", function(req, res) {
     res.render("public");
 });
 
+app.get("/private", function(req, res) {
+  res.render("private");
+});
+
+app.get("/profile", function(req, res) {
+  res.render("profile");
+})
 
 app.listen(3000, function() {
   console.log("Server started on port 3000");

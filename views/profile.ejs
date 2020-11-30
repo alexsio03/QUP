@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="utf-8">
+    <title>Q-Up Profile</title>
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
+        integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
+    <!-- Personal CSS -->
+    <link rel="stylesheet" href="../styles/master.css">
+    <link rel="stylesheet" href="../styles/profile.css">
+    <!-- Font Awesome Icons -->
+    <script src="https://kit.fontawesome.com/b8ae0a3d98.js" crossorigin="anonymous"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon_io/favicon-16x16.png"/>
+</head>
+
+<body>
+    <div>
+        <!-- Should be global navbar, unless in settings or profile area, use EJS template -->
+        <nav class="navbar">
+            <div class="d-flex justify-content-around">
+                <a class="nav-link nav-header" href="/">Public</a>
+                <a class="nav-link nav-header" href="/private">Private</a>
+                <a class="nav-link nav-header active" href="">Profile</a>
+            </div>
+            <a class="settings" href="#"><i class="fas fa-cog fa-2x"></i></a>
+        </nav>
+    </div>
+    <div class="container-fluid">
+        <div class="row justify-content-around">
+            <div class="col-10 profile rounded shadow">
+                <div class="row">
+                    <div class="col-5">
+                        <img class="profile-pic" src="../assets/IMG_3463.jpg" alt="">
+                        <h4><a href="">Change Image</a></h4>
+                    </div>
+                    <div class="col-6 info">
+                        <div class="row justify-content-between">
+                            <h2>Username: <span>alexsio03</span></h2>
+                            <button class="btn btn-primary">Edit</button>
+                        </div>
+                        <div class="row justify-content-between">
+                            <h2>Email: <span>alexsio03@gmail.com</span></h2>
+                            <button class="btn btn-primary">Edit</button>
+                        </div>
+                        <div class="row justify-content-between">
+                            <h2>Games: <span>CS:GO, Fortnite, Warzone</span></h2>
+                            <button class="btn btn-primary">Edit</button>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="row justify-content-around">
+                    <div class="col-5">
+                        <h1>Linked Accounts:</h1>
+                        <ul>
+                            <li><h3>Steam: <span><a href="">Linked!</a></span></h3></li>
+                            <li><h3>Battle.net: <span><a href="">Linked!</a></span></h3></li>
+                            <li><h3>Riot: <span><a href="">Click to Link!</a></span></h3></li>
+                        </ul>
+                    </div>
+                    <div class="col-5">
+                        <h1>Social Accounts:</h1>
+                        <ul>
+                            <li><h3>Twitter: <span><a href="">Linked!</a></span></h3></li>
+                            <li><h3>Facebook: <span><a href="">Linked!</a></span></h3></li>
+                            <li><h3>Discord: <span><a href="">Click to Link!</a></span></h3></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <br>
+    </footer>
+
+    <!-- BOOTSTRAP SCRIPTS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous">
+    </script>
+</body>
+
+</html>
