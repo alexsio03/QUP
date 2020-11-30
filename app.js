@@ -19,7 +19,7 @@ app.get("/private", function(req, res) {
 
 app.get("/profile", function(req, res) {
   res.render("profile");
-})
+});
 
 app.listen(3000, function() {
   console.log("Server started on port 3000");
