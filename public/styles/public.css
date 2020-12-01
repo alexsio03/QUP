@@ -138,12 +138,6 @@ ol.q-list li {
     margin: 20px 0;
 }
 
-.filter input[type=text] {
-    box-sizing: border-box;
-    width: 70%;
-    margin-bottom: 20px;
-}
-
 .filter input[type=checkbox] {
     margin-left: 15px;
 }
@@ -151,6 +145,10 @@ ol.q-list li {
 .filter h5 {
     margin-top: 20px;
     color: rgb(187, 225, 250);
+}
+
+.filter button {
+    margin-bottom: 20px;
 }
 
 span {

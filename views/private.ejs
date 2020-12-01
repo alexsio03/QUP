@@ -31,7 +31,59 @@
         </nav>
     </div>
     <div class="upper d-flex justify-content-between">
-        <a href=""><i class="fas fa-plus-circle fa-2x"></i> <h2 class="create">Create Queue</h2></a>
+        <a data-target="#createModal" data-toggle="modal" href="#createModal"><i class="fas fa-plus-circle fa-2x"></i>
+            <h2 class="create">Create Queue</h2>
+        </a>
+        <div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="createForm">
+                        <form autocomplete="off" action="">
+                            <h1>Create a Queue</h1>
+                            <h3>
+                                <label>Select a game: </label>
+                                <div class="autocomplete createAuto">
+                                    <input class="rounded" id="gameCreation" type="text" name="createGame" placeholder="Game">
+                                </div>
+                            </h3>
+                            <hr>
+                            <h3>
+                                <label>Description: </label>
+                                <textarea class="rounded" name="desc" id="" cols="60" rows="5"></textarea>
+                            </h3>
+                            <h3>
+                                <label>Select an availability: </label>
+                                <br>
+                                <div class="row justify-content-between">
+                                    <div>
+                                        <input type="radio" name="availability" value="open">
+                                        <label class="radio-label">Open to all</label>
+                                    </div>
+                                    <div>
+                                        <input type="radio" name="availability" value="invite">
+                                        <label class="radio-label">Invite only</label>
+                                    </div>
+                                    <div>
+                                        <input type="radio" name="availability" value="friends">
+                                        <label class="radio-label">Friends only</label>
+                                    </div>
+                                </div>
+                            </h3>
+                            <hr>
+                            <h3>
+                                <label>Amount of Open Slots: </label>
+                                <input class="rounded" type="number" min="1" max="12">
+                            </h3>
+                            <div class="buttons row justify-content-around">
+                                <button class="btn btn-danger btn-lg">Cancel</button>
+                                <button class="btn btn-success btn-lg">Submit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
         <input class="col-md-3" placeholder="Search for a Friend... 🔍" type="text">
     </div>
     <div class="container-fluid">
@@ -181,6 +233,8 @@
         <br>
     </footer>
 
+    <!-- Autocomplete script -->
+    <%- include("partials/autocomplete.ejs"); %>
     <!-- BOOTSTRAP SCRIPTS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
         integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous">

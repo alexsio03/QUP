@@ -41,13 +41,19 @@
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="createForm">
-                        <form action="">
+                        <form autocomplete="off" action="">
                             <h1>Create a Queue</h1>
                             <h3>
                                 <label>Select a game: </label>
-                                <input type="text" name="game" id="">
+                                <div class="autocomplete createAuto">
+                                    <input class="rounded" id="gameCreation" type="text" name="createGame" placeholder="Game">
+                                </div>
                             </h3>
                             <hr>
+                            <h3>
+                                <label>Description: </label>
+                                <textarea class="rounded" name="desc" id="" cols="60" rows="5"></textarea>
+                            </h3>
                             <h3>
                                 <label>Select an availability: </label>
                                 <br>
@@ -65,6 +71,11 @@
                                         <label class="radio-label">Friends only</label>
                                     </div>
                                 </div>
+                            </h3>
+                            <hr>
+                            <h3>
+                                <label>Amount of Slots: </label>
+                                <input class="rounded" type="number" min="1" max="12">
                             </h3>
                             <div class="buttons row justify-content-around">
                                 <button class="btn btn-danger btn-lg">Cancel</button>
@@ -239,12 +250,16 @@
             </div>
             <div class="col-2">
                 <div class="filter rounded shadow">
-                    <h3>Filter</h3>
-                    <hr>
-                    <h5>Game:</h5>
-                    <input type="text">
-                    <h5>Don't Show Full Queues: <input type="checkbox"></h5>
-
+                    <form autocomplete="off" action="">
+                        <h3>Filter</h3>
+                        <hr>
+                        <h5>Game:</h5>
+                        <div class="autocomplete">
+                            <input id="gameFilter" type="text" name="filterGame" placeholder="Game">
+                        </div>
+                        <h5>Don't Show Full Queues: <input type="checkbox"></h5>
+                        <button class="btn btn-lg">Submit</button>
+                    </form>
                 </div>
             </div>
             <!-- Will have to list out user's friends, most likely using EJS and for loop -->
@@ -314,6 +329,8 @@
         <br>
     </footer>
 
+    <!-- Autocomplete script -->
+    <%- include("partials/autocomplete.ejs"); %>
     <!-- BOOTSTRAP SCRIPTS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
         integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous">
