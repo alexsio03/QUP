@@ -1,0 +1,91 @@
+html {
+    height: 100%;
+}
+
+body {
+    background-color: rgba(27, 38, 44);
+    background-image: linear-gradient(to top right, rgba(27, 38, 44), rgb(15, 76, 117));
+    background-size: cover;
+    /* background-image: url("https://www.transparenttextures.com/patterns/dark-geometric.png"); */
+    color: rgb(50, 130, 184);
+    font-family: 'Lato', sans-serif;
+}
+
+.login {
+    background-color: rgb(15, 76, 117);
+    border: 2px solid #111111;
+    border-radius: 5px;
+    padding: 5% 5%;
+    margin: 5% 33vw 0 33vw;
+}
+
+.modals {
+    margin-right: 33vw;
+}
+
+.modal {
+    margin-top: 2vw !important; 
+}
+
+.modal form {
+    background-color: rgb(15, 76, 117);
+    padding: 5% 10%;
+    border: 2px solid black;
+}
+
+h4 {
+    text-align: center;
+    font-size: xx-large;
+    color: rgb(187, 225, 250);
+    margin-bottom: 50px;
+}
+
+p {
+    text-align: center;
+    color: rgb(187, 225, 250);
+    margin-bottom: 20px;
+}
+
+label {
+    text-align: center;
+    display: inline;
+}
+
+/* Full-width inputs */
+input[type=text], input[type=password], input[type=email] {
+    width: 100%;
+    margin: 8px 0;
+    box-sizing: border-box;
+    border-radius: 5px;
+    margin-bottom: 30px;
+}
+
+#rem {
+    margin-right: 10px;
+}
+
+/* Set a style for all buttons */
+button {
+    padding: 14px 20px;
+    margin: 8px 0;
+    cursor: pointer;
+    width: 30%;
+}
+
+/* Center the avatar image inside this container */
+.imgcontainer {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* Avatar image */
+img.avatar {
+    width: 40%;
+    border-radius: 50%;
+}
+
+/* The "Forgot password/Register" text */
+span.pswr {
+float: right;
+    padding-top: 16px;
+}
