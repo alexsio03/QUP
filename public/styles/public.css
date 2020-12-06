@@ -134,6 +134,11 @@ ol.q-list li {
     border-width: 2px;
 }
 
+.filter input {
+    padding: 4px 6px;
+    width: 10vw !important;
+}
+
 .filter h3, h5 {
     margin: 20px 0;
 }

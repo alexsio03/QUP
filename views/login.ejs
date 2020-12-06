@@ -23,23 +23,23 @@
 <body>
     <div class="rounded">
         <div class="login shadow-lg">
-            <form action="" method="post">
+            <form action="/" method="post">
                 <div class="imgcontainer">
                     <img src="../assets/img_icon.png" alt="Site Icon">
                 </div>
                 <div class="container">
                     <label for="uname"><b>Username</b></label>
-                    <input type="text" placeholder="Enter Username" name="uname" required>
+                    <input class="shadow" type="text" placeholder="Enter Username" name="uname" required>
 
                     <label for="psw"><b>Password</b></label>
-                    <input type="password" placeholder="Enter Password" name="psws" required>
+                    <input class="shadow" type="password" placeholder="Enter Password" name="pswd" required>
 
                     <label>
                         <input id="rem" type="checkbox" checked="checked" name="remember">Remember me
                     </label>
 
                     <div class="row justify-content-around">
-                        <button class="btn" type="submit">Log In</button>
+                        <button class="btn shadow" type="submit">Log In</button>
                     </div>
                 </div>
             </form>
@@ -48,19 +48,19 @@
             <h5>Log In With:</h5>
             <div class="row justify-content-between">
                 <div>
-                    <a class="btn google" href="/auth/google" role="button">
+                    <a class="btn google shadow" href="/auth/google" role="button">
                         <i class="fab fa-google"></i>
                         Google
                     </a>
                 </div>
                 <div>
-                    <a class="btn facebook" href="/auth/google" role="button">
+                    <a class="btn facebook shadow" href="/auth/google" role="button">
                         <i class="fab fa-facebook"></i>
                         Facebook
                     </a>
                 </div>
                 <div>
-                    <a class="btn btn-block discord" href="/auth/google" role="button">
+                    <a class="btn discord shadow" href="/auth/google" role="button">
                         <i class="fab fa-discord"></i>
                         Discord
                     </a>
@@ -78,23 +78,23 @@
             aria-hidden="true">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
-                    <form action="" method="post">
+                    <form action="/register" method="post">
                         <div class="container">
                             <h4 class="heading-4">Register</h4>
                             <label for="email"><b>Email</b></label>
-                            <input type="email" placeholder="Enter Email" name="email" required>
+                            <input class="shadow" type="email" placeholder="Enter Email" name="email" required>
 
                             <label for="uname"><b>Username</b></label>
-                            <input type="text" placeholder="Enter Username" name="uname" required>
+                            <input class="shadow" type="text" placeholder="Enter Username" name="uname" required>
 
                             <label for="psw"><b>Password</b></label>
-                            <input type="password" placeholder="Enter Password" name="psw" required>
+                            <input class="shadow" type="password" placeholder="Enter Password" name="pswd" required>
 
                             <label for="psw"><b>Repeat Password</b></label>
-                            <input type="password" placeholder="Enter Password" name="psw" required>
+                            <input class="shadow" type="password" placeholder="Enter Password" name="pswdConfirm" required>
 
                             <div class="row justify-content-around">
-                                <button class="btn" type="submit">Register</button>
+                                <button class="btn shadow" type="submit">Register</button>
                             </div>
                             <label>
                         </div>
@@ -108,7 +108,7 @@
             aria-hidden="true">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
-                    <form action="" method="post">
+                    <form action="/recover" method="post">
                         <div class="container">
                             <h4 class="heading-4">Forgot your Password?</h4>
                             <p class="centerText">If you have forgotten your password enter in your associated email
@@ -116,9 +116,9 @@
                                 address and we will send you and email to reset your password.</p>
                             <hr>
                             <label for="email"><b>Email</b></label>
-                            <input type="email" placeholder="Enter Email" name="email" required>
+                            <input class="shadow" type="email" placeholder="Enter Email" name="email" required>
                             <div class="row justify-content-around">
-                                <button class="btn" type="submit">Send Email</button>
+                                <button class="btn shadow" type="submit">Send Email</button>
                             </div>
                             <hr>
                             <label>

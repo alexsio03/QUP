@@ -5,6 +5,11 @@ body {
     font-family: 'Lato', sans-serif;
 }
 
+button:hover {
+    background-color: rgb(221, 234, 243) !important;
+    color: rgb(50, 130, 184) !important;
+}
+
 a {
     color: rgb(187, 225, 250);
 }
@@ -117,6 +122,7 @@ input[type=submit] {
 
 .autocomplete-items {
     position: absolute;
+    color: rgb(50, 130, 184);
     border: 1px solid #d4d4d4;
     border-bottom: none;
     border-top: none;

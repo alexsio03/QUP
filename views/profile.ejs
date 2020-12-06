@@ -38,21 +38,21 @@
             <div class="col-10 profile rounded shadow">
                 <div class="row">
                     <div class="col-5">
-                        <img class="profile-pic" src="../assets/IMG_3463.jpg" alt="">
+                        <img class="profile-pic shadow" src="../assets/IMG_3463.jpg" alt="">
                         <h4><a href="">Change Image</a></h4>
                     </div>
                     <div class="col-6 info">
                         <div class="row justify-content-between">
                             <h2>Username: <span>alexsio03</span></h2>
-                            <button class="btn btn-primary">Edit</button>
+                            <a data-target="#userEdit" data-toggle="modal" href="#userEdit"><button class="btn btn-primary shadow">Edit</button></a>
                         </div>
                         <div class="row justify-content-between">
                             <h2>Email: <span>alexsio03@gmail.com</span></h2>
-                            <button class="btn btn-primary">Edit</button>
+                            <a data-target="#emailEdit" data-toggle="modal" href="#emailEdit"><button class="btn btn-primary shadow">Edit</button></a>
                         </div>
                         <div class="row justify-content-between">
-                            <h2>Games: <span>CS:GO, Fortnite, Warzone</span></h2>
-                            <button class="btn btn-primary">Edit</button>
+                            <h2>Games: <span>Counter Strike: Global Offensive, Fortnite, Warzone</span></h2>
+                            <a data-target="#gamesEdit" data-toggle="modal" href="#gamesEdit"><button class="btn btn-primary shadow">Edit</button></a>
                         </div>
                     </div>
                 </div>
@@ -78,10 +78,181 @@
             </div>
         </div>
     </div>
+
+    <!-- Username Edit Modal -->
+    <div class="modal fade" id="userEdit" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="editForm shadow-lg">
+                        <form autocomplete="off" method="post" action="/userEdit">
+                            <h3>Change Your Username</h3>
+                            <hr>
+                            <div>
+                                <label>New username: <input class="rounded shadow" type="text" name="newUser" required></label>
+                            </div>
+                            <div>
+                                <label>Confirm new username: <input class="rounded shadow" type="text" name="confirmUser" required></label>
+                            </div>
+                            <div class="buttons row justify-content-around">
+                                <a href="/profile"><button class="btn btn-danger btn-lg shadow" type="button">Cancel</button></a>
+                                <a><button class="btn btn-success btn-lg shadow" type="submit">Submit</button></a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+    </div>
+
+    <!-- Game Edit Modal -->
+    <div class="modal fade" id="gamesEdit" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="editForm shadow-lg">
+                        <form autocomplete="off" method="post" action="/gameEdit">
+                            <h3>Change Your Top Games</h3>
+                            <hr>
+                            <div class="autocomplete">
+                                <label>Game 1: <input id="topGame1" class="rounded shadow" type="text" name="newGame1" required></label>
+                            </div>
+                            <br>
+                            <div class="autocomplete">
+                                <label>Game 2: <input id="topGame2" class="rounded shadow" type="text" name="newGame2" required></label>
+                            </div>
+                            <br>
+                            <div class="autocomplete">
+                                <label>Game 3: <input id="topGame3" class="rounded shadow" type="text" name="newGame3" required></label>
+                            </div>
+                            <div class="buttons row justify-content-around">
+                                <a href="/profile"><button class="btn btn-danger btn-lg shadow" type="button">Cancel</button></a>
+                                <a><button class="btn btn-success btn-lg shadow" type="submit">Submit</button></a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+    </div>
+
     <footer>
         <br>
     </footer>
 
+    <!-- Autocomplete script -->
+    <script>
+    function autocomplete(inp, arr) {
+  /*the autocomplete function takes two arguments,
+  the text field element and an array of possible autocompleted values:*/
+  var currentFocus;
+  /*execute a function when someone writes in the text field:*/
+  inp.addEventListener("input", function(e) {
+      var a, b, i, val = this.value;
+      /*close any already open lists of autocompleted values*/
+      closeAllLists();
+      if (!val) { return false;}
+      currentFocus = -1;
+      /*create a DIV element that will contain the items (values):*/
+      a = document.createElement("DIV");
+      a.setAttribute("id", this.id + "autocomplete-list");
+      a.setAttribute("class", "autocomplete-items");
+      /*append the DIV element as a child of the autocomplete container:*/
+      this.parentNode.appendChild(a);
+      /*for each item in the array...*/
+      for (i = 0; i < arr.length; i++) {
+        /*check if the item starts with the same letters as the text field value:*/
+        if (arr[i].substr(0, val.length).toUpperCase() == val.toUpperCase()) {
+          /*create a DIV element for each matching element:*/
+          b = document.createElement("DIV");
+          /*make the matching letters bold:*/
+          b.innerHTML = "<strong>" + arr[i].substr(0, val.length) + "</strong>";
+          b.innerHTML += arr[i].substr(val.length);
+          /*insert a input field that will hold the current array item's value:*/
+          b.innerHTML += "<input type='hidden' value='" + arr[i] + "'>";
+          /*execute a function when someone clicks on the item value (DIV element):*/
+          b.addEventListener("click", function(e) {
+              /*insert the value for the autocomplete text field:*/
+              inp.value = this.getElementsByTagName("input")[0].value;
+              /*close the list of autocompleted values,
+              (or any other open lists of autocompleted values:*/
+              closeAllLists();
+          });
+          a.appendChild(b);
+        }
+      }
+  });
+  /*execute a function presses a key on the keyboard:*/
+  inp.addEventListener("keydown", function(e) {
+      var x = document.getElementById(this.id + "autocomplete-list");
+      if (x) x = x.getElementsByTagName("div");
+      if (e.keyCode == 40) {
+        /*If the arrow DOWN key is pressed,
+        increase the currentFocus variable:*/
+        currentFocus++;
+        /*and and make the current item more visible:*/
+        addActive(x);
+      } else if (e.keyCode == 38) { //up
+        /*If the arrow UP key is pressed,
+        decrease the currentFocus variable:*/
+        currentFocus--;
+        /*and and make the current item more visible:*/
+        addActive(x);
+      } else if (e.keyCode == 13) {
+        /*If the ENTER key is pressed, prevent the form from being submitted,*/
+        e.preventDefault();
+        if (currentFocus > -1) {
+          /*and simulate a click on the "active" item:*/
+          if (x) x[currentFocus].click();
+        }
+      }
+  });
+  function addActive(x) {
+    /*a function to classify an item as "active":*/
+    if (!x) return false;
+    /*start by removing the "active" class on all items:*/
+    removeActive(x);
+    if (currentFocus >= x.length) currentFocus = 0;
+    if (currentFocus < 0) currentFocus = (x.length - 1);
+    /*add class "autocomplete-active":*/
+    x[currentFocus].classList.add("autocomplete-active");
+  }
+  function removeActive(x) {
+    /*a function to remove the "active" class from all autocomplete items:*/
+    for (var i = 0; i < x.length; i++) {
+      x[i].classList.remove("autocomplete-active");
+    }
+  }
+  function closeAllLists(elmnt) {
+    /*close all autocomplete lists in the document,
+    except the one passed as an argument:*/
+    var x = document.getElementsByClassName("autocomplete-items");
+    for (var i = 0; i < x.length; i++) {
+      if (elmnt != x[i] && elmnt != inp) {
+        x[i].parentNode.removeChild(x[i]);
+      }
+    }
+  }
+  /*execute a function when someone clicks in the document:*/
+  document.addEventListener("click", function (e) {
+      closeAllLists(e.target);
+  });
+}
+
+/*An array containing all the games:*/
+var games = ["Overwatch", "Tom Clancy's Rainbow Six: Siege", "League of Legends",
+"Apex Legends", "Among Us", "Minecraft", "Valorant", "Rocket League", "Genshin Impact",
+"Call of Duty: Modern Warfare", "Call of Duty: Warzone", "Call of Duty: Cold War",
+"Grand Theft Auto V", "World of Warcraft", "Fall Guys", "Dota 2", "PLAYERUNKOWN’S BATTLEGROUNDS",
+"Roblox", "Phasmophobia", "Fortnite", "Counter-Strike: Global Offensive", "Battalion 1944", "Battlefield V",
+"Borderlands", "Destiny 2", "Darwin Project", "Doom Eternal", "Escape From Tarkov", "Halo", "Hyperscape",
+"Krunker", "Insurgency", "Paladins", "Realm Royale", "Rogue Company", "Rust", "Team Fortress 2", "Titanfall: 2",
+"War Thunder", "War Thunder", "No Man's Sky", "Unreal Tournament", "Overcooked", "TowerFall Ascension", "Worms",
+"Arma 3", "Don't Starve Together", "Agar.io", "Critical Ops", "Crossfire", "DayZ", "Dead By Daylight", "Diablo IV"];
+
+/*initiate the autocomplete function on the "myInput" element, and pass along the games array as possible autocomplete values:*/
+autocomplete(document.getElementById("topGame1"), games);
+autocomplete(document.getElementById("topGame2"), games);
+autocomplete(document.getElementById("topGame3"), games);
+</script>
     <!-- BOOTSTRAP SCRIPTS -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
         integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous">

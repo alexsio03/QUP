@@ -41,25 +41,25 @@
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="createForm">
-                        <form autocomplete="off" action="">
+                        <form autocomplete="off" method="post" action="/create">
                             <h1>Create a Queue</h1>
                             <h3>
                                 <label>Select a game: </label>
                                 <div class="autocomplete createAuto">
-                                    <input class="rounded" id="gameCreation" type="text" name="createGame" placeholder="Game">
+                                    <input class="rounded shadow" id="gameCreation" type="text" name="game" placeholder="Game" required>
                                 </div>
                             </h3>
                             <hr>
                             <h3>
                                 <label>Description: </label>
-                                <textarea class="rounded" name="desc" id="" cols="60" rows="5"></textarea>
+                                <textarea class="rounded shadow" name="desc" id="" cols="60" rows="5"></textarea>
                             </h3>
                             <h3>
                                 <label>Select an availability: </label>
                                 <br>
                                 <div class="row justify-content-between">
                                     <div>
-                                        <input type="radio" name="availability" value="open">
+                                        <input type="radio" name="availability" value="open" checked="checked">
                                         <label class="radio-label">Open to all</label>
                                     </div>
                                     <div>
@@ -75,18 +75,18 @@
                             <hr>
                             <h3>
                                 <label>Amount of Slots: </label>
-                                <input class="rounded" type="number" min="1" max="12">
+                                <input class="rounded shadow" type="number" name="slots" min="1" max="12" required>
                             </h3>
                             <div class="buttons row justify-content-around">
-                                <button class="btn btn-danger btn-lg">Cancel</button>
-                                <button class="btn btn-success btn-lg">Submit</button>
+                                <a href="/public"><button class="btn btn-danger btn-lg shadow" type="button">Cancel</button></a>
+                                <a><button class="btn btn-success btn-lg shadow" type="submit">Submit</button></a>
                             </div>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
-        <input class="col-md-3" placeholder="Search for a Friend... 🔍" type="text">
+        <input class="col-md-3 rounded" placeholder="Search for a Friend... 🔍" type="text">
     </div>
     <div class="container-fluid">
         <div class="row">
@@ -99,18 +99,18 @@
                         <!-- OnClick = user profile -->
                         <li class="nav-item">
                             <a class="nav-link" href="">
-                                <img src="../assets/IMG_3463.jpg" alt="">
+                                <img class="shadow" src="../assets/IMG_3463.jpg" alt="">
                                 <span>User 1</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="">
-                                <img src="../assets/IMG_3463.jpg" alt="">
+                                <img class="shadow" src="../assets/IMG_3463.jpg" alt="">
                                 <span>User 2</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href=""><img src="../assets/IMG_3463.jpg" alt=""><span>User 3</span></a>
+                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt=""><span>User 3</span></a>
                         </li>
                         <li class="join"><a href=""><i class="fas fa-user-plus fa-3x"></i><span>Join Queue</span></a>
                         </li>
@@ -138,21 +138,21 @@
                         <!-- OnClick = user profile -->
                         <li class="nav-item">
                             <a class="nav-link" href="">
-                                <img src="../assets/IMG_3463.jpg" alt="">
+                                <img class="shadow" src="../assets/IMG_3463.jpg" alt="">
                                 <span>User 1</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="">
-                                <img src="../assets/IMG_3463.jpg" alt="">
+                                <img class="shadow" src="../assets/IMG_3463.jpg" alt="">
                                 <span>User 2</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href=""><img src="../assets/IMG_3463.jpg" alt=""><span>User 3</span></a>
+                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt=""><span>User 3</span></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href=""><img src="../assets/IMG_3463.jpg" alt=""><span>User 4</span></a>
+                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt=""><span>User 4</span></a>
                         </li>
                         <li class="join"><a href=""><i class="fas fa-user-plus fa-3x"></i><span>Join Queue</span></a>
                         </li>
@@ -178,18 +178,18 @@
                         <!-- OnClick = user profile -->
                         <li class="nav-item">
                             <a class="nav-link" href="">
-                                <img src="../assets/IMG_3463.jpg" alt="">
+                                <img class="shadow" src="../assets/IMG_3463.jpg" alt="">
                                 <span>User 1</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="">
-                                <img src="../assets/IMG_3463.jpg" alt="">
+                                <img class="shadow" src="../assets/IMG_3463.jpg" alt="">
                                 <span>User 2</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href=""><img src="../assets/IMG_3463.jpg" alt=""><span>User 3</span></a>
+                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt=""><span>User 3</span></a>
                         </li>
                         <li class="join"><a href=""><i class="fas fa-user-plus fa-3x"></i><span>Join Queue</span></a>
                         </li>
@@ -215,21 +215,21 @@
                         <!-- OnClick = user profile -->
                         <li class="nav-item">
                             <a class="nav-link" href="">
-                                <img src="../assets/IMG_3463.jpg" alt="">
+                                <img class="shadow" src="../assets/IMG_3463.jpg" alt="">
                                 <span>User 1</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="">
-                                <img src="../assets/IMG_3463.jpg" alt="">
+                                <img class="shadow" src="../assets/IMG_3463.jpg" alt="">
                                 <span>User 2</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href=""><img src="../assets/IMG_3463.jpg" alt=""><span>User 3</span></a>
+                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt=""><span>User 3</span></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href=""><img src="../assets/IMG_3463.jpg" alt=""><span>User 4</span></a>
+                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt=""><span>User 4</span></a>
                         </li>
                     </ul>
                     <hr>
@@ -240,8 +240,8 @@
                         <!-- EJS for loop of users in queue -->
                         <li>
                             <ol class="nav q-list">
-                                <li><a href=""><img src="../assets/IMG_3463.jpg" alt="">User 5,</a></li>
-                                <li><a href=""><img src="../assets/IMG_3463.jpg" alt="">User 6</a></li>
+                                <li><a href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt="">User 5,</a></li>
+                                <li><a href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt="">User 6</a></li>
                             </ol>
                         </li>
                         <li class="locked"><i class="fas fa-lock fa-2x"></i></li>
@@ -250,15 +250,15 @@
             </div>
             <div class="col-2">
                 <div class="filter rounded shadow">
-                    <form autocomplete="off" action="">
+                    <form autocomplete="off" method="POST" action="/filter">
                         <h3>Filter</h3>
                         <hr>
                         <h5>Game:</h5>
                         <div class="autocomplete">
-                            <input id="gameFilter" type="text" name="filterGame" placeholder="Game">
+                            <input id="gameFilter" class="rounded shadow" type="text" name="filterGame" placeholder="Game" required>
                         </div>
-                        <h5>Don't Show Full Queues: <input type="checkbox"></h5>
-                        <button class="btn btn-lg">Submit</button>
+                        <h5>Don't Show Full Queues: <input type="checkbox" name="full"></h5>
+                        <button class="btn btn-lg shadow" type="submit">Submit</button>
                     </form>
                 </div>
             </div>
@@ -268,7 +268,7 @@
                     <ul>
                         <li>
                             <div class="row">
-                                <img class="friend-img" src="../assets/IMG_3463.jpg" alt="">
+                                <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
                                 <div>
                                     <a href="">Friend</a>
                                     <span id="status">Status: Looking to play</span>
@@ -277,7 +277,7 @@
                         </li>
                         <li>
                             <div class="row">
-                                <img class="friend-img" src="../assets/IMG_3463.jpg" alt="">
+                                <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
                                 <div>
                                     <a href="">Friend</a>
                                     <span id="status">Status: Looking to play</span>
@@ -286,7 +286,7 @@
                         </li>
                         <li>
                             <div class="row">
-                                <img class="friend-img" src="../assets/IMG_3463.jpg" alt="">
+                                <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
                                 <div>
                                     <a href="">Friend</a>
                                     <span id="status">Status: Looking to play</span>
@@ -295,7 +295,7 @@
                         </li>
                         <li>
                             <div class="row">
-                                <img class="friend-img" src="../assets/IMG_3463.jpg" alt="">
+                                <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
                                 <div>
                                     <a href="">Friend</a>
                                     <span id="status">Status: Looking to play</span>
@@ -304,7 +304,7 @@
                         </li>
                         <li>
                             <div class="row">
-                                <img class="friend-img" src="../assets/IMG_3463.jpg" alt="">
+                                <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
                                 <div>
                                     <a href="">Friend</a>
                                     <span id="status">Status: Looking to play</span>
@@ -313,7 +313,7 @@
                         </li>
                         <li>
                             <div class="row">
-                                <img class="friend-img" src="../assets/IMG_3463.jpg" alt="">
+                                <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
                                 <div>
                                     <a href="">Friend</a>
                                     <span id="status">Status: Looking to play</span>

@@ -71,5 +71,29 @@ a:hover {
 
 span {
     font-size: large;
-    margin-left: 50px;
+    margin-left: 20px;
+}
+
+form {
+    margin: 2vw 0;
+}
+
+label {
+    margin-top: 20px;
+    font-size: large;
+    color: rgb(187, 225, 250);
+}
+
+input {
+    margin-top: 20px;
+    height: 5%;
+    padding: 7px;
+    display: block;
+    width: 350px !important;
+}
+
+.editForm {
+    text-align: center;
+    background-color: rgb(15, 76, 117);
+    border: 2px solid black;
 }
