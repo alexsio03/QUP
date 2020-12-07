@@ -3,6 +3,8 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
 const mongoose = require('mongoose');
+const passwordValidator = require('password-validator');
+const emailValidator = require("email-validator");
 
 // Setting up the app and mongoose
 const app = express();
@@ -11,43 +13,7 @@ app.set('view engine', 'ejs');
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
-mongoose.connect("mongodb://localhost:27017/userinfoDB", {useNewUrlParser: true, useUnifiedTopology: true});
-
-// Adds route for main page
-app.route("/") 
-
-// Render the main page
-.get(function(req, res) {
-    res.render("login");
-}
-
-.post(function(req, res) {
-  const username = req.body.uname;
-  const password = req.body.pswd;
-
-  // Check if the user exists
-  User.find({name: username, password: password}, function(err, user){
-    if (err){
-      console.log(err);
-    } else {
-      if (user.length() == 0){
-        /* that user does not exist! 
-        suggest them to make an account*/
-      } else if (user.length() > 0){
-        // successful log in
-        console.log("Successfully logged in!");
-      } else {
-        // throw an error
-        console.log("There was an error logging in. Please try again.");
-      }
-    }
-  });
-
-  // Logs the given username and password
-  console.log(username + " " + password);
-  // Redirects to the profile page
-  res.redirect("/profile");
-}));
+mongoose.connect("mongodb://localhost:27017/qupDB", {useNewUrlParser: true, useUnifiedTopology: true});
 
 // Adds the model for a user
 const userSchema = new mongoose.Schema ({
@@ -71,26 +37,60 @@ const userSchema = new mongoose.Schema ({
 
 const User = mongoose.model("User", userSchema);
 
-// Function to validate email
-function validateEmail(mail) 
-{
- if (/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(mail)){
-    return (true);
-  } else {
-    return (false);
-  }
-}
+// Password validator scheme
+var pswdSchema = new passwordValidator();
 
-// Function to validate password
-function validatePassword(inputtxt) { 
-var passw =  /^[A-Za-z]\w{7,14}$/;
+pswdSchema
+.is().min(8)                                    // Minimum length 8
+.is().max(30)                                  // Maximum length 20
+.has().uppercase()                              // Must have uppercase letters
+.has().lowercase()                              // Must have lowercase letters
+.has().digits(2)                                // Must have at least 2 digits
+.has().not().spaces();
 
-if(inputtxt.value.match(passw)) { 
-  return true;
-  } else { 
-  return false;
-  }
-}
+// Adds route for main page
+app.route("/") 
+
+// Render the main page
+.get(function(req, res) {
+    res.render("login");
+})
+
+.post(function(req, res) {
+  const username = req.body.uname;
+  const password = req.body.pswd;
+
+  // Check if the user exists
+  User.find({name: username}, function(err, user){
+    if (err){
+      console.log(err);
+    } else {
+      if (user.length == 0){
+        /* that user does not exist! 
+        suggest them to make an account*/
+        console.log("Please make an account");
+      }
+      else if (user[0].password != password)
+      {
+        res.redirect("/");
+        console.log("Passwords don't match!");
+      } 
+      else if (user.length > 0){
+        // successful log in
+        res.redirect("/public");
+        console.log("Successfully logged in!");
+      }
+      else {
+        // throw an error
+        console.log("There was an error logging in. Please try again.");
+      }
+    }
+  });
+
+  // Logs the given username and password
+  console.log(username + " " + password);
+  // Redirects to the profile page
+});
 
 // Registers a user if the user doesn't already exist
 app.post("/register", function(req, res) {
@@ -108,7 +108,7 @@ app.post("/register", function(req, res) {
   }
 
   // Check if the email is valid
-  if (!(validateEmail(email))){
+  if (!(emailValidator.validate(email))){
     /* return to register page, the
     email is invalid! */
 
@@ -116,11 +116,11 @@ app.post("/register", function(req, res) {
   }
 
   // Check if the password is valid
-  if (!(validatePassword(password))){
+  if (!(pswdSchema.validate(password))){
     /* return to register page, the 
     password is invalid! */
 
-    console.log("The given password was invalid!");
+    console.log("The given password was invalid! : " + pswdSchema.validate(password, { list: true }));
   }
 
   // Check if the username has been taken
@@ -128,10 +128,10 @@ app.post("/register", function(req, res) {
     if (err){
       console.log(err);
     } else {
-      if (user.length()  > 0){
+      if (user.length  > 0){
         /* show that username has already been taken */
         console.log("The username has already been taken.");
-      } else if (user.length() == 0) {
+      } else if (user.length == 0) {
         /* the username is available; continue 
         no console log necessary */
       } else {
@@ -146,11 +146,11 @@ app.post("/register", function(req, res) {
     if (err){
       console.log(err);
     } else {
-      if (user.length()  > 0){
+      if (user.length  > 0){
         /* show that email has already been taken 
         maybe go to recovery page? */
         console.log("The email has already been used.");
-      } else if (user.length() == 0) {
+      } else if (user.length == 0) {
         /* the email is available; continue
         no console log necessary */
       } else {
@@ -169,6 +169,8 @@ app.post("/register", function(req, res) {
 
   // Save the user to the DB
   user.save();
+
+  res.redirect("/public");
 
   // Log the info to the console
   console.log(email + ", " + username + ", " + password + ", " + confirm);
