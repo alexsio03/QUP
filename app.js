@@ -5,13 +5,50 @@ const ejs = require("ejs");
 const mongoose = require('mongoose');
 const passwordValidator = require('password-validator');
 const emailValidator = require("email-validator");
+const session = require("express-session");
+const passport = require("passport");
+const passportLocalMongoose = require("passport-local-mongoose");
+const e = require("express");
+const LocalStrategy = require('passport-local').Strategy;
+
+passport.use(new LocalStrategy(
+  function(username, password, done) {
+    User.findOne({ username: username }, function (err, user) {
+      if (err) { return done(err); }
+      if (!user) {
+        return done(null, false, { message: 'Incorrect username.' });
+      }
+      if (!user.validPassword(password)) {
+        return done(null, false, { message: 'Incorrect password.' });
+      }
+      return done(null, user);
+    });
+  }
+));
 
 // Setting up express and mongo
 const app = express();
 app.set('view engine', 'ejs');
+app.use(session({
+  secret: "Our little secret.",
+  resave: false,
+  saveUninitialized: false
+}));
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
-mongoose.connect("mongodb://localhost:27017/qupDB", {useNewUrlParser: true, useUnifiedTopology: true});
+app.use(passport.initialize());
+app.use(passport.session());
+mongoose.connect("mongodb+srv://admin-alex:superSECUREpassWORD@qup.bqake.mongodb.net/QUP?retryWrites=true&w=majority", {useNewUrlParser: true, useUnifiedTopology: true});
+
+passport.serializeUser(function(user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(function(id, done) {
+  User.findById(id, function(err, user) {
+    done(err, user);
+  });
+});
 
 // Adds the model for a user
 const userSchema = new mongoose.Schema ({
@@ -46,7 +83,10 @@ const userSchema = new mongoose.Schema ({
 
   }*/
 });
+
 const User = mongoose.model("User", userSchema);
+
+userSchema.plugin(passportLocalMongoose);
 
 // Adds the model for a queue
 const queueSchema = new mongoose.Schema ({
@@ -97,8 +137,9 @@ pswdSchema
 // Adds route for main page and renders it
 app.route("/") 
 .get(function(req, res) {
-    res.render("login");
+    res.render("login", { errorMessage: ""});
 })
+
 .post(function(req, res) {
   const username = req.body.uname;
   const password = req.body.pswd;
@@ -109,17 +150,21 @@ app.route("/")
       console.log(err);
     } else {
       if (user.length == 0){
-        /* that user does not exist! 
-        suggest them to make an account*/
-        console.log("Please make an account");
+        res.redirect("/error/noUser");
       }
       else if (user[0].password != password)
       {
-        res.redirect("/");
-        console.log("Passwords don't match!");
+        res.redirect("/error/badPswd");
       } 
-      else if (user.length > 0){
-        // successful log in
+      else if (user.length > 0 && user[0].password == password){
+        req.login(user, function(err) {
+          if(err)
+          {
+            console.log(err);
+          } else {
+            passport.authenticate("local", { successRedirect: '/public', failureRedirect: '/error/badPswd' });
+          }
+        });
         res.redirect("/public");
         console.log("Successfully logged in!");
       }
@@ -129,10 +174,21 @@ app.route("/")
       }
     }
   });
-
   // Logs the given username and password
   console.log(username + " " + password);
   // Redirects to the profile page
+});
+
+app.get("/error/:err", function(req, res) {
+  const error = req.params.err;
+  if(error == "noUser")
+  {
+    res.render("login", {errorMessage: "No user available. Please register."});
+  }
+  else if (error == "badPswd") {
+    res.render("login", {errorMessage: "Invalid password."});
+  }
+  
 });
 
 // Look for public lobbies
@@ -147,7 +203,7 @@ app.get("/private", function(req, res) {
 
 // Renders profile page
 app.get("/profile", function(req, res) {
-  res.render("profile");
+  console.log(req.user);
 });
 
 // Registers a user if the user doesn't already exist
