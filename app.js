@@ -6,11 +6,9 @@ const mongoose = require('mongoose');
 const passwordValidator = require('password-validator');
 const emailValidator = require("email-validator");
 
-// Setting up the app and mongoose
+// Setting up express and mongo
 const app = express();
-
 app.set('view engine', 'ejs');
-
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
 mongoose.connect("mongodb://localhost:27017/qupDB", {useNewUrlParser: true, useUnifiedTopology: true});
@@ -32,30 +30,75 @@ const userSchema = new mongoose.Schema ({
   email: {
     type: String,
     required: true
+  },
+  friendNames: {
+    /* Maybe use _id 's instead?
+    ! not implemented yet ! */
+    type: String,
+    required: false
+  },
+  favoriteGames: {
+    type: Array,
+    of: String,
+    requried: true
+  }/*,
+  picture: {
+
+  }*/
+});
+const User = mongoose.model("User", userSchema);
+
+// Adds the model for a queue
+const queueSchema = new mongoose.Schema ({
+  game: {
+    type: String,
+    required: true
+    /* allow the user to choose from 
+    the list of games */
+  },
+  description: {
+    type: String,
+    required: false,
+    maxLength: 50
+    /* maybe in the text box in the description
+    field have a message in faded text saying 
+    "description not necessary" or something */
+  },
+  availability: {
+    type: Number,
+    required: true,
+    max: 12
+  },
+  slots: {
+    type: Number,
+    required: true,
+    max: 12
+    // determined by game maybe down the line?
+  },
+  visibility: {
+    type: Boolean,
+    /* true: public
+    false: private */
+    required: true
   }
 });
-
-const User = mongoose.model("User", userSchema);
+const Queue = mongoose.model("Queue", queueSchema);
 
 // Password validator scheme
 var pswdSchema = new passwordValidator();
-
 pswdSchema
-.is().min(8)                                    // Minimum length 8
-.is().max(30)                                  // Maximum length 20
-.has().uppercase()                              // Must have uppercase letters
-.has().lowercase()                              // Must have lowercase letters
-.has().digits(2)                                // Must have at least 2 digits
-.has().not().spaces();
+.is().min(8)                    // Minimum length 8
+.is().max(30)                   // Maximum length 30
+.has().uppercase()              // Must have uppercase letters
+.has().lowercase()              // Must have lowercase letters
+.has().digits(2)                // Must have at least 2 digits
+.has().not().spaces();          // Spaces not allowed
 
-// Adds route for main page
+// Adds route for main page and renders it
 app.route("/") 
-
-// Render the main page
 .get(function(req, res) {
     res.render("login");
 })
-
 .post(function(req, res) {
   const username = req.body.uname;
   const password = req.body.pswd;
@@ -92,12 +135,28 @@ app.route("/")
   // Redirects to the profile page
 });
 
+// Look for public lobbies
+app.get("/public", function(req, res) {
+  res.render("public");
+});
+
+// Renders private lobbies page
+app.get("/private", function(req, res) {
+  res.render("private");
+});
+
+// Renders profile page
+app.get("/profile", function(req, res) {
+  res.render("profile");
+});
+
 // Registers a user if the user doesn't already exist
 app.post("/register", function(req, res) {
   const email = req.body.email;
   const username = req.body.uname;
   const password = req.body.pswd;
   const confirm = req.body.pswdConfirm;
+  var games = ["No game selected", "No game selected", "No game selected"];
 
   // Checks if the given passwords were the same
   if (password != confirm){
@@ -164,7 +223,8 @@ app.post("/register", function(req, res) {
   const user = new User ({
     name: username,
     password: password,
-    email: email
+    email: email,
+    favoriteGames: games
   });
 
   // Save the user to the DB
@@ -183,11 +243,6 @@ app.post("/recover", function(req, res) {
   console.log(email);
 });
 
-// Look for public lobbies
-app.get("/public", function(req, res) {
-  res.render("public");
-});
-
 // Filter public lobbies
 app.post("/filter", function(req, res) {
   const game = req.body.filterGame;
@@ -202,8 +257,26 @@ app.post("/create", function(req, res) {
   const desc = req.body.desc;
   const avail = req.body.availability;
   const num = req.body.slots;
+  const visibility = true;
 
-  console.log(game + ", " + desc + ", " + avail + ", " + num);
+  if (avail >= num){
+    // throw error
+    console.log("You cannot have more available slots than slots total.")
+  }
+
+  // Create a new queue object with the given properties
+  const queue = new Queue ({
+    game: game,
+    description: desc,
+    availability: avail,
+    slots: num,
+    visibility: visibility
+  });
+
+  // Save the queue to the DB
+  queue.save();
+
+  console.log(game + ", " + desc + ", " + avail + ", " + num + "," + visibility);
   res.redirect("/public");
 });
 
@@ -213,25 +286,43 @@ app.post("/privateCreate", function(req, res) {
   const desc = req.body.desc;
   const avail = req.body.availability;
   const num = req.body.slots;
+  const visibility = false;
 
-  console.log(game + ", " + desc + ", " + avail + ", " + num);
+  if (avail >= num){
+    // throw error
+    console.log("You cannot have more available slots than slots total.")
+  }
+
+  // Create a new queue object with the given properties
+  const queue = new Queue ({
+    game: game,
+    description: desc,
+    availability: avail,
+    slots: num,
+    visibility: visibility
+  });
+
+  // Save the queue to the DB
+  queue.save();
+
+  console.log(game + ", " + desc + ", " + avail + ", " + num + "," + visibility);
   res.redirect("/private");
-});
-
-// Renders private lobbies page
-app.get("/private", function(req, res) {
-  res.render("private");
-});
-
-// Renders profile page
-app.get("/profile", function(req, res) {
-  res.render("profile");
 });
 
 // Edit profile
 app.post("/userEdit", function(req, res) {
+  /* Need to have an enter old username so
+  that the correct user's name can be changed */
   const newUsername = req.body.newUsername
   const confirm = req.body.confirmUsername;
+
+  if (newUsername != confirm){
+    /* throw error and give "The usernames you entered did not match." 
+    at the top of the page */
+    console.log("The usernames you entered did not match.");
+  }
+
+  //User.updateOne({name: oldUsername}, {name: newUsername});
 
   res.redirect("profile");
 });
