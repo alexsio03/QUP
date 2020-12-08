@@ -125,9 +125,13 @@ passport.deserializeUser(function (user, done) {
 // Adds route for main page and renders it
 app.route("/")
   .get(function (req, res) {
-    res.render("login", {
-      errorMessage: ""
-    });
+    if (req.isAuthenticated()) {
+      res.redirect("/public");
+    } else {
+      res.render("login", {
+        errorMessage: ""
+      });
+    }
   })
 
   .post(function (req, res) {
