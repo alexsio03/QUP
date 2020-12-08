@@ -43,15 +43,27 @@
                     </div>
                     <div class="col-6 info">
                         <div class="row justify-content-between">
-                            <h2>Username: <span>alexsio03</span></h2>
+                            <h2>Username: <span><%= username %></span></h2>
                             <a data-target="#userEdit" data-toggle="modal" href="#userEdit"><button class="btn btn-primary shadow">Edit</button></a>
                         </div>
                         <div class="row justify-content-between">
-                            <h2>Email: <span>alexsio03@gmail.com</span></h2>
+                            <h2>Email: <span><%= email %></span></h2>
                             <a data-target="#emailEdit" data-toggle="modal" href="#emailEdit"><button class="btn btn-primary shadow">Edit</button></a>
                         </div>
                         <div class="row justify-content-between">
-                            <h2>Games: <span>Counter Strike: Global Offensive, Fortnite, Warzone</span></h2>
+                            <h2>Games: 
+                                    <% if(games[0] == "No game selected") { %>
+                                        <span> <%= games[0] %> </span>
+                                    <% } else {
+                                        for(var i = 0; i < games.length; i++)
+                                        {
+                                            if(i == 3) { %>
+                                                <span> <%= games[i] %> </span>
+                                            <% } else { %>
+                                                <span><%= games[i] + "," %></span>
+                                            <% }
+                                        }
+                                    } %></h2>
                             <a data-target="#gamesEdit" data-toggle="modal" href="#gamesEdit"><button class="btn btn-primary shadow">Edit</button></a>
                         </div>
                     </div>
@@ -88,6 +100,9 @@
                         <form autocomplete="off" method="post" action="/userEdit">
                             <h3>Change Your Username</h3>
                             <hr>
+                            <div>
+                                <label>Old username: <input class="rounded shadow" type="text" name="oldUsername" required></label>
+                            </div>
                             <div>
                                 <label>New username: <input class="rounded shadow" type="text" name="newUsername" required></label>
                             </div>

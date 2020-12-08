@@ -6,6 +6,8 @@ html {
     color: red;
     font-size: large;
     text-align: center;
+    letter-spacing: 1px;
+    opacity: 0.8;
 }
 
 body {

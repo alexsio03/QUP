@@ -41,9 +41,14 @@ hr {
     border-top: 2px dotted black;
 }
 
+.logout {
+    margin-right: -10px;
+}
+
 .settings {
     color: rgb(187, 225, 250);
-    padding-right: 20px;
+    padding-top: 15px;
+    padding-right: 60px;
 }
 
 .btn {
