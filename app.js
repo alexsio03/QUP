@@ -537,15 +537,33 @@ app.post("/userEdit", function (req, res) {
       gameError: ""
     });
   } else {
-    User.findOneAndUpdate({
-      name: oldUsername
-    }, {
+    User.find({
       name: newUsername
-    }, {
-      new: true
-    }, function () {
-      req._passport.session.user[0].name = newUsername;
-        res.redirect("profile/" + newUsername);
+    }, function (err, user) {
+      if (err) {
+        console.log(err);
+      } else {
+        if (user.length > 0) {
+          res.render("profile", {
+            username: req._passport.session.user[0].name,
+            email: req._passport.session.user[0].email,
+            games: req._passport.session.user[0].favoriteGames,
+            userError: "Username is already taken",
+            gameError: ""
+          });
+        } else {
+          User.findOneAndUpdate({
+            name: oldUsername
+          }, {
+            name: newUsername
+          }, {
+            new: true
+          }, function () {
+            req._passport.session.user[0].name = newUsername;
+            res.redirect("profile/" + newUsername);
+          });
+        }
+      }
     });
   }
 });
@@ -561,15 +579,15 @@ app.post("/gameEdit", function (req, res) {
 
   // Updates the user's three favorite games
   User.findOneAndUpdate({
-      name: user
-    }, {
-      favoriteGames: gameArr
-    }, {
-      new: true
-    }, function () {
-      req._passport.session.user[0].favoriteGames = gameArr;
-        res.redirect("profile/" + user);
-    });
+    name: user
+  }, {
+    favoriteGames: gameArr
+  }, {
+    new: true
+  }, function () {
+    req._passport.session.user[0].favoriteGames = gameArr;
+    res.redirect("profile/" + user);
+  });
 });
 
 // Loads the page
