@@ -28,9 +28,12 @@
             <div class="d-flex justify-content-around">
                 <a class="nav-link nav-header" href="/public">Public</a>
                 <a class="nav-link nav-header" href="/private">Private</a>
-                <a class="nav-link nav-header active" href="">Profile</a>
+                <a class="nav-link nav-header active" href="#">Profile</a>
             </div>
-            <a class="settings" href="#"><i class="fas fa-cog fa-2x"></i></a>
+            <div class="d-flex justify-content-around">
+                <a class="nav-link nav-header logout" href="/logout">Log Out</a>
+                <a class="settings" href="#"><i class="fas fa-cog fa-2x"></i></a>
+            </div>
         </nav>
     </div>
     <div class="container-fluid">
@@ -99,6 +102,7 @@
                     <div class="editForm shadow-lg">
                         <form autocomplete="off" method="post" action="/userEdit">
                             <h3>Change Your Username</h3>
+                            <h4 id="error"><%= userError %></h4>
                             <hr>
                             <div>
                                 <label>Old username: <input class="rounded shadow" type="text" name="oldUsername" required></label>
@@ -127,6 +131,7 @@
                     <div class="editForm shadow-lg">
                         <form autocomplete="off" method="post" action="/gameEdit">
                             <h3>Change Your Top Games</h3>
+                            <h4 id="error"><%= gameError %></h4>
                             <hr>
                             <div class="autocomplete">
                                 <label>Game 1: <input id="topGame1" class="rounded shadow" type="text" name="newGame1" required></label>

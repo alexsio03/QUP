@@ -29,7 +29,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
+  useFindAndModify: false
 });
 mongoose.set('useCreateIndex', true);
 
@@ -245,21 +246,27 @@ app.get("/profile", function (req, res) {
 });
 
 app.get("/profile/:name", function (req, res) {
-  const user = req.params.name;
+  if (req.isAuthenticated()) {
+    const user = req.params.name;
 
-  User.findOne({
-    name: user
-  }, function (err, found) {
-    if (err) {
-      console.log(err);
-    } else {
-      res.render("profile", {
-        username: user,
-        email: found.email,
-        games: found.favoriteGames
-      });
-    }
-  })
+    User.findOne({
+      name: user
+    }, function (err, found) {
+      if (err) {
+        console.log(err);
+      } else {
+        res.render("profile", {
+          username: user,
+          email: found.email,
+          games: found.favoriteGames,
+          userError: "",
+          gameError: ""
+        });
+      }
+    });
+  } else {
+    res.redirect("/error/login");
+  }
 });
 
 // Registers a user if the user doesn't already exist
@@ -508,34 +515,61 @@ app.post("/privateCreate", function (req, res) {
 
 // Edit username -JS done-
 app.post("/userEdit", function (req, res) {
-  /* Enter old username
-  const oldUsername = req.body.oldUsername; */
+  /* Enter old username */
+  const oldUsername = req.body.oldUsername;
   const newUsername = req.body.newUsername
   const confirm = req.body.confirmUsername;
 
   if (newUsername != confirm) {
-    /* throw error and give "The usernames you entered did not match." 
-    at the top of the page */
-    console.log("The usernames you entered did not match.");
+    res.render("profile", {
+      username: req._passport.session.user[0].name,
+      email: req._passport.session.user[0].email,
+      games: req._passport.session.user[0].favoriteGames,
+      userError: "Usernames didn't match",
+      gameError: ""
+    });
+  } else if (oldUsername != req._passport.session.user[0].name) {
+    res.render("profile", {
+      username: req._passport.session.user[0].name,
+      email: req._passport.session.user[0].email,
+      games: req._passport.session.user[0].favoriteGames,
+      userError: "Usernames didn't match",
+      gameError: ""
+    });
+  } else {
+    User.findOneAndUpdate({
+      name: oldUsername
+    }, {
+      name: newUsername
+    }, {
+      new: true
+    }, function () {
+      req._passport.session.user[0].name = newUsername;
+        res.redirect("profile/" + newUsername);
+    });
   }
-
-  //User.updateOne({name: oldUsername}, {name: newUsername});
-
-  res.redirect("profile");
 });
 
 // Edit 3 favorite games on profile -JS done-
 app.post("/gameEdit", function (req, res) {
-  /* Enter current username 
-  const user = req.body.uname; */
+  /* Enter current username */
+  const user = req._passport.session.user[0].name;
   const game1 = req.body.newGame1;
   const game2 = req.body.newGame2;
   const game3 = req.body.newGame3;
+  const gameArr = [game1, game2, game3];
 
   // Updates the user's three favorite games
-  /* User.updateOne({name: user}, {favoriteGames: [game1, game2, game3]}); */
-
-  res.redirect("profile");
+  User.findOneAndUpdate({
+      name: user
+    }, {
+      favoriteGames: gameArr
+    }, {
+      new: true
+    }, function () {
+      req._passport.session.user[0].favoriteGames = gameArr;
+        res.redirect("profile/" + user);
+    });
 });
 
 // Loads the page

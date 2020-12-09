@@ -28,6 +28,14 @@ nav {
     letter-spacing: 2px;
 }
 
+#error {
+    color: red;
+    font-size: large;
+    text-align: center;
+    letter-spacing: 1px;
+    opacity: 0.8;
+}
+
 .nav-header {
     margin: 10px 100px;
     font-size: large;
