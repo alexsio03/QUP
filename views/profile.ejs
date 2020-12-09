@@ -47,11 +47,17 @@
                     <div class="col-6 info">
                         <div class="row justify-content-between">
                             <h2>Username: <span><%= username %></span></h2>
-                            <a data-target="#userEdit" data-toggle="modal" href="#userEdit"><button class="btn btn-primary shadow">Edit</button></a>
+                            <% if ( isUser )
+                            { %>
+                                <a data-target="#userEdit" data-toggle="modal" href="#userEdit"><button class="btn btn-primary shadow">Edit</button></a>
+                            <% } %>
                         </div>
                         <div class="row justify-content-between">
                             <h2>Email: <span><%= email %></span></h2>
-                            <a data-target="#emailEdit" data-toggle="modal" href="#emailEdit"><button class="btn btn-primary shadow">Edit</button></a>
+                            <% if ( isUser )
+                            { %>
+                                <a data-target="#emailEdit" data-toggle="modal" href="#emailEdit"><button class="btn btn-primary shadow">Edit</button></a>
+                            <% } %>
                         </div>
                         <div class="row justify-content-between">
                             <h2>Games: 
@@ -67,7 +73,10 @@
                                             <% }
                                         }
                                     } %></h2>
-                            <a data-target="#gamesEdit" data-toggle="modal" href="#gamesEdit"><button class="btn btn-primary shadow">Edit</button></a>
+                            <% if ( isUser )
+                            { %>
+                                <a data-target="#gamesEdit" data-toggle="modal" href="#gamesEdit"><button class="btn btn-primary shadow">Edit</button></a>
+                            <% } %>
                         </div>
                     </div>
                 </div>

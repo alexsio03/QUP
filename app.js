@@ -9,9 +9,6 @@ const emailValidator = require("email-validator");
 const session = require("express-session");
 const passport = require("passport");
 const passportLocalMongoose = require("passport-local-mongoose");
-const {
-  json
-} = require('body-parser');
 
 // Setting up express and mongo
 const app = express();
@@ -52,7 +49,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  friends: [String],
+  friends: [mongoose.Types.ObjectId],
   favoriteGames: {
     type: Array,
     of: String,
@@ -254,13 +251,23 @@ app.get("/profile/:name", function (req, res) {
     }, function (err, found) {
       if (err) {
         console.log(err);
+      } else if (user == req._passport.session.user[0].name) {
+        res.render("profile", {
+          username: user,
+          email: found.email,
+          games: found.favoriteGames,
+          userError: "",
+          gameError: "",
+          isUser: true
+        });
       } else {
         res.render("profile", {
           username: user,
           email: found.email,
           games: found.favoriteGames,
           userError: "",
-          gameError: ""
+          gameError: "",
+          isUser: false
         });
       }
     });
