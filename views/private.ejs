@@ -174,16 +174,31 @@
                 <div>
                     <ul>
                         <li class="addFriend">
-                            <a data-target="#addFriend" data-toggle="modal" href="#addFriend"><i class="fas fa-plus-circle"></i>Add Friend</a>
+                            <a data-target="#addFriend" data-toggle="modal" href="#addFriend"><i
+                                    class="fas fa-plus-circle"></i>Add Friend</a>
                         </li>
                         <hr>
+                        <% if (hasRequests) { %>
                         <li class="requests">
                             <h4>Friend Requests:</h4>
                             <ul>
-                                <li><a href="/acceptFriend"><i class="fas fa-check"></i></a> <a href="/rejectFriend"><i class="fas fa-times"></i></a> <a href="">Friend</a></li>
+                                <li>
+                                    <% for(var i = 0; i < requestedFriends.length; i++) { %>
+                                    <form id="acceptRequest" method="POST" name="test" action="/acceptFriendRequest">
+                                    </form>
+                                    <form id="rejectRequest" method="POST" name="" action="/rejectFriendRequest">
+                                    </form>
+                                        <button class="requestButton" name="accept" value="<%- requestedFriends[i] %>" form="acceptRequest"><i
+                                                class="fas fa-check"></i></button>
+                                        <button class="requestButton" name="reject" value="<%- requestedFriends[i] %>" form="rejectRequest"><i
+                                                class="fas fa-times"></i></button>
+                                        <a href="profile/<%- requestedFriends[i] %>"><%= requestedFriends[i] %></a>
+                                    <% } %>
+                                </li>
                             </ul>
                             <hr>
                         </li>
+                        <% } %>
                         <li>
                             <div class="row">
                                 <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">

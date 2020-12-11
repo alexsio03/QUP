@@ -249,7 +249,29 @@ app.get("/public", function (req, res) {
 // Renders private lobbies page
 app.get("/private", function (req, res) {
   if (req.isAuthenticated()) {
-    res.render("private");
+    User.findOne({
+      name: req._passport.session.user[0].name
+    }, function (err, user) {
+      if (err) {
+        console.log(err);
+      } else if (user.requestedFriends.length == 0) {
+        res.render("private", {hasRequests: false});
+      } else {
+        let requested = [];
+        user.requestedFriends.forEach(function(foundId) {
+          User.findById(foundId, function(err, found) {
+            if(err) {
+              console.log(err);
+            } else {
+              requested.push(found.name);
+              if(requested.length == user.requestedFriends.length) {
+                res.render("private", {hasRequests: true, requestedFriends: requested});
+              }
+            }
+          });
+        });
+      }
+    });
   } else {
     res.redirect("/error/login");
   }
