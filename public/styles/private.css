@@ -10,8 +10,8 @@
 img {
     object-fit: cover;
     border-radius: 50%;
-    height: 164px;
-    width: 164px;
+    height: 128px;
+    width: 128px;
 }
 
 .queue li img {
@@ -29,48 +29,6 @@ img {
 ol.q-list li {
     margin-right: 15px;
     font-size: larger;
-}
-
-.friend-info {
-    text-align: left;
-    display: flex;
-    align-items:center;
-}
-
-.friend-img {
-    object-fit: cover;
-    border-radius: 50%;
-    height: 64px;
-    width: 64px;
-    margin-right: 10px;
-}
-
-.friends-list {
-    background-color: rgba(15, 76, 117, 0.6);
-    margin-top: 20px;
-    border: black;
-    border-style: solid;
-    border-width: 2px 0 2px 2px;
-}
-
-.friends-list ul {
-    list-style-type: none;
-    padding: 10px 30px;
-}
-
-.friends-list ul li {
-    font-size: large;
-    color: rgb(187, 225, 250);
-    margin: 40px 0;
-}
-
-.friends-list ul li i {
-    margin: 0 10px;
-}
-
-#status {
-    font-size: small;
-    color: rgb(50, 130, 184);
 }
 
 .q-item {

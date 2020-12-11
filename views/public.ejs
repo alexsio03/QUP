@@ -49,7 +49,8 @@
                             <h3>
                                 <label>Select a game: </label>
                                 <div class="autocomplete createAuto">
-                                    <input class="rounded shadow" id="gameCreation" type="text" name="game" placeholder="Game" required>
+                                    <input class="rounded shadow" id="gameCreation" type="text" name="game"
+                                        placeholder="Game" required>
                                 </div>
                             </h3>
                             <hr>
@@ -81,7 +82,8 @@
                                 <input class="rounded shadow" type="number" name="slots" min="1" max="12" required>
                             </h3>
                             <div class="buttons row justify-content-around">
-                                <a href="/public"><button class="btn btn-danger btn-lg shadow" type="button">Cancel</button></a>
+                                <a href="/public"><button class="btn btn-danger btn-lg shadow"
+                                        type="button">Cancel</button></a>
                                 <a><button class="btn btn-success btn-lg shadow" type="submit">Submit</button></a>
                             </div>
                         </form>
@@ -113,7 +115,8 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt=""><span>User 3</span></a>
+                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg"
+                                    alt=""><span>User 3</span></a>
                         </li>
                         <li class="join"><a href=""><i class="fas fa-user-plus fa-3x"></i><span>Join Queue</span></a>
                         </li>
@@ -152,10 +155,12 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt=""><span>User 3</span></a>
+                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg"
+                                    alt=""><span>User 3</span></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt=""><span>User 4</span></a>
+                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg"
+                                    alt=""><span>User 4</span></a>
                         </li>
                         <li class="join"><a href=""><i class="fas fa-user-plus fa-3x"></i><span>Join Queue</span></a>
                         </li>
@@ -192,7 +197,8 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt=""><span>User 3</span></a>
+                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg"
+                                    alt=""><span>User 3</span></a>
                         </li>
                         <li class="join"><a href=""><i class="fas fa-user-plus fa-3x"></i><span>Join Queue</span></a>
                         </li>
@@ -229,10 +235,12 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt=""><span>User 3</span></a>
+                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg"
+                                    alt=""><span>User 3</span></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt=""><span>User 4</span></a>
+                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg"
+                                    alt=""><span>User 4</span></a>
                         </li>
                     </ul>
                     <hr>
@@ -258,7 +266,8 @@
                         <hr>
                         <h5>Game:</h5>
                         <div class="autocomplete">
-                            <input id="gameFilter" class="rounded shadow" type="text" name="filterGame" placeholder="Game" required>
+                            <input id="gameFilter" class="rounded shadow" type="text" name="filterGame"
+                                placeholder="Game" required>
                         </div>
                         <h5>Don't Show Full Queues: <input type="checkbox" name="full"></h5>
                         <button class="btn btn-lg shadow" type="submit">Submit</button>
@@ -269,6 +278,30 @@
             <div class="col-3 h-50 shadow friends-list rounded-left">
                 <div>
                     <ul>
+                        <li class="addFriend">
+                            <a data-target="#addFriend" data-toggle="modal" href="#addFriend"><i
+                                    class="fas fa-plus-circle"></i>Add Friend</a>
+                        </li>
+                        <hr>
+                        <% if (hasRequests) { %>
+                        <li class="requests">
+                            <h4>Friend Requests:</h4>
+                            <ul>
+                                <li>
+                                    <% requestedFriends.forEach(function(request) { %>
+                                    <form id="request" action="/friendRequest">
+                                        <a onclick="document.getElementById('request').submit()"><i
+                                                class="fas fa-check"></i></a>
+                                        <a onclick="document.getElementById('request').submit()"><i
+                                                class="fas fa-times"></i></a>
+                                        <a href=""><%= request %></a>
+                                    </form>
+                                    <% }); %>
+                                </li>
+                            </ul>
+                            <hr>
+                        </li>
+                        <% } %>
                         <li>
                             <div class="row">
                                 <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
@@ -324,6 +357,28 @@
                             </div>
                         </li>
                     </ul>
+                </div>
+            </div>
+            <div class="modal fade" id="addFriend" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="friendForm shadow-lg">
+                            <form autocomplete="off" method="post" action="/addFriend">
+                                <h3>Add a Friend</h3>
+                                <hr>
+                                <div>
+                                    <label>Enter username: <input class="rounded shadow" type="text" name="friendName"
+                                            required></label>
+                                </div>
+                                <div class="buttons row justify-content-around">
+                                    <a href="/public"><button class="btn btn-danger btn-lg shadow"
+                                            type="button">Cancel</button></a>
+                                    <a><button class="btn btn-success btn-lg shadow" type="submit">Submit</button></a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

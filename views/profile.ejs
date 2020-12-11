@@ -47,17 +47,9 @@
                     <div class="col-6 info">
                         <div class="row justify-content-between">
                             <h2>Username: <span><%= username %></span></h2>
-                            <% if ( isUser )
-                            { %>
-                                <a data-target="#userEdit" data-toggle="modal" href="#userEdit"><button class="btn btn-primary shadow">Edit</button></a>
-                            <% } %>
                         </div>
                         <div class="row justify-content-between">
                             <h2>Email: <span><%= email %></span></h2>
-                            <% if ( isUser )
-                            { %>
-                                <a data-target="#emailEdit" data-toggle="modal" href="#emailEdit"><button class="btn btn-primary shadow">Edit</button></a>
-                            <% } %>
                         </div>
                         <div class="row justify-content-between">
                             <h2>Games: 
@@ -66,13 +58,29 @@
                                     <% } else {
                                         for(var i = 0; i < games.length; i++)
                                         {
-                                            if(i == 3) { %>
+                                            if(i == 2) { %>
                                                 <span> <%= games[i] %> </span>
                                             <% } else { %>
                                                 <span><%= games[i] + "," %></span>
                                             <% }
                                         }
                                     } %></h2>
+                        </div>
+                    </div>
+                    <div class="col-1 info">
+                        <div class="row">
+                            <% if ( isUser )
+                            { %>
+                                <a data-target="#userEdit" data-toggle="modal" href="#userEdit"><button class="btn btn-primary shadow">Edit</button></a>
+                            <% } %>
+                        </div>
+                        <div class="row">
+                            <% if ( isUser )
+                            { %>
+                                <a data-target="#emailEdit" data-toggle="modal" href="#emailEdit"><button class="btn btn-primary shadow">Edit</button></a>
+                            <% } %>
+                        </div>
+                        <div class="row">
                             <% if ( isUser )
                             { %>
                                 <a data-target="#gamesEdit" data-toggle="modal" href="#gamesEdit"><button class="btn btn-primary shadow">Edit</button></a>

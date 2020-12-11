@@ -70,8 +70,14 @@ a:hover {
 }
 
 span {
+    letter-spacing: normal;
     font-size: large;
     margin-left: 20px;
+    display: inline-block;
+}
+
+.btn {
+    margin-bottom: .5rem;
 }
 
 form {

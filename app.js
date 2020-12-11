@@ -9,12 +9,18 @@ const emailValidator = require("email-validator");
 const session = require("express-session");
 const passport = require("passport");
 const passportLocalMongoose = require("passport-local-mongoose");
+// New encryption package
+const bcrypt = require('bcrypt');
+const {
+  assert
+} = require('console');
+const saltRounds = 10;
 
 // Setting up express and mongo
 const app = express();
 app.set('view engine', 'ejs');
 app.use(session({
-  secret: "Our little secret.",
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false
 }));
@@ -41,15 +47,14 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    minLength: 8,
-    maxLength: 30,
     required: true
   },
   email: {
     type: String,
     required: true
   },
-  friends: [mongoose.Types.ObjectId],
+  friends: [mongoose.ObjectId],
+  requestedFriends: [mongoose.ObjectId],
   favoriteGames: {
     type: Array,
     of: String,
@@ -134,7 +139,6 @@ app.route("/")
 
   .post(function (req, res) {
     const username = req.body.uname;
-    const password = req.body.pswd;
 
     // Check if the user exists
     User.find({
@@ -145,7 +149,7 @@ app.route("/")
       } else {
         if (user.length == 0) {
           res.redirect("/error/noUser");
-        } else if (user.length > 0 && user[0].password == password) {
+        } else if (user.length > 0 && bcrypt.compareSync(req.body.pswd, user[0].password)) {
           req.login(user, function (err) {
             if (err) {
               console.log(err);
@@ -161,11 +165,7 @@ app.route("/")
         }
       }
     });
-    // Logs the given username and password
-    console.log(username + " " + password);
-    // Redirects to the profile page
   });
-
 
 
 app.get("/error/:err", function (req, res) {
@@ -218,7 +218,29 @@ app.get("/logout", function (req, res) {
 // Look for public lobbies
 app.get("/public", function (req, res) {
   if (req.isAuthenticated()) {
-    res.render("public");
+    User.findOne({
+      name: req._passport.session.user[0].name
+    }, function (err, user) {
+      if (err) {
+        console.log(err);
+      } else if (user.requestedFriends.length == 0) {
+        res.render("public", {hasRequests: false});
+      } else {
+        let requested = [];
+        user.requestedFriends.forEach(function(foundId) {
+          User.findById(foundId, function(err, found) {
+            if(err) {
+              console.log(err);
+            } else {
+              requested.push(found.name);
+              if(requested.length == user.requestedFriends.length) {
+                res.render("public", {hasRequests: true, requestedFriends: requested});
+              }
+            }
+          })
+        })
+      }
+    });
   } else {
     res.redirect("/error/login");
   }
@@ -280,10 +302,9 @@ app.get("/profile/:name", function (req, res) {
 app.post("/register", function (req, res) {
   const email = req.body.email;
   const username = req.body.uname;
-  const password = req.body.pswd;
-  const confirm = req.body.pswdConfirm;
+  var password = req.body.pswd;
+  var confirm = req.body.pswdConfirm;
   var games = ["No game selected", "No game selected", "No game selected"];
-
 
   // Checks if the given passwords were the same
   if (password != confirm) {
@@ -310,6 +331,9 @@ app.post("/register", function (req, res) {
       list: true
     }));
   } else {
+    bcrypt.hash(password, saltRounds, function (err, hash) {
+      password = hash;
+    });
     // Check if the username has been taken
     User.find({
       name: username
@@ -380,8 +404,56 @@ app.post("/register", function (req, res) {
       }
     });
   }
-  // Log the info to the console
-  console.log(email + ", " + username + ", " + password + ", " + confirm);
+});
+
+app.post("/addFriend", function (req, res) {
+  if (req.isAuthenticated()) {
+    const mainUser = req._passport.session.user[0].name;
+    const newFriend = req.body.friendName;
+
+    User.findOne({
+      name: newFriend
+    }, function (err, user) {
+      if (err) {
+        console.log(err);
+      } else {
+        User.findOne({
+          name: mainUser
+        }, function (err, requester) {
+          if (err) {
+            console.log(err);
+          } else {
+            User.findOneAndUpdate({
+              name: user.name
+            }, {
+              $addToSet: {
+                requestedFriends: requester._id
+              }
+            }, {
+              new: true
+            }, function (err) {
+              if (err) {
+                console.log(err);
+              } else {
+                res.redirect("/public");
+              }
+            });
+          }
+        });
+      }
+    })
+
+  } else {
+    res.redirect("/error/login")
+  }
+});
+
+app.get("/friendRequest", function (req, res) {
+  if (req.isAuthenticated()) {
+    console.log(req.body);
+  } else {
+    res.redirect("/error/login");
+  }
 });
 
 // Render email recovery page
@@ -533,7 +605,8 @@ app.post("/userEdit", function (req, res) {
       email: req._passport.session.user[0].email,
       games: req._passport.session.user[0].favoriteGames,
       userError: "Usernames didn't match",
-      gameError: ""
+      gameError: "",
+      isUser: true
     });
   } else if (oldUsername != req._passport.session.user[0].name) {
     res.render("profile", {
@@ -541,7 +614,8 @@ app.post("/userEdit", function (req, res) {
       email: req._passport.session.user[0].email,
       games: req._passport.session.user[0].favoriteGames,
       userError: "Usernames didn't match",
-      gameError: ""
+      gameError: "",
+      isUser: true
     });
   } else {
     User.find({
@@ -556,7 +630,8 @@ app.post("/userEdit", function (req, res) {
             email: req._passport.session.user[0].email,
             games: req._passport.session.user[0].favoriteGames,
             userError: "Username is already taken",
-            gameError: ""
+            gameError: "",
+            isUser: true
           });
         } else {
           User.findOneAndUpdate({

@@ -173,6 +173,17 @@
             <div class="col-3 h-50 shadow friends-list rounded-left">
                 <div>
                     <ul>
+                        <li class="addFriend">
+                            <a data-target="#addFriend" data-toggle="modal" href="#addFriend"><i class="fas fa-plus-circle"></i>Add Friend</a>
+                        </li>
+                        <hr>
+                        <li class="requests">
+                            <h4>Friend Requests:</h4>
+                            <ul>
+                                <li><a href="/acceptFriend"><i class="fas fa-check"></i></a> <a href="/rejectFriend"><i class="fas fa-times"></i></a> <a href="">Friend</a></li>
+                            </ul>
+                            <hr>
+                        </li>
                         <li>
                             <div class="row">
                                 <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
@@ -228,6 +239,28 @@
                             </div>
                         </li>
                     </ul>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="addFriend" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="friendForm shadow-lg">
+                            <form autocomplete="off" method="post" action="/addFriend">
+                                <h3>Add a Friend</h3>
+                                <hr>
+                                <div>
+                                    <label>Enter username: <input class="rounded shadow" type="text" name="friendName" required></label>
+                                </div>
+                                <div class="buttons row justify-content-around">
+                                    <a href="/public"><button class="btn btn-danger btn-lg shadow"
+                                            type="button">Cancel</button></a>
+                                    <a><button class="btn btn-success btn-lg shadow" type="submit">Submit</button></a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
