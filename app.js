@@ -94,12 +94,15 @@ const queueSchema = new mongoose.Schema({
   },
   lobby: {
     type: Array,
-    of: String,
+    of: mongoose.ObjectId,
     required: true
   },
   full: {
     type: Boolean,
     required: false
+  },
+  creator: {
+    type: mongoose.ObjectId
   }
 });
 
@@ -223,18 +226,70 @@ app.get("/public", function (req, res) {
     }, function (err, user) {
       if (err) {
         console.log(err);
-      } else if (user.requestedFriends.length == 0) {
-        res.render("public", {hasRequests: false});
+      } else if (user.requestedFriends.length == 0 && user.friends.length == 0) {
+        res.render("public", {
+          hasRequests: false,
+          hasFriends: false
+        });
+      } else if (user.requestedFriends.length == 0 && user.friends.length > 0) {
+        let firstFriendArr = [];
+        user.friends.forEach(function (friendsId) {
+          User.findById(friendsId, function (err, friend) {
+            if (err) {
+              console.log(err);
+            } else {
+              firstFriendArr.push(friend.name);
+              if (firstFriendArr.length == user.friends.length) {
+                res.render("public", {
+                  hasRequests: false,
+                  hasFriends: true,
+                  friends: firstFriendArr
+                });
+              }
+            }
+          });
+        });
       } else {
         let requested = [];
-        user.requestedFriends.forEach(function(foundId) {
-          User.findById(foundId, function(err, found) {
-            if(err) {
+        user.requestedFriends.forEach(function (foundId) {
+          User.findById(foundId, function (err, found) {
+            if (err) {
               console.log(err);
             } else {
               requested.push(found.name);
-              if(requested.length == user.requestedFriends.length) {
-                res.render("public", {hasRequests: true, requestedFriends: requested});
+              if (requested.length == user.requestedFriends.length) {
+                User.findOne({
+                  name: req._passport.session.user[0].name
+                }, function (err, main) {
+                  if (err) {
+                    console.log(err);
+                  } else if (main.friends.length == 0) {
+                    res.render("public", {
+                      hasRequests: true,
+                      hasFriends: false,
+                      requestedFriends: requested
+                    });
+                  } else {
+                    let friendArr = [];
+                    main.friends.forEach(function (friendId) {
+                      User.findById(friendId, function (err, friend) {
+                        if (err) {
+                          console.log(err);
+                        } else {
+                          friendArr.push(friend.name);
+                          if (friendArr.length == main.friends.length) {
+                            res.render("public", {
+                              hasRequests: true,
+                              hasFriends: false,
+                              requestedFriends: requested,
+                              friends: friendArr
+                            });
+                          }
+                        }
+                      })
+                    })
+                  }
+                });
               }
             }
           })
@@ -249,27 +304,80 @@ app.get("/public", function (req, res) {
 // Renders private lobbies page
 app.get("/private", function (req, res) {
   if (req.isAuthenticated()) {
+    console.log("redirected");
     User.findOne({
       name: req._passport.session.user[0].name
     }, function (err, user) {
       if (err) {
         console.log(err);
-      } else if (user.requestedFriends.length == 0) {
-        res.render("private", {hasRequests: false});
-      } else {
-        let requested = [];
-        user.requestedFriends.forEach(function(foundId) {
-          User.findById(foundId, function(err, found) {
-            if(err) {
+      } else if (user.requestedFriends.length == 0 && user.friends.length == 0) {
+        res.render("private", {
+          hasRequests: false,
+          hasFriends: false
+        });
+      } else if (user.requestedFriends.length == 0 && user.friends.length > 0) {
+        let firstFriendArr = [];
+        user.friends.forEach(function (friendsId) {
+          User.findById(friendsId, function (err, friend) {
+            if (err) {
               console.log(err);
             } else {
-              requested.push(found.name);
-              if(requested.length == user.requestedFriends.length) {
-                res.render("private", {hasRequests: true, requestedFriends: requested});
+              firstFriendArr.push(friend.name);
+              if (firstFriendArr.length == user.friends.length) {
+                res.render("private", {
+                  hasRequests: false,
+                  hasFriends: true,
+                  friends: firstFriendArr
+                });
               }
             }
           });
         });
+      } else {
+        let requested = [];
+        user.requestedFriends.forEach(function (foundId) {
+          User.findById(foundId, function (err, found) {
+            if (err) {
+              console.log(err);
+            } else {
+              requested.push(found.name);
+              if (requested.length == user.requestedFriends.length) {
+                User.findOne({
+                  name: req._passport.session.user[0].name
+                }, function (err, main) {
+                  if (err) {
+                    console.log(err);
+                  } else if (main.friends.length == 0) {
+                    res.render("private", {
+                      hasRequests: true,
+                      hasFriends: false,
+                      requestedFriends: requested
+                    });
+                  } else {
+                    let friendArr = [];
+                    main.friends.forEach(function (friendId) {
+                      User.findById(friendId, function (err, friend) {
+                        if (err) {
+                          console.log(err);
+                        } else {
+                          friendArr.push(friend.name);
+                          if (friendArr.length == main.friends.length) {
+                            res.render("private", {
+                              hasRequests: true,
+                              hasFriends: false,
+                              requestedFriends: requested,
+                              friends: friendArr
+                            });
+                          }
+                        }
+                      })
+                    })
+                  }
+                });
+              }
+            }
+          })
+        })
       }
     });
   } else {
@@ -434,58 +542,62 @@ app.post("/addFriend", function (req, res) {
     const newFriend = req.body.friendName;
 
     function addFriend() {
+      User.findOne({
+        name: newFriend
+      }, function (err, user) {
+        if (err) {
+          console.log(err);
+        } else {
+          User.findOne({
+            name: mainUser
+          }, function (err, requester) {
+            if (err) {
+              console.log(err);
+            } else if (newFriend == mainUser) {
+              res.redirect("/public");
+            } else {
+              User.findOneAndUpdate({
+                name: user.name
+              }, {
+                $addToSet: {
+                  requestedFriends: requester._id
+                }
+              }, {
+                new: true
+              }, function (err) {
+                if (err) {
+                  console.log(err);
+                } else {
+                  res.redirect("/public");
+                }
+              });
+            }
+          });
+        }
+      })
+    }
+
     User.findOne({
       name: newFriend
-    }, function (err, user) {
+    }, function (err, friend) {
       if (err) {
-        console.log(err);
-      } else {
-        User.findOne({
-          name: mainUser
-        }, function (err, requester) {
-          if (err) {
-            console.log(err);
-          } else if (newFriend == mainUser) {
-            res.redirect("/public");
-          } else {
-            User.findOneAndUpdate({
-              name: user.name
-            }, {
-              $addToSet: {
-                requestedFriends: requester._id
-              }
-            }, {
-              new: true
-            }, function (err) {
-              if (err) {
-                console.log(err);
-              } else {
-                res.redirect("/public");
-              }
-            });
-          }
-        });
-      }
-    })
-  }
-
-    User.findOne({ name: newFriend }, function(err, friend) {
-      if(err) {
         console.log(err);
       } else if (friend == null) {
         res.redirect("/public");
       } else {
-        User.findOne({name: mainUser}, function(err, userRequesting) {
-          if(err) {
+        User.findOne({
+          name: mainUser
+        }, function (err, userRequesting) {
+          if (err) {
             console.log(err);
           } else {
             var hasUser = false;
-            for(var i = 0; i < friend.friends.length; i++) {
-              if(userRequesting._id.str === friend.friends[i].str) {
+            for (var i = 0; i < friend.friends.length; i++) {
+              if (userRequesting._id.str === friend.friends[i].str) {
                 hasUser = true;
               }
             }
-            if(hasUser) {
+            if (hasUser) {
               res.redirect("/public");
             } else {
               addFriend();
@@ -501,22 +613,42 @@ app.post("/addFriend", function (req, res) {
 
 app.post("/acceptFriendRequest", function (req, res) {
   if (req.isAuthenticated()) {
-    var requester = req._passport.session.user[0].name; 
+    var requester = req._passport.session.user[0].name;
     var newFriend = req.body.accept;
-    User.findOne({name: requester}, function(err, user) {
-      if(err) {
+    User.findOne({
+      name: requester
+    }, function (err, user) {
+      if (err) {
         console.log(err);
       } else {
-        User.findOne({name: newFriend}, function(err, friend) {
-          if(err) {
+        User.findOne({
+          name: newFriend
+        }, function (err, friend) {
+          if (err) {
             console.log(err);
           } else {
-            User.findOneAndUpdate({name: user.name}, { $addToSet: { friends: friend._id}}, {new: true}, function(err, oldUser) {
-              if(err) {
+            User.findOneAndUpdate({
+              name: user.name
+            }, {
+              $addToSet: {
+                friends: friend._id
+              }
+            }, {
+              new: true
+            }, function (err, oldUser) {
+              if (err) {
                 console.log(err);
               } else {
-                User.findOneAndUpdate({name: oldUser.name}, { $pull: { requestedFriends: friend._id}}, {new: true}, function(err) {
-                  if(err) {
+                User.findOneAndUpdate({
+                  name: oldUser.name
+                }, {
+                  $pull: {
+                    requestedFriends: friend._id
+                  }
+                }, {
+                  new: true
+                }, function (err) {
+                  if (err) {
                     console.log(err);
                   } else {
                     res.redirect("/public");
@@ -524,11 +656,19 @@ app.post("/acceptFriendRequest", function (req, res) {
                 });
               }
             });
-            User.findOneAndUpdate({name: friend.name}, { $addToSet: { friends: user._id}}, {new: true}, function(err) {
-              if(err) {
+            User.findOneAndUpdate({
+              name: friend.name
+            }, {
+              $addToSet: {
+                friends: user._id
+              }
+            }, {
+              new: true
+            }, function (err) {
+              if (err) {
                 console.log(err);
               }
-          });
+            });
           }
         });
       }
@@ -540,27 +680,39 @@ app.post("/acceptFriendRequest", function (req, res) {
 
 app.post("/rejectFriendRequest", function (req, res) {
   if (req.isAuthenticated()) {
-    var requester = req._passport.session.user[0].name; 
+    var requester = req._passport.session.user[0].name;
     var newFriend = req.body.reject;
-    User.findOne({name: requester}, function(err, user) {
-      if(err) {
+    User.findOne({
+      name: requester
+    }, function (err, user) {
+      if (err) {
         console.log(err);
       } else {
-        User.findOne({name: newFriend}, function(err, friend) {
-          if(err) {
+        User.findOne({
+          name: newFriend
+        }, function (err, friend) {
+          if (err) {
             console.log(err);
           } else {
-            User.findOneAndUpdate({name: user.name}, { $pull: { requestedFriends: friend._id}}, {new: true}, function(err) {
-              if(err) {
+            User.findOneAndUpdate({
+              name: user.name
+            }, {
+              $pull: {
+                requestedFriends: friend._id
+              }
+            }, {
+              new: true
+            }, function (err) {
+              if (err) {
                 console.log(err);
               } else {
-                  res.redirect("/public");
-                }
-              });
-            }
-          });
-        }
-      });
+                res.redirect("/public");
+              }
+            });
+          }
+        });
+      }
+    });
   } else {
     res.redirect("/error/login");
   }

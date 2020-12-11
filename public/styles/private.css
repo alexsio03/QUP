@@ -31,15 +31,6 @@ ol.q-list li {
     font-size: larger;
 }
 
-.q-item {
-    margin-left: 2%;
-    margin-top: 20px;
-    background-color: rgba(15, 76, 117, 0.6);
-    border: black;
-    border-style: solid;
-    border-width: 2px;
-}
-
 .q-item h1 {
     font-size: xx-large;
     letter-spacing: 1.5px;

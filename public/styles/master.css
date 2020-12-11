@@ -44,6 +44,22 @@ nav {
     opacity: 0.8;
 }
 
+.q-item {
+    margin-left: 2%;
+    margin-top: 20px;
+    background-color: rgba(15, 76, 117, 0.6);
+    border: black;
+    border-style: solid;
+    border-width: 2px;
+}
+
+.q-item p {
+    padding: 0 2% 2% 2%;
+    margin-top: -0.5rem;
+    color:rgb(187, 225, 250);
+    letter-spacing: 0.5px;
+}
+
 .addFriend {
     margin-top: 20px;
 }

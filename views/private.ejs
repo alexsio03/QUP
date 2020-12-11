@@ -199,60 +199,18 @@
                             <hr>
                         </li>
                         <% } %>
-                        <li>
-                            <div class="row">
-                                <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
-                                <div>
-                                    <a href="">Friend</a>
-                                    <span id="status">Status: Looking to play</span>
+                        <% if (hasFriends) { %>
+                            <% for(var i = 0; i < friends.length; i++) { %><li>
+                                <div class="row">
+                                    <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
+                                    <div>
+                                        <a href="/profile/<%= friends[i] %>"><%= friends[i] %></a>
+                                        <span id="status">Status: Looking to play</span>
+                                    </div>
                                 </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row">
-                                <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
-                                <div>
-                                    <a href="">Friend</a>
-                                    <span id="status">Status: Looking to play</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row">
-                                <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
-                                <div>
-                                    <a href="">Friend</a>
-                                    <span id="status">Status: Looking to play</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row">
-                                <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
-                                <div>
-                                    <a href="">Friend</a>
-                                    <span id="status">Status: Looking to play</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row">
-                                <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
-                                <div>
-                                    <a href="">Friend</a>
-                                    <span id="status">Status: Looking to play</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row">
-                                <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
-                                <div>
-                                    <a href="">Friend</a>
-                                    <span id="status">Status: Looking to play</span>
-                                </div>
-                            </div>
-                        </li>
+                                </li>
+                            <% } %>
+                        <% } %>
                     </ul>
                 </div>
             </div>
