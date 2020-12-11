@@ -288,15 +288,18 @@
                             <h4>Friend Requests:</h4>
                             <ul>
                                 <li>
-                                    <% requestedFriends.forEach(function(request) { %>
-                                    <form id="request" action="/friendRequest">
-                                        <a onclick="document.getElementById('request').submit()"><i
-                                                class="fas fa-check"></i></a>
-                                        <a onclick="document.getElementById('request').submit()"><i
-                                                class="fas fa-times"></i></a>
-                                        <a href=""><%= request %></a>
+                                    <% for(var i = 0; i < requestedFriends.length; i++) { %>
+                                    <form id="acceptRequest" method="POST" name="test" action="/acceptFriendRequest">
+
                                     </form>
-                                    <% }); %>
+                                    <form id="rejectRequest" method="POST" name="" action="/rejectFriendRequest">
+                                    </form>
+                                        <button class="requestButton" name="accept" value="<%- requestedFriends[i] %>" form="acceptRequest"><i
+                                                class="fas fa-check"></i></button>
+                                        <button class="requestButton" name="reject" value="<%- requestedFriends[i] %>" form="rejectRequest"><i
+                                                class="fas fa-times"></i></button>
+                                        <a href="profile/<%- requestedFriends[i] %>"><%= requestedFriends[i] %></a>
+                                    <% } %>
                                 </li>
                             </ul>
                             <hr>

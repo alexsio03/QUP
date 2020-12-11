@@ -411,6 +411,7 @@ app.post("/addFriend", function (req, res) {
     const mainUser = req._passport.session.user[0].name;
     const newFriend = req.body.friendName;
 
+    function addFriend() {
     User.findOne({
       name: newFriend
     }, function (err, user) {
@@ -422,6 +423,8 @@ app.post("/addFriend", function (req, res) {
         }, function (err, requester) {
           if (err) {
             console.log(err);
+          } else if (newFriend == mainUser) {
+            res.redirect("/public");
           } else {
             User.findOneAndUpdate({
               name: user.name
@@ -442,15 +445,100 @@ app.post("/addFriend", function (req, res) {
         });
       }
     })
+  }
 
+    User.findOne({ name: newFriend }, function(err, friend) {
+      if(err) {
+        console.log(err);
+      } else if (friend == null) {
+        res.redirect("/public");
+      } else {
+        User.findOne({name: mainUser}, function(err, userRequesting) {
+          if(err) {
+            console.log(err);
+          } else {
+            var hasUser = false;
+            for(var i = 0; i < friend.friends.length; i++) {
+              if(userRequesting._id.str === friend.friends[i].str) {
+                hasUser = true;
+              }
+            }
+            if(hasUser) {
+              res.redirect("/public");
+            } else {
+              addFriend();
+            }
+          }
+        });
+      }
+    });
   } else {
     res.redirect("/error/login")
   }
 });
 
-app.get("/friendRequest", function (req, res) {
+app.post("/acceptFriendRequest", function (req, res) {
   if (req.isAuthenticated()) {
-    console.log(req.body);
+    var requester = req._passport.session.user[0].name; 
+    var newFriend = req.body.accept;
+    User.findOne({name: requester}, function(err, user) {
+      if(err) {
+        console.log(err);
+      } else {
+        User.findOne({name: newFriend}, function(err, friend) {
+          if(err) {
+            console.log(err);
+          } else {
+            User.findOneAndUpdate({name: user.name}, { $addToSet: { friends: friend._id}}, {new: true}, function(err, oldUser) {
+              if(err) {
+                console.log(err);
+              } else {
+                User.findOneAndUpdate({name: oldUser.name}, { $pull: { requestedFriends: friend._id}}, {new: true}, function(err) {
+                  if(err) {
+                    console.log(err);
+                  } else {
+                    res.redirect("/public");
+                  }
+                });
+              }
+            });
+            User.findOneAndUpdate({name: friend.name}, { $addToSet: { friends: user._id}}, {new: true}, function(err) {
+              if(err) {
+                console.log(err);
+              }
+          });
+          }
+        });
+      }
+    });
+  } else {
+    res.redirect("/error/login");
+  }
+});
+
+app.post("/rejectFriendRequest", function (req, res) {
+  if (req.isAuthenticated()) {
+    var requester = req._passport.session.user[0].name; 
+    var newFriend = req.body.reject;
+    User.findOne({name: requester}, function(err, user) {
+      if(err) {
+        console.log(err);
+      } else {
+        User.findOne({name: newFriend}, function(err, friend) {
+          if(err) {
+            console.log(err);
+          } else {
+            User.findOneAndUpdate({name: user.name}, { $pull: { requestedFriends: friend._id}}, {new: true}, function(err) {
+              if(err) {
+                console.log(err);
+              } else {
+                  res.redirect("/public");
+                }
+              });
+            }
+          });
+        }
+      });
   } else {
     res.redirect("/error/login");
   }

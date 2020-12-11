@@ -132,6 +132,16 @@ li.requests {
     margin: 10px 0 !important;
 }
 
+.requestButton {
+    background-color: rgba(15, 76, 117, 0);
+    border: none;
+}
+
+.requestButton:hover {
+    background-color: rgba(15, 76, 117, 0.6) !important;
+    border: none;
+}
+
 .q-item h1 {
     padding: 2%;
 }
