@@ -53,17 +53,19 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  friends: [mongoose.ObjectId],
-  requestedFriends: [mongoose.ObjectId],
+  friends: {
+    type: [mongoose.ObjectId],
+    required: false
+  },
+  requestedFriends: {
+    type: [mongoose.ObjectId],
+    required: false
+  },
   favoriteGames: {
     type: Array,
     of: String,
     required: true
   }
-  /*,
-    picture: {
-
-    }*/
 });
 
 userSchema.plugin(passportLocalMongoose);
@@ -85,8 +87,8 @@ const queueSchema = new mongoose.Schema({
   },
   visibility: {
     type: Boolean,
-    /* true: public
-    false: private */
+    // true: public
+    // false: private
     required: true
   },
   lobby: {
@@ -118,7 +120,7 @@ pswdSchema
   .is().max(30) // Maximum length 30
   .has().uppercase() // Must have uppercase letters
   .has().lowercase() // Must have lowercase letters
-  .has().digits(1) // Must have at least 2 digits
+  .has().digits(1) // Must have at least 1 digit
   .has().not().spaces(); // Spaces not allowed
 
 passport.use(User.createStrategy());
@@ -142,7 +144,6 @@ app.route("/")
       });
     }
   })
-
   .post(function (req, res) {
     const username = req.body.uname;
 
@@ -173,7 +174,7 @@ app.route("/")
     });
   });
 
-
+// This page gets loaded when there is an error
 app.get("/error/:err", function (req, res) {
   const error = req.params.err;
   if (error == "noUser") {
@@ -216,12 +217,13 @@ app.get("/error/:err", function (req, res) {
 
 });
 
+// Allows the user to log out
 app.get("/logout", function (req, res) {
   req.logout();
   res.redirect("/");
 })
 
-// Look for public lobbies
+// Renders public lobbies page
 app.get("/public", function (req, res) {
   if (req.isAuthenticated()) {
 
@@ -430,6 +432,7 @@ app.get("/profile", function (req, res) {
   }
 });
 
+// Shows the profile page of a specific user
 app.get("/profile/:name", function (req, res) {
   if (req.isAuthenticated()) {
     const user = req.params.name;
@@ -572,6 +575,7 @@ app.post("/register", function (req, res) {
   }
 });
 
+// Allows the user to add a friend
 app.post("/addFriend", function (req, res) {
   if (req.isAuthenticated()) {
     const mainUser = req._passport.session.user[0].name;
@@ -647,6 +651,7 @@ app.post("/addFriend", function (req, res) {
   }
 });
 
+// Lets the user accept a friend request
 app.post("/acceptFriendRequest", function (req, res) {
   if (req.isAuthenticated()) {
     var requester = req._passport.session.user[0].name;
@@ -714,6 +719,7 @@ app.post("/acceptFriendRequest", function (req, res) {
   }
 });
 
+// Lets the user reject a friend request
 app.post("/rejectFriendRequest", function (req, res) {
   if (req.isAuthenticated()) {
     var requester = req._passport.session.user[0].name;
@@ -754,14 +760,14 @@ app.post("/rejectFriendRequest", function (req, res) {
   }
 });
 
-// Render email recovery page
+// Renders email recovery page
 app.post("/recover", function (req, res) {
   const email = req.body.email;
 
   console.log(email);
 });
 
-// Filter public lobbies -JS done-
+// Filters public lobbies
 app.post("/filter", function (req, res) {
   const game = req.body.filterGame;
   const full = req.body.full;
@@ -783,7 +789,7 @@ app.post("/filter", function (req, res) {
   res.redirect("/public");
 });
 
-// Creates a public queue
+// Creates a public or private queue based on user selection
 app.post("/create", function (req, res) {
   const avai = req.body.availability;
   if (avai == "open") {
@@ -793,6 +799,7 @@ app.post("/create", function (req, res) {
   }
 });
 
+// Creates a public queue
 app.post("/publicCreate", function (req, res) {
   const game = req.body.game;
   const desc = req.body.desc;
@@ -842,7 +849,6 @@ app.post("/publicCreate", function (req, res) {
 app.post("/privateCreate", function (req, res) {
   const game = req.body.game;
   const desc = req.body.desc;
-  //REMOVE req.body.availibility FROM THE CODE!!!!!
   const num = req.body.slots;
   const visibility = false;
   /* Alex will have to pass an array through
@@ -851,17 +857,15 @@ app.post("/privateCreate", function (req, res) {
   var lobby = [];
   var isFull = true;
 
-  if (reserved.length() >= num) {
-    // throw error
-    console.log("You cannot have more available slots than slots total.")
-  }
+  // if (reserved.length() >= num) {
+  //   // throw error
+  //   console.log("You cannot have more available slots than slots total.")
+  // }
 
   for (var i = 0; i < reserved; i++) {
     lobby.push(reserved[i]);
   }
   for (var i = reserved.length(); i < num; i++) {
-    /* In the html, show that if userSchema == null,
-    then show the spot as empty/available */
     lobby.push(null);
   }
 
@@ -887,6 +891,41 @@ app.post("/privateCreate", function (req, res) {
   res.redirect("/private");
 });
 
+// Allows the user to join a queue
+app.post("/joinQueue", function(req, res){
+  // This might be bugged out the wazoo
+
+  /* In the html find a way to know which queue
+  the user wants to join. Im just going to call
+  it "theQueue" */
+  // var currentQueue = theQueue;
+  // const avai = currentQueue.visibility;
+
+  /*
+  Queue.findOne({theQueue}, function(err, lobby){    // Remember to use findById of you're going to use ID
+    if(err){
+      console.log(err);
+    } else {
+      for (var i = 0; i<lobby.length; i++){
+        if (lobby[i] == null){
+          lobby[i] = req._passport.session.user[0];
+          break;
+        }
+      }
+    }
+  });
+  */
+
+  /*
+  if (avai == true) {
+    res.redirect("/public");
+  } else if (avai == false) {
+    res.redirect("/private");
+  }
+  */
+});
+
+// Deletes a queue
 app.post("/deleteQueue", function(req, res) {
   if(req.isAuthenticated()) {
     const id = req.body.id;
@@ -900,10 +939,9 @@ app.post("/deleteQueue", function(req, res) {
   } else {
     res.redirect("/error/login");
   }
-  
 });
 
-// Edit username -JS done-
+// Edit username
 app.post("/userEdit", function (req, res) {
   /* Enter old username */
   const oldUsername = req.body.oldUsername;
@@ -961,7 +999,7 @@ app.post("/userEdit", function (req, res) {
   }
 });
 
-// Edit 3 favorite games on profile -JS done-
+// Edit 3 favorite games on profile
 app.post("/gameEdit", function (req, res) {
   /* Enter current username */
   const user = req._passport.session.user[0].name;
@@ -988,5 +1026,5 @@ if (port == null || port == "") {
   port = 3000;
 }
 app.listen(port, function() {
-  console.log("Server started on port" + port);
+  console.log("Server started on port " + port);
 });
