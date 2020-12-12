@@ -251,28 +251,29 @@ app.get("/public", function (req, res) {
                   } else {
                     var newQs = [];
                     qs.forEach(function(queue) {
-                      newLobby = queue.lobby;
-                      User.findById(newLobby[0], function(err, user) {
+                      User.findById(queue.lobby[0], function(err, lobbyist) {
                         if(err) {
                           console.log(err);
                         } else {
-                          newLobby[0] = user.name;
+                          var newLobby = queue.lobby;
+                          newLobby[0] = lobbyist.name;
                           var newQueue = {
                             game: queue.game,
                             desc: queue.description,
                             lobby: newLobby,
                             waiting: queue.waiting,
-                            isCreator: user._id == req._passport.session.user[0]._id
+                            isCreator: lobbyist._id == req._passport.session.user[0]._id
                           };
                           newQs.push(newQueue);
-                          if(newQs.length == qs.length) {
+                        }
+                        if(newQs.length == qs.length) {
+                          console.log(newQs);
                             res.render("public", {
                               hasRequests: false,
                               hasFriends: true,
                               friends: firstFriendArr,
                               queues: newQs,
                             });
-                          }
                         }
                       })
                     })

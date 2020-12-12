@@ -23,16 +23,16 @@ button:hover {
 }
 
 #delete-button {
-    background-color: red !important;
+    background-color: crimson !important;
     width: 80%;
     border: none;
     color: white;
     margin: 2% 9%;
 }
 
-#delete-button:hover {
-    color:white;
-    background-color: crimson;
+button#delete-button:hover {
+    color:white !important;
+    background-color: red !important;
 }
 
 a {
