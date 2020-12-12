@@ -890,7 +890,6 @@ app.post("/privateCreate", function (req, res) {
 app.post("/deleteQueue", function(req, res) {
   if(req.isAuthenticated()) {
     const id = req.body.id;
-    console.log(typeof id);
     Queue.findByIdAndRemove(id, function(err) {
       if(err) {
         console.log(err);
