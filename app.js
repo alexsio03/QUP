@@ -929,7 +929,6 @@ app.post("/joinQueue", function(req, res){
 app.post("/deleteQueue", function(req, res) {
   if(req.isAuthenticated()) {
     const id = req.body.id;
-    console.log(typeof id);
     Queue.findByIdAndRemove(id, function(err) {
       if(err) {
         console.log(err);
@@ -1022,7 +1021,10 @@ app.post("/gameEdit", function (req, res) {
   });
 });
 
-// Loads the webpage
-app.listen(3000, function () {
-  console.log("Server started on port 3000");
+let port = process.env.PORT;
+if (port == null || port == "") {
+  port = 3000;
+}
+app.listen(port, function() {
+  console.log("Server started on port " + port);
 });
