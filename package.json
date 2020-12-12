@@ -1,0 +1,39 @@
+{
+  "name": "qup",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "dependencies": {
+    "bcrypt": "^5.0.0",
+    "body-parser": "^1.19.0",
+    "dotenv": "^8.2.0",
+    "ejs": "^3.1.5",
+    "electron": "^11.0.5",
+    "email-validator": "^2.0.4",
+    "ejs-lint": "^1.1.0",
+    "express": "^4.17.1",
+    "express-session": "^1.17.1",
+    "fsevents": "^2.1.3",
+    "mongoose": "^5.11.5",
+    "nodemon": "^2.0.6",
+    "passport": "^0.4.1",
+    "passport-local": "^1.0.0",
+    "passport-local-mongoose": "^6.0.1",
+    "password-validator": "^5.1.1",
+    "session": "^0.1.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alexsio03/QUP.git"
+  },
+  "author": "Alex Warda",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/alexsio03/QUP/issues"
+  },
+  "homepage": "https://github.com/alexsio03/QUP#readme"
+}
