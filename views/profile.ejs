@@ -28,9 +28,12 @@
             <div class="d-flex justify-content-around">
                 <a class="nav-link nav-header" href="/public">Public</a>
                 <a class="nav-link nav-header" href="/private">Private</a>
-                <a class="nav-link nav-header active" href="">Profile</a>
+                <a class="nav-link nav-header active" href="#">Profile</a>
             </div>
-            <a class="settings" href="#"><i class="fas fa-cog fa-2x"></i></a>
+            <div class="d-flex justify-content-around">
+                <a class="nav-link nav-header logout" href="/logout">Log Out</a>
+                <a class="settings" href="#"><i class="fas fa-cog fa-2x"></i></a>
+            </div>
         </nav>
     </div>
     <div class="container-fluid">
@@ -44,11 +47,9 @@
                     <div class="col-6 info">
                         <div class="row justify-content-between">
                             <h2>Username: <span><%= username %></span></h2>
-                            <a data-target="#userEdit" data-toggle="modal" href="#userEdit"><button class="btn btn-primary shadow">Edit</button></a>
                         </div>
                         <div class="row justify-content-between">
                             <h2>Email: <span><%= email %></span></h2>
-                            <a data-target="#emailEdit" data-toggle="modal" href="#emailEdit"><button class="btn btn-primary shadow">Edit</button></a>
                         </div>
                         <div class="row justify-content-between">
                             <h2>Games: 
@@ -57,14 +58,33 @@
                                     <% } else {
                                         for(var i = 0; i < games.length; i++)
                                         {
-                                            if(i == 3) { %>
+                                            if(i == 2) { %>
                                                 <span> <%= games[i] %> </span>
                                             <% } else { %>
                                                 <span><%= games[i] + "," %></span>
                                             <% }
                                         }
                                     } %></h2>
-                            <a data-target="#gamesEdit" data-toggle="modal" href="#gamesEdit"><button class="btn btn-primary shadow">Edit</button></a>
+                        </div>
+                    </div>
+                    <div class="col-1 info">
+                        <div class="row">
+                            <% if ( isUser )
+                            { %>
+                                <a data-target="#userEdit" data-toggle="modal" href="#userEdit"><button class="btn btn-primary shadow">Edit</button></a>
+                            <% } %>
+                        </div>
+                        <div class="row">
+                            <% if ( isUser )
+                            { %>
+                                <a data-target="#emailEdit" data-toggle="modal" href="#emailEdit"><button class="btn btn-primary shadow">Edit</button></a>
+                            <% } %>
+                        </div>
+                        <div class="row">
+                            <% if ( isUser )
+                            { %>
+                                <a data-target="#gamesEdit" data-toggle="modal" href="#gamesEdit"><button class="btn btn-primary shadow">Edit</button></a>
+                            <% } %>
                         </div>
                     </div>
                 </div>
@@ -99,6 +119,7 @@
                     <div class="editForm shadow-lg">
                         <form autocomplete="off" method="post" action="/userEdit">
                             <h3>Change Your Username</h3>
+                            <h4 id="error"><%= userError %></h4>
                             <hr>
                             <div>
                                 <label>Old username: <input class="rounded shadow" type="text" name="oldUsername" required></label>
@@ -127,6 +148,7 @@
                     <div class="editForm shadow-lg">
                         <form autocomplete="off" method="post" action="/gameEdit">
                             <h3>Change Your Top Games</h3>
+                            <h4 id="error"><%= gameError %></h4>
                             <hr>
                             <div class="autocomplete">
                                 <label>Game 1: <input id="topGame1" class="rounded shadow" type="text" name="newGame1" required></label>

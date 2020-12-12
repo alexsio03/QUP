@@ -5,9 +5,34 @@ body {
     font-family: 'Lato', sans-serif;
 }
 
+textarea {
+    resize: none;
+}
+
+.fa-check {
+    color: lightgreen;
+}
+
+.fa-times {
+    color: red;
+}
+
 button:hover {
     background-color: rgb(221, 234, 243) !important;
     color: rgb(50, 130, 184) !important;
+}
+
+#delete-button {
+    background-color: crimson !important;
+    width: 80%;
+    border: none;
+    color: white;
+    margin: 2% 9%;
+}
+
+button#delete-button:hover {
+    color:white !important;
+    background-color: red !important;
 }
 
 a {
@@ -28,9 +53,126 @@ nav {
     letter-spacing: 2px;
 }
 
+#error {
+    color: red;
+    font-size: large;
+    text-align: center;
+    letter-spacing: 1px;
+    opacity: 0.8;
+}
+
+.q-item {
+    margin-left: 2%;
+    margin-top: 20px;
+    background-color: rgba(15, 76, 117, 0.6);
+    border: black;
+    border-style: solid;
+    border-width: 2px;
+}
+
+.q-item p {
+    padding: 0 2% 2% 2%;
+    margin-top: -0.5rem;
+    color:rgb(187, 225, 250);
+    letter-spacing: 0.5px;
+}
+
+.addFriend {
+    margin-top: 20px;
+}
+
 .nav-header {
     margin: 10px 100px;
     font-size: large;
+}
+
+.friendForm {
+    letter-spacing: 2px;
+    padding: 60px 60px;
+    background-color: rgb(15, 76, 117);
+    border-color: black;
+    border-style: solid;
+    border-width: 2px;
+    color:rgb(187, 225, 250);
+}
+
+.friendForm h3 {
+    text-align: center;
+}
+
+.friend-info {
+    text-align: left;
+    display: flex;
+    align-items: center;
+}
+
+.friend-img {
+    object-fit: cover;
+    border-radius: 50%;
+    height: 64px;
+    width: 64px;
+    margin-right: 10px;
+}
+
+.friends-list {
+    background-color: rgba(15, 76, 117, 0.6);
+    margin-top: 20px;
+    border: black;
+    border-style: solid;
+    border-width: 2px 0 2px 2px;
+}
+
+.friends-list ul {
+    list-style-type: none;
+    padding: 10px 30px;
+}
+
+.friends-list ul li {
+    font-size: large;
+    color: rgb(187, 225, 250);
+    margin: 40px 0;
+}
+
+.friends-list ul li i {
+    margin: 0 10px;
+}
+
+.friends-list ul li.addFriend {
+    font-size: large;
+    text-align: center;
+    margin: 5px;
+}
+
+.friends-list ul li.addFriend a:hover {
+    color: rgb(221, 234, 243);
+    text-decoration: none;
+}
+
+#status {
+    font-size: small;
+    color: rgb(50, 130, 184);
+}
+
+li.requests {
+    margin: 20px 0 !important;
+}
+
+.requests h4 {
+    text-align: center;
+}
+
+.requests li {
+    margin: 10px 0 !important;
+}
+
+.requestButton {
+    background-color: rgba(15, 76, 117, 0);
+    border: none;
+}
+
+.requestButton:hover {
+    background-color: rgba(15, 76, 117, 0.6) !important;
+    border: none;
 }
 
 .q-item h1 {

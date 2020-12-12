@@ -2,14 +2,6 @@ html {
     height: 100%;
 }
 
-#error {
-    color: red;
-    font-size: large;
-    text-align: center;
-    letter-spacing: 1px;
-    opacity: 0.8;
-}
-
 body {
     background-color: rgba(27, 38, 44);
     background-image: linear-gradient(to top right, rgba(27, 38, 44), rgb(15, 76, 117));

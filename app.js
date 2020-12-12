@@ -9,15 +9,18 @@ const emailValidator = require("email-validator");
 const session = require("express-session");
 const passport = require("passport");
 const passportLocalMongoose = require("passport-local-mongoose");
+// New encryption package
+const bcrypt = require('bcrypt');
 const {
-  json
-} = require('body-parser');
+  assert
+} = require('console');
+const saltRounds = 10;
 
 // Setting up express and mongo
 const app = express();
 app.set('view engine', 'ejs');
 app.use(session({
-  secret: "Our little secret.",
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false
 }));
@@ -29,7 +32,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
+  useFindAndModify: false
 });
 mongoose.set('useCreateIndex', true);
 
@@ -43,15 +47,14 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    minLength: 8,
-    maxLength: 30,
     required: true
   },
   email: {
     type: String,
     required: true
   },
-  friends: [String],
+  friends: [mongoose.ObjectId],
+  requestedFriends: [mongoose.ObjectId],
   favoriteGames: {
     type: Array,
     of: String,
@@ -78,10 +81,7 @@ const queueSchema = new mongoose.Schema({
   description: {
     type: String,
     required: false,
-    maxLength: 50
-    /* maybe in the text box in the description
-    field have a message in faded text saying 
-    "description not necessary" or something */
+    maxLength: 100
   },
   visibility: {
     type: Boolean,
@@ -91,12 +91,21 @@ const queueSchema = new mongoose.Schema({
   },
   lobby: {
     type: Array,
-    of: String,
+    of: mongoose.ObjectId,
     required: true
+  },
+  waiting: {
+    type: Array,
+    of: mongoose.ObjectId,
+    required: false
   },
   full: {
     type: Boolean,
     required: false
+  },
+  creator: {
+    type: mongoose.ObjectId,
+    required: true
   }
 });
 
@@ -136,7 +145,6 @@ app.route("/")
 
   .post(function (req, res) {
     const username = req.body.uname;
-    const password = req.body.pswd;
 
     // Check if the user exists
     User.find({
@@ -147,7 +155,7 @@ app.route("/")
       } else {
         if (user.length == 0) {
           res.redirect("/error/noUser");
-        } else if (user.length > 0 && user[0].password == password) {
+        } else if (user.length > 0 && bcrypt.compareSync(req.body.pswd, user[0].password)) {
           req.login(user, function (err) {
             if (err) {
               console.log(err);
@@ -163,11 +171,7 @@ app.route("/")
         }
       }
     });
-    // Logs the given username and password
-    console.log(username + " " + password);
-    // Redirects to the profile page
   });
-
 
 
 app.get("/error/:err", function (req, res) {
@@ -220,7 +224,114 @@ app.get("/logout", function (req, res) {
 // Look for public lobbies
 app.get("/public", function (req, res) {
   if (req.isAuthenticated()) {
-    res.render("public");
+
+    User.findOne({
+      name: req._passport.session.user[0].name
+    }, function (err, user) {
+      if (err) {
+        console.log(err);
+      } else if (user.requestedFriends.length == 0 && user.friends.length == 0) {
+        getQueues();
+        res.render("public", {
+          hasRequests: false,
+          hasFriends: false
+        });
+      } else if (user.requestedFriends.length == 0 && user.friends.length > 0) {
+        let firstFriendArr = [];
+        user.friends.forEach(function (friendsId) {
+          User.findById(friendsId, function (err, friend) {
+            if (err) {
+              console.log(err);
+            } else {
+              firstFriendArr.push(friend.name);
+              if (firstFriendArr.length == user.friends.length) {
+                Queue.find({visibility: true}, function(err, qs) {
+                  if(err) {
+                    console.log(err);
+                  } else {
+                    var newQs = [];
+                    qs.forEach(function(queue) {
+                      User.findById(queue.lobby[0], function(err, lobbyist) {
+                        if(err) {
+                          console.log(err);
+                        } else {
+                          var newLobby = queue.lobby;
+                          newLobby[0] = lobbyist.name;
+                          var newQueue = {
+                            id: queue._id,
+                            game: queue.game,
+                            desc: queue.description,
+                            lobby: newLobby,
+                            waiting: queue.waiting,
+                            isCreator: lobbyist._id == req._passport.session.user[0]._id
+                          };
+                          newQs.push(newQueue);
+                        }
+                        if(newQs.length == qs.length) {
+                            res.render("public", {
+                              hasRequests: false,
+                              hasFriends: true,
+                              friends: firstFriendArr,
+                              queues: newQs,
+                            });
+                        }
+                      })
+                    })
+                  }
+                });
+              }
+            }
+          });
+        });
+      } else {
+        let requested = [];
+        user.requestedFriends.forEach(function (foundId) {
+          User.findById(foundId, function (err, found) {
+            if (err) {
+              console.log(err);
+            } else {
+              requested.push(found.name);
+              if (requested.length == user.requestedFriends.length) {
+                User.findOne({
+                  name: req._passport.session.user[0].name
+                }, function (err, main) {
+                  if (err) {
+                    console.log(err);
+                  } else if (main.friends.length == 0) {
+                    getQueues();
+                    res.render("public", {
+                      hasRequests: true,
+                      hasFriends: false,
+                      requestedFriends: requested
+                    });
+                  } else {
+                    let friendArr = [];
+                    main.friends.forEach(function (friendId) {
+                      User.findById(friendId, function (err, friend) {
+                        if (err) {
+                          console.log(err);
+                        } else {
+                          friendArr.push(friend.name);
+                          if (friendArr.length == main.friends.length) {
+                            getQueues();
+                            res.render("public", {
+                              hasRequests: true,
+                              hasFriends: false,
+                              requestedFriends: requested,
+                              friends: friendArr
+                            });
+                          }
+                        }
+                      })
+                    })
+                  }
+                });
+              }
+            }
+          })
+        })
+      }
+    });
   } else {
     res.redirect("/error/login");
   }
@@ -229,7 +340,82 @@ app.get("/public", function (req, res) {
 // Renders private lobbies page
 app.get("/private", function (req, res) {
   if (req.isAuthenticated()) {
-    res.render("private");
+    console.log("redirected");
+    User.findOne({
+      name: req._passport.session.user[0].name
+    }, function (err, user) {
+      if (err) {
+        console.log(err);
+      } else if (user.requestedFriends.length == 0 && user.friends.length == 0) {
+        res.render("private", {
+          hasRequests: false,
+          hasFriends: false
+        });
+      } else if (user.requestedFriends.length == 0 && user.friends.length > 0) {
+        let firstFriendArr = [];
+        user.friends.forEach(function (friendsId) {
+          User.findById(friendsId, function (err, friend) {
+            if (err) {
+              console.log(err);
+            } else {
+              firstFriendArr.push(friend.name);
+              if (firstFriendArr.length == user.friends.length) {
+                res.render("private", {
+                  hasRequests: false,
+                  hasFriends: true,
+                  friends: firstFriendArr
+                });
+              }
+            }
+          });
+        });
+      } else {
+        let requested = [];
+        user.requestedFriends.forEach(function (foundId) {
+          User.findById(foundId, function (err, found) {
+            if (err) {
+              console.log(err);
+            } else {
+              requested.push(found.name);
+              if (requested.length == user.requestedFriends.length) {
+                User.findOne({
+                  name: req._passport.session.user[0].name
+                }, function (err, main) {
+                  if (err) {
+                    console.log(err);
+                  } else if (main.friends.length == 0) {
+                    res.render("private", {
+                      hasRequests: true,
+                      hasFriends: false,
+                      requestedFriends: requested
+                    });
+                  } else {
+                    let friendArr = [];
+                    main.friends.forEach(function (friendId) {
+                      User.findById(friendId, function (err, friend) {
+                        if (err) {
+                          console.log(err);
+                        } else {
+                          friendArr.push(friend.name);
+                          if (friendArr.length == main.friends.length) {
+                            res.render("private", {
+                              hasRequests: true,
+                              hasFriends: false,
+                              requestedFriends: requested,
+                              friends: friendArr
+                            });
+                          }
+                        }
+                      })
+                    })
+                  }
+                });
+              }
+            }
+          })
+        })
+      }
+    });
   } else {
     res.redirect("/error/login");
   }
@@ -245,31 +431,46 @@ app.get("/profile", function (req, res) {
 });
 
 app.get("/profile/:name", function (req, res) {
-  const user = req.params.name;
+  if (req.isAuthenticated()) {
+    const user = req.params.name;
 
-  User.findOne({
-    name: user
-  }, function (err, found) {
-    if (err) {
-      console.log(err);
-    } else {
-      res.render("profile", {
-        username: user,
-        email: found.email,
-        games: found.favoriteGames
-      });
-    }
-  })
+    User.findOne({
+      name: user
+    }, function (err, found) {
+      if (err) {
+        console.log(err);
+      } else if (user == req._passport.session.user[0].name) {
+        res.render("profile", {
+          username: user,
+          email: found.email,
+          games: found.favoriteGames,
+          userError: "",
+          gameError: "",
+          isUser: true
+        });
+      } else {
+        res.render("profile", {
+          username: user,
+          email: found.email,
+          games: found.favoriteGames,
+          userError: "",
+          gameError: "",
+          isUser: false
+        });
+      }
+    });
+  } else {
+    res.redirect("/error/login");
+  }
 });
 
 // Registers a user if the user doesn't already exist
 app.post("/register", function (req, res) {
   const email = req.body.email;
   const username = req.body.uname;
-  const password = req.body.pswd;
-  const confirm = req.body.pswdConfirm;
+  var password = req.body.pswd;
+  var confirm = req.body.pswdConfirm;
   var games = ["No game selected", "No game selected", "No game selected"];
-
 
   // Checks if the given passwords were the same
   if (password != confirm) {
@@ -296,6 +497,9 @@ app.post("/register", function (req, res) {
       list: true
     }));
   } else {
+    bcrypt.hash(password, saltRounds, function (err, hash) {
+      password = hash;
+    });
     // Check if the username has been taken
     User.find({
       name: username
@@ -366,8 +570,188 @@ app.post("/register", function (req, res) {
       }
     });
   }
-  // Log the info to the console
-  console.log(email + ", " + username + ", " + password + ", " + confirm);
+});
+
+app.post("/addFriend", function (req, res) {
+  if (req.isAuthenticated()) {
+    const mainUser = req._passport.session.user[0].name;
+    const newFriend = req.body.friendName;
+
+    function addFriend() {
+      User.findOne({
+        name: newFriend
+      }, function (err, user) {
+        if (err) {
+          console.log(err);
+        } else {
+          User.findOne({
+            name: mainUser
+          }, function (err, requester) {
+            if (err) {
+              console.log(err);
+            } else if (newFriend == mainUser) {
+              res.redirect("/public");
+            } else {
+              User.findOneAndUpdate({
+                name: user.name
+              }, {
+                $addToSet: {
+                  requestedFriends: requester._id
+                }
+              }, {
+                new: true
+              }, function (err) {
+                if (err) {
+                  console.log(err);
+                } else {
+                  res.redirect("/public");
+                }
+              });
+            }
+          });
+        }
+      })
+    }
+
+    User.findOne({
+      name: newFriend
+    }, function (err, friend) {
+      if (err) {
+        console.log(err);
+      } else if (friend == null) {
+        res.redirect("/public");
+      } else {
+        User.findOne({
+          name: mainUser
+        }, function (err, userRequesting) {
+          if (err) {
+            console.log(err);
+          } else {
+            var hasUser = false;
+            for (var i = 0; i < friend.friends.length; i++) {
+              if (userRequesting._id.str === friend.friends[i].str) {
+                hasUser = true;
+              }
+            }
+            if (hasUser) {
+              res.redirect("/public");
+            } else {
+              addFriend();
+            }
+          }
+        });
+      }
+    });
+  } else {
+    res.redirect("/error/login")
+  }
+});
+
+app.post("/acceptFriendRequest", function (req, res) {
+  if (req.isAuthenticated()) {
+    var requester = req._passport.session.user[0].name;
+    var newFriend = req.body.accept;
+    User.findOne({
+      name: requester
+    }, function (err, user) {
+      if (err) {
+        console.log(err);
+      } else {
+        User.findOne({
+          name: newFriend
+        }, function (err, friend) {
+          if (err) {
+            console.log(err);
+          } else {
+            User.findOneAndUpdate({
+              name: user.name
+            }, {
+              $addToSet: {
+                friends: friend._id
+              }
+            }, {
+              new: true
+            }, function (err, oldUser) {
+              if (err) {
+                console.log(err);
+              } else {
+                User.findOneAndUpdate({
+                  name: oldUser.name
+                }, {
+                  $pull: {
+                    requestedFriends: friend._id
+                  }
+                }, {
+                  new: true
+                }, function (err) {
+                  if (err) {
+                    console.log(err);
+                  } else {
+                    res.redirect("/public");
+                  }
+                });
+              }
+            });
+            User.findOneAndUpdate({
+              name: friend.name
+            }, {
+              $addToSet: {
+                friends: user._id
+              }
+            }, {
+              new: true
+            }, function (err) {
+              if (err) {
+                console.log(err);
+              }
+            });
+          }
+        });
+      }
+    });
+  } else {
+    res.redirect("/error/login");
+  }
+});
+
+app.post("/rejectFriendRequest", function (req, res) {
+  if (req.isAuthenticated()) {
+    var requester = req._passport.session.user[0].name;
+    var newFriend = req.body.reject;
+    User.findOne({
+      name: requester
+    }, function (err, user) {
+      if (err) {
+        console.log(err);
+      } else {
+        User.findOne({
+          name: newFriend
+        }, function (err, friend) {
+          if (err) {
+            console.log(err);
+          } else {
+            User.findOneAndUpdate({
+              name: user.name
+            }, {
+              $pull: {
+                requestedFriends: friend._id
+              }
+            }, {
+              new: true
+            }, function (err) {
+              if (err) {
+                console.log(err);
+              } else {
+                res.redirect("/public");
+              }
+            });
+          }
+        });
+      }
+    });
+  } else {
+    res.redirect("/error/login");
+  }
 });
 
 // Render email recovery page
@@ -412,30 +796,26 @@ app.post("/create", function (req, res) {
 app.post("/publicCreate", function (req, res) {
   const game = req.body.game;
   const desc = req.body.desc;
-  //REMOVE req.body.availibility FROM THE CODE!!!!!
   const num = req.body.slots;
   const visibility = true;
   /* Alex will have to pass an array through
   from the html site to this js l0l  */
   //const reserved = req.body.reserved;
-  var lobby = [];
+  var lobby = [req._passport.session.user[0]._id];
   var isFull = true;
 
-  if (reserved.length() >= num) {
-    // throw error
-    console.log("You cannot have more available slots than slots total.")
-  }
+  // if (reserved.length >= num) {
+  //   // throw error
+  //   console.log("You cannot have more available slots than slots total.");
+  // }
 
-  for (var i = 0; i < reserved; i++) {
-    lobby.push(reserved[i]);
-  }
-  for (var i = reserved.length(); i < num; i++) {
+  for (var i = lobby.length; i <= num; i++) {
     /* In the html, show that if userSchema == null,
     then show the spot as empty/available */
     lobby.push(null);
   }
 
-  for (var i = 0; i < lobby.length(); i++) {
+  for (var i = 0; i < lobby.length; i++) {
     if (lobby[i] == null) {
       isFull = false;
     }
@@ -447,13 +827,14 @@ app.post("/publicCreate", function (req, res) {
     description: desc,
     visibility: visibility,
     lobby: lobby,
-    full: isFull
+    full: isFull,
+    creator: req._passport.session.user[0]._id
   });
 
   // Save the queue to the DB
   queue.save();
+  console.log("saved queue");
 
-  console.log(game + ", " + desc + ", " + avail + ", " + num + "," + visibility);
   res.redirect("/public");
 });
 
@@ -506,36 +887,101 @@ app.post("/privateCreate", function (req, res) {
   res.redirect("/private");
 });
 
+app.post("/deleteQueue", function(req, res) {
+  if(req.isAuthenticated()) {
+    const id = req.body.id;
+    console.log(typeof id);
+    Queue.findByIdAndRemove(id, function(err) {
+      if(err) {
+        console.log(err);
+      } else {
+        res.redirect("/public");
+      }
+    });
+  } else {
+    res.redirect("/error/login");
+  }
+  
+});
+
 // Edit username -JS done-
 app.post("/userEdit", function (req, res) {
-  /* Enter old username
-  const oldUsername = req.body.oldUsername; */
+  /* Enter old username */
+  const oldUsername = req.body.oldUsername;
   const newUsername = req.body.newUsername
   const confirm = req.body.confirmUsername;
 
   if (newUsername != confirm) {
-    /* throw error and give "The usernames you entered did not match." 
-    at the top of the page */
-    console.log("The usernames you entered did not match.");
+    res.render("profile", {
+      username: req._passport.session.user[0].name,
+      email: req._passport.session.user[0].email,
+      games: req._passport.session.user[0].favoriteGames,
+      userError: "Usernames didn't match",
+      gameError: "",
+      isUser: true
+    });
+  } else if (oldUsername != req._passport.session.user[0].name) {
+    res.render("profile", {
+      username: req._passport.session.user[0].name,
+      email: req._passport.session.user[0].email,
+      games: req._passport.session.user[0].favoriteGames,
+      userError: "Usernames didn't match",
+      gameError: "",
+      isUser: true
+    });
+  } else {
+    User.find({
+      name: newUsername
+    }, function (err, user) {
+      if (err) {
+        console.log(err);
+      } else {
+        if (user.length > 0) {
+          res.render("profile", {
+            username: req._passport.session.user[0].name,
+            email: req._passport.session.user[0].email,
+            games: req._passport.session.user[0].favoriteGames,
+            userError: "Username is already taken",
+            gameError: "",
+            isUser: true
+          });
+        } else {
+          User.findOneAndUpdate({
+            name: oldUsername
+          }, {
+            name: newUsername
+          }, {
+            new: true
+          }, function () {
+            req._passport.session.user[0].name = newUsername;
+            res.redirect("profile/" + newUsername);
+          });
+        }
+      }
+    });
   }
-
-  //User.updateOne({name: oldUsername}, {name: newUsername});
-
-  res.redirect("profile");
 });
 
 // Edit 3 favorite games on profile -JS done-
 app.post("/gameEdit", function (req, res) {
-  /* Enter current username 
-  const user = req.body.uname; */
+  /* Enter current username */
+  const user = req._passport.session.user[0].name;
   const game1 = req.body.newGame1;
   const game2 = req.body.newGame2;
   const game3 = req.body.newGame3;
+  const gameArr = [game1, game2, game3];
 
   // Updates the user's three favorite games
-  /* User.updateOne({name: user}, {favoriteGames: [game1, game2, game3]}); */
-
-  res.redirect("profile");
+  User.findOneAndUpdate({
+    name: user
+  }, {
+    favoriteGames: gameArr
+  }, {
+    new: true
+  }, function () {
+    req._passport.session.user[0].favoriteGames = gameArr;
+    res.redirect("profile/" + user);
+  });
 });
 
 // Loads the page

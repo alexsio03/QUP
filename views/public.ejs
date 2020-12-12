@@ -33,7 +33,6 @@
                 <a class="nav-link nav-header logout" href="/logout">Log Out</a>
                 <a class="settings" href="#"><i class="fas fa-cog fa-2x"></i></a>
             </div>
-            
         </nav>
     </div>
     <div class="upper d-flex justify-content-between">
@@ -45,18 +44,20 @@
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="createForm">
-                        <form autocomplete="off" method="post" action="/create">
+                        <form autocomplete="off" method="post" action="/publicCreate">
                             <h1>Create a Queue</h1>
                             <h3>
-                                <label>Select a game: </label>
+                                <label>* Select a game: </label>
                                 <div class="autocomplete createAuto">
-                                    <input class="rounded shadow" id="gameCreation" type="text" name="game" placeholder="Game" required>
+                                    <input class="rounded shadow" id="gameCreation" type="text" name="game"
+                                        placeholder="Game" required>
                                 </div>
                             </h3>
                             <hr>
                             <h3>
                                 <label>Description: </label>
-                                <textarea class="rounded shadow" name="desc" id="" cols="60" rows="5"></textarea>
+                                <textarea class="rounded shadow" name="desc" id="" maxlength="100" cols="60"
+                                    rows="5"></textarea>
                             </h3>
                             <h3>
                                 <label>Select an availability: </label>
@@ -78,11 +79,12 @@
                             </h3>
                             <hr>
                             <h3>
-                                <label>Amount of Slots: </label>
+                                <label>* Amount of Slots: </label>
                                 <input class="rounded shadow" type="number" name="slots" min="1" max="12" required>
                             </h3>
                             <div class="buttons row justify-content-around">
-                                <a href="/public"><button class="btn btn-danger btn-lg shadow" type="button">Cancel</button></a>
+                                <a href="/public"><button class="btn btn-danger btn-lg shadow"
+                                        type="button">Cancel</button></a>
                                 <a><button class="btn btn-success btn-lg shadow" type="submit">Submit</button></a>
                             </div>
                         </form>
@@ -96,161 +98,45 @@
         <div class="row">
             <div class="col-7">
                 <!-- Will be a React component eventually, temp class item -->
+                <% for(var i = 0; i < queues.length; i++) { %>
                 <div class="q-item shadow rounded-lg">
-                    <h1>Game: Counter Strike Global Offensive (temp)</h1>
-                    <!-- Limit this array to the num of available users in party, make user input??? !maybe have pre-defined for bigger games! -->
+                    <form action="/deleteQueue" id="delete" method="POST"></form>
+                    <h1><%= queues[i].game  %></h1>
+                    <p><%= queues[i].desc %></p>
                     <ul class="nav d-flex justify-content-around">
-                        <!-- OnClick = user profile -->
+                        <% for(var k = 0; k < queues[i].lobby.length; k++) { %>
+                           <% if(queues[i].lobby[k] != null) { %>
                         <li class="nav-item">
                             <a class="nav-link" href="">
                                 <img class="shadow" src="../assets/IMG_3463.jpg" alt="">
-                                <span>User 1</span>
+                                <span> <%= queues[i].lobby[k] %> </span>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="">
-                                <img class="shadow" src="../assets/IMG_3463.jpg" alt="">
-                                <span>User 2</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt=""><span>User 3</span></a>
-                        </li>
+                        <% } else { %>
                         <li class="join"><a href=""><i class="fas fa-user-plus fa-3x"></i><span>Join Queue</span></a>
                         </li>
-                        <li class="join"><a href=""><i class="fas fa-user-plus fa-3x"></i><span>Join Queue</span></a>
-                        </li>
+                        <% } %>
+                    <% } %>
                     </ul>
                     <hr>
                     <ul class="nav queue">
                         <li>
                             <h4>QUEUE:</h4>
                         </li>
-                        <!-- EJS for loop of users in queue -->
                         <li>
                             <ol class="nav q-list">
-
+                                <% for(var w = 0; w < queues[i].waiting.length; w++) { %>
+                                <li><a href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt=""> <%= queues[i].waiting[w] %> </a></li>
+                                <% } %>
                             </ol>
                         </li>
                         <li><a href=""><i class="fas fa-user-plus fa-2x"></i></a></li>
                     </ul>
+                    <% if (queues[i].isCreator) { %>
+                        <button class="btn" id="delete-button" form="delete" name="id" value="<%- queues[i].id %>">Delete</button>
+                    <% } %>
                 </div>
-                <div class="q-item shadow rounded-lg">
-                    <h1>Game: Counter Strike Global Offensive (temp)</h1>
-                    <!-- Limit this array to the num of available users in party, make user input??? !maybe have pre-defined for bigger games! -->
-                    <ul class="nav d-flex justify-content-around">
-                        <!-- OnClick = user profile -->
-                        <li class="nav-item">
-                            <a class="nav-link" href="">
-                                <img class="shadow" src="../assets/IMG_3463.jpg" alt="">
-                                <span>User 1</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="">
-                                <img class="shadow" src="../assets/IMG_3463.jpg" alt="">
-                                <span>User 2</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt=""><span>User 3</span></a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt=""><span>User 4</span></a>
-                        </li>
-                        <li class="join"><a href=""><i class="fas fa-user-plus fa-3x"></i><span>Join Queue</span></a>
-                        </li>
-                    </ul>
-                    <hr>
-                    <ul class="nav queue">
-                        <li>
-                            <h4>QUEUE:</h4>
-                        </li>
-                        <!-- EJS for loop of users in queue -->
-                        <li>
-                            <ol class="nav q-list">
-
-                            </ol>
-                        </li>
-                        <li><a href=""><i class="fas fa-user-plus fa-2x"></i></a></li>
-                    </ul>
-                </div>
-                <div class="q-item shadow rounded-lg">
-                    <h1>Game: Warzone (temp)</h1>
-                    <!-- Limit this array to the num of available users in party, make user input??? !maybe have pre-defined for bigger games! -->
-                    <ul class="nav d-flex justify-content-around">
-                        <!-- OnClick = user profile -->
-                        <li class="nav-item">
-                            <a class="nav-link" href="">
-                                <img class="shadow" src="../assets/IMG_3463.jpg" alt="">
-                                <span>User 1</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="">
-                                <img class="shadow" src="../assets/IMG_3463.jpg" alt="">
-                                <span>User 2</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt=""><span>User 3</span></a>
-                        </li>
-                        <li class="join"><a href=""><i class="fas fa-user-plus fa-3x"></i><span>Join Queue</span></a>
-                        </li>
-                    </ul>
-                    <hr>
-                    <ul class="nav queue">
-                        <li>
-                            <h4>QUEUE:</h4>
-                        </li>
-                        <!-- EJS for loop of users in queue -->
-                        <li>
-                            <ol class="nav q-list">
-
-                            </ol>
-                        </li>
-                        <li><a href=""><i class="fas fa-envelope fa-2x"></i></a></li>
-                    </ul>
-                </div>
-                <div class="q-item shadow rounded-lg">
-                    <h1>Game: Warzone (temp)</h1>
-                    <!-- Limit this array to the num of available users in party, make user input??? !maybe have pre-defined for bigger games! -->
-                    <ul class="nav users d-flex justify-content-around">
-                        <!-- OnClick = user profile -->
-                        <li class="nav-item">
-                            <a class="nav-link" href="">
-                                <img class="shadow" src="../assets/IMG_3463.jpg" alt="">
-                                <span>User 1</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="">
-                                <img class="shadow" src="../assets/IMG_3463.jpg" alt="">
-                                <span>User 2</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt=""><span>User 3</span></a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt=""><span>User 4</span></a>
-                        </li>
-                    </ul>
-                    <hr>
-                    <ul class="nav queue">
-                        <li>
-                            <h4>QUEUE:</h4>
-                        </li>
-                        <!-- EJS for loop of users in queue -->
-                        <li>
-                            <ol class="nav q-list">
-                                <li><a href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt="">User 5,</a></li>
-                                <li><a href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt="">User 6</a></li>
-                            </ol>
-                        </li>
-                        <li class="locked"><i class="fas fa-lock fa-2x"></i></li>
-                    </ul>
-                </div>
+                <% } %>
             </div>
             <div class="col-2">
                 <div class="filter rounded shadow">
@@ -259,7 +145,8 @@
                         <hr>
                         <h5>Game:</h5>
                         <div class="autocomplete">
-                            <input id="gameFilter" class="rounded shadow" type="text" name="filterGame" placeholder="Game" required>
+                            <input id="gameFilter" class="rounded shadow" type="text" name="filterGame"
+                                placeholder="Game" required>
                         </div>
                         <h5>Don't Show Full Queues: <input type="checkbox" name="full"></h5>
                         <button class="btn btn-lg shadow" type="submit">Submit</button>
@@ -270,61 +157,67 @@
             <div class="col-3 h-50 shadow friends-list rounded-left">
                 <div>
                     <ul>
-                        <li>
+                        <li class="addFriend">
+                            <a data-target="#addFriend" data-toggle="modal" href="#addFriend"><i
+                                    class="fas fa-plus-circle"></i>Add Friend</a>
+                        </li>
+                        <hr>
+                        <% if (hasRequests) { %>
+                        <li class="requests">
+                            <h4>Friend Requests:</h4>
+                            <ul>
+                                <li>
+                                    <% for(var i = 0; i < requestedFriends.length; i++) { %>
+                                    <form id="acceptRequest" method="POST" action="/acceptFriendRequest">
+                                    </form>
+                                    <form id="rejectRequest" method="POST" action="/rejectFriendRequest">
+                                    </form>
+                                    <button class="requestButton" name="accept" value="<%- requestedFriends[i] %>"
+                                        form="acceptRequest"><i class="fas fa-check"></i></button>
+                                    <button class="requestButton" name="reject" value="<%- requestedFriends[i] %>"
+                                        form="rejectRequest"><i class="fas fa-times"></i></button>
+                                    <a href="profile/<%- requestedFriends[i] %>"><%= requestedFriends[i] %></a>
+                                    <% } %>
+                                </li>
+                            </ul>
+                            <hr>
+                        </li>
+                        <% } %>
+                        <% if (hasFriends) { %>
+                        <% for(var i = 0; i < friends.length; i++) { %><li>
                             <div class="row">
                                 <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
                                 <div>
-                                    <a href="">Friend</a>
+                                    <a href="/profile/<%= friends[i] %>"><%= friends[i] %></a>
                                     <span id="status">Status: Looking to play</span>
                                 </div>
                             </div>
                         </li>
-                        <li>
-                            <div class="row">
-                                <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
-                                <div>
-                                    <a href="">Friend</a>
-                                    <span id="status">Status: Looking to play</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row">
-                                <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
-                                <div>
-                                    <a href="">Friend</a>
-                                    <span id="status">Status: Looking to play</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row">
-                                <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
-                                <div>
-                                    <a href="">Friend</a>
-                                    <span id="status">Status: Looking to play</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row">
-                                <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
-                                <div>
-                                    <a href="">Friend</a>
-                                    <span id="status">Status: Looking to play</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row">
-                                <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
-                                <div>
-                                    <a href="">Friend</a>
-                                    <span id="status">Status: Looking to play</span>
-                                </div>
-                            </div>
-                        </li>
+                        <% } %>
+                        <% } %>
                     </ul>
+                </div>
+            </div>
+            <div class="modal fade" id="addFriend" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="friendForm shadow-lg">
+                            <form autocomplete="off" method="post" action="/addFriend">
+                                <h3>Add a Friend</h3>
+                                <hr>
+                                <div>
+                                    <label>Enter username: <input class="rounded shadow" type="text" name="friendName"
+                                            required></label>
+                                </div>
+                                <div class="buttons row justify-content-around">
+                                    <a href="/public"><button class="btn btn-danger btn-lg shadow"
+                                            type="button">Cancel</button></a>
+                                    <a><button class="btn btn-success btn-lg shadow" type="submit">Submit</button></a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

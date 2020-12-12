@@ -27,7 +27,10 @@
                 <a class="nav-link nav-header active" href="#">Private</a>
                 <a class="nav-link nav-header" href="/profile">Profile</a>
             </div>
-            <a class="settings" href="#"><i class="fas fa-cog fa-2x"></i></a>
+            <div class="d-flex justify-content-around">
+                <a class="nav-link nav-header logout" href="/logout">Log Out</a>
+                <a class="settings" href="#"><i class="fas fa-cog fa-2x"></i></a>
+            </div>
         </nav>
     </div>
     <div class="upper d-flex justify-content-between">
@@ -170,61 +173,67 @@
             <div class="col-3 h-50 shadow friends-list rounded-left">
                 <div>
                     <ul>
-                        <li>
-                            <div class="row">
-                                <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
-                                <div>
-                                    <a href="">Friend</a>
-                                    <span id="status">Status: Looking to play</span>
-                                </div>
-                            </div>
+                        <li class="addFriend">
+                            <a data-target="#addFriend" data-toggle="modal" href="#addFriend"><i
+                                    class="fas fa-plus-circle"></i>Add Friend</a>
                         </li>
-                        <li>
-                            <div class="row">
-                                <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
-                                <div>
-                                    <a href="">Friend</a>
-                                    <span id="status">Status: Looking to play</span>
-                                </div>
-                            </div>
+                        <hr>
+                        <% if (hasRequests) { %>
+                        <li class="requests">
+                            <h4>Friend Requests:</h4>
+                            <ul>
+                                <li>
+                                    <% for(var i = 0; i < requestedFriends.length; i++) { %>
+                                    <form id="acceptRequest" method="POST" name="test" action="/acceptFriendRequest">
+                                    </form>
+                                    <form id="rejectRequest" method="POST" name="" action="/rejectFriendRequest">
+                                    </form>
+                                        <button class="requestButton" name="accept" value="<%- requestedFriends[i] %>" form="acceptRequest"><i
+                                                class="fas fa-check"></i></button>
+                                        <button class="requestButton" name="reject" value="<%- requestedFriends[i] %>" form="rejectRequest"><i
+                                                class="fas fa-times"></i></button>
+                                        <a href="profile/<%- requestedFriends[i] %>"><%= requestedFriends[i] %></a>
+                                    <% } %>
+                                </li>
+                            </ul>
+                            <hr>
                         </li>
-                        <li>
-                            <div class="row">
-                                <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
-                                <div>
-                                    <a href="">Friend</a>
-                                    <span id="status">Status: Looking to play</span>
+                        <% } %>
+                        <% if (hasFriends) { %>
+                            <% for(var i = 0; i < friends.length; i++) { %><li>
+                                <div class="row">
+                                    <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
+                                    <div>
+                                        <a href="/profile/<%= friends[i] %>"><%= friends[i] %></a>
+                                        <span id="status">Status: Looking to play</span>
+                                    </div>
                                 </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row">
-                                <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
-                                <div>
-                                    <a href="">Friend</a>
-                                    <span id="status">Status: Looking to play</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row">
-                                <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
-                                <div>
-                                    <a href="">Friend</a>
-                                    <span id="status">Status: Looking to play</span>
-                                </div>
-                            </div>
-                        </li>
-                        <li>
-                            <div class="row">
-                                <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
-                                <div>
-                                    <a href="">Friend</a>
-                                    <span id="status">Status: Looking to play</span>
-                                </div>
-                            </div>
-                        </li>
+                                </li>
+                            <% } %>
+                        <% } %>
                     </ul>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="addFriend" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="friendForm shadow-lg">
+                            <form autocomplete="off" method="post" action="/addFriend">
+                                <h3>Add a Friend</h3>
+                                <hr>
+                                <div>
+                                    <label>Enter username: <input class="rounded shadow" type="text" name="friendName" required></label>
+                                </div>
+                                <div class="buttons row justify-content-around">
+                                    <a href="/public"><button class="btn btn-danger btn-lg shadow"
+                                            type="button">Cancel</button></a>
+                                    <a><button class="btn btn-success btn-lg shadow" type="submit">Submit</button></a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
