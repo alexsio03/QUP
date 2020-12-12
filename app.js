@@ -81,10 +81,7 @@ const queueSchema = new mongoose.Schema({
   description: {
     type: String,
     required: false,
-    maxLength: 50
-    /* maybe in the text box in the description
-    field have a message in faded text saying 
-    "description not necessary" or something */
+    maxLength: 100
   },
   visibility: {
     type: Boolean,
@@ -97,12 +94,18 @@ const queueSchema = new mongoose.Schema({
     of: mongoose.ObjectId,
     required: true
   },
+  waiting: {
+    type: Array,
+    of: mongoose.ObjectId,
+    required: false
+  },
   full: {
     type: Boolean,
     required: false
   },
   creator: {
-    type: mongoose.ObjectId
+    type: mongoose.ObjectId,
+    required: true
   }
 });
 
@@ -221,12 +224,14 @@ app.get("/logout", function (req, res) {
 // Look for public lobbies
 app.get("/public", function (req, res) {
   if (req.isAuthenticated()) {
+
     User.findOne({
       name: req._passport.session.user[0].name
     }, function (err, user) {
       if (err) {
         console.log(err);
       } else if (user.requestedFriends.length == 0 && user.friends.length == 0) {
+        getQueues();
         res.render("public", {
           hasRequests: false,
           hasFriends: false
@@ -240,10 +245,38 @@ app.get("/public", function (req, res) {
             } else {
               firstFriendArr.push(friend.name);
               if (firstFriendArr.length == user.friends.length) {
-                res.render("public", {
-                  hasRequests: false,
-                  hasFriends: true,
-                  friends: firstFriendArr
+                Queue.find({visibility: true}, function(err, qs) {
+                  if(err) {
+                    console.log(err);
+                  } else {
+                    var newQs = [];
+                    qs.forEach(function(queue) {
+                      newLobby = queue.lobby;
+                      User.findById(newLobby[0], function(err, user) {
+                        if(err) {
+                          console.log(err);
+                        } else {
+                          newLobby[0] = user.name;
+                          var newQueue = {
+                            game: queue.game,
+                            desc: queue.description,
+                            lobby: newLobby,
+                            waiting: queue.waiting,
+                            isCreator: user._id == req._passport.session.user[0]._id
+                          };
+                          newQs.push(newQueue);
+                          if(newQs.length == qs.length) {
+                            res.render("public", {
+                              hasRequests: false,
+                              hasFriends: true,
+                              friends: firstFriendArr,
+                              queues: newQs,
+                            });
+                          }
+                        }
+                      })
+                    })
+                  }
                 });
               }
             }
@@ -264,6 +297,7 @@ app.get("/public", function (req, res) {
                   if (err) {
                     console.log(err);
                   } else if (main.friends.length == 0) {
+                    getQueues();
                     res.render("public", {
                       hasRequests: true,
                       hasFriends: false,
@@ -278,6 +312,7 @@ app.get("/public", function (req, res) {
                         } else {
                           friendArr.push(friend.name);
                           if (friendArr.length == main.friends.length) {
+                            getQueues();
                             res.render("public", {
                               hasRequests: true,
                               hasFriends: false,
@@ -760,30 +795,26 @@ app.post("/create", function (req, res) {
 app.post("/publicCreate", function (req, res) {
   const game = req.body.game;
   const desc = req.body.desc;
-  //REMOVE req.body.availibility FROM THE CODE!!!!!
   const num = req.body.slots;
   const visibility = true;
   /* Alex will have to pass an array through
   from the html site to this js l0l  */
   //const reserved = req.body.reserved;
-  var lobby = [];
+  var lobby = [req._passport.session.user[0]._id];
   var isFull = true;
 
-  if (reserved.length() >= num) {
-    // throw error
-    console.log("You cannot have more available slots than slots total.")
-  }
+  // if (reserved.length >= num) {
+  //   // throw error
+  //   console.log("You cannot have more available slots than slots total.");
+  // }
 
-  for (var i = 0; i < reserved; i++) {
-    lobby.push(reserved[i]);
-  }
-  for (var i = reserved.length(); i < num; i++) {
+  for (var i = lobby.length; i <= num; i++) {
     /* In the html, show that if userSchema == null,
     then show the spot as empty/available */
     lobby.push(null);
   }
 
-  for (var i = 0; i < lobby.length(); i++) {
+  for (var i = 0; i < lobby.length; i++) {
     if (lobby[i] == null) {
       isFull = false;
     }
@@ -795,13 +826,14 @@ app.post("/publicCreate", function (req, res) {
     description: desc,
     visibility: visibility,
     lobby: lobby,
-    full: isFull
+    full: isFull,
+    creator: req._passport.session.user[0]._id
   });
 
   // Save the queue to the DB
   queue.save();
+  console.log("saved queue");
 
-  console.log(game + ", " + desc + ", " + avail + ", " + num + "," + visibility);
   res.redirect("/public");
 });
 

@@ -5,6 +5,10 @@ body {
     font-family: 'Lato', sans-serif;
 }
 
+textarea {
+    resize: none;
+}
+
 .fa-check {
     color: lightgreen;
 }
@@ -16,6 +20,19 @@ body {
 button:hover {
     background-color: rgb(221, 234, 243) !important;
     color: rgb(50, 130, 184) !important;
+}
+
+#delete-button {
+    background-color: red !important;
+    width: 80%;
+    border: none;
+    color: white;
+    margin: 2% 9%;
+}
+
+#delete-button:hover {
+    color:white;
+    background-color: crimson;
 }
 
 a {

@@ -44,10 +44,10 @@
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="createForm">
-                        <form autocomplete="off" method="post" action="/create">
+                        <form autocomplete="off" method="post" action="/publicCreate">
                             <h1>Create a Queue</h1>
                             <h3>
-                                <label>Select a game: </label>
+                                <label>* Select a game: </label>
                                 <div class="autocomplete createAuto">
                                     <input class="rounded shadow" id="gameCreation" type="text" name="game"
                                         placeholder="Game" required>
@@ -56,7 +56,8 @@
                             <hr>
                             <h3>
                                 <label>Description: </label>
-                                <textarea class="rounded shadow" name="desc" id="" cols="60" rows="5"></textarea>
+                                <textarea class="rounded shadow" name="desc" id="" maxlength="100" cols="60"
+                                    rows="5"></textarea>
                             </h3>
                             <h3>
                                 <label>Select an availability: </label>
@@ -78,7 +79,7 @@
                             </h3>
                             <hr>
                             <h3>
-                                <label>Amount of Slots: </label>
+                                <label>* Amount of Slots: </label>
                                 <input class="rounded shadow" type="number" name="slots" min="1" max="12" required>
                             </h3>
                             <div class="buttons row justify-content-around">
@@ -97,47 +98,44 @@
         <div class="row">
             <div class="col-7">
                 <!-- Will be a React component eventually, temp class item -->
+                <% for(var i = 0; i < queues.length; i++) { %>
                 <div class="q-item shadow rounded-lg">
-                    <h1>Game: Counter Strike Global Offensive (temp)</h1>
-                    <p>Looking for 2 players, MGE or higher, playing in ESEA, chill not tryhard</p>
-                    <!-- Limit this array to the num of available users in party, make user input??? !maybe have pre-defined for bigger games! -->
+                    <h1><%= queues[i].game  %></h1>
+                    <p><%= queues[i].desc %></p>
                     <ul class="nav d-flex justify-content-around">
-                        <!-- OnClick = user profile -->
+                        <% for(var k = 0; k < queues[i].lobby.length; k++) { %>
+                           <% if(queues[i].lobby[k] != null) { %>
                         <li class="nav-item">
                             <a class="nav-link" href="">
                                 <img class="shadow" src="../assets/IMG_3463.jpg" alt="">
-                                <span>User 1</span>
+                                <span> <%= queues[i].lobby[k] %> </span>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="">
-                                <img class="shadow" src="../assets/IMG_3463.jpg" alt="">
-                                <span>User 2</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg"
-                                    alt=""><span>User 3</span></a>
-                        </li>
+                        <% } else { %>
                         <li class="join"><a href=""><i class="fas fa-user-plus fa-3x"></i><span>Join Queue</span></a>
                         </li>
-                        <li class="join"><a href=""><i class="fas fa-user-plus fa-3x"></i><span>Join Queue</span></a>
-                        </li>
+                        <% } %>
+                    <% } %>
                     </ul>
                     <hr>
                     <ul class="nav queue">
                         <li>
                             <h4>QUEUE:</h4>
                         </li>
-                        <!-- EJS for loop of users in queue -->
                         <li>
                             <ol class="nav q-list">
-
+                                <% for(var w = 0; w < queues[i].waiting.length; w++) { %>
+                                <li><a href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt=""> <%= queues[i].waiting[w] %> </a></li>
+                                <% } %>
                             </ol>
                         </li>
                         <li><a href=""><i class="fas fa-user-plus fa-2x"></i></a></li>
                     </ul>
+                    <% if (queues[i].isCreator) { %>
+                        <button class="btn" id="delete-button">Delete</button>
+                    <% } %>
                 </div>
+                <% } %>
             </div>
             <div class="col-2">
                 <div class="filter rounded shadow">
@@ -186,16 +184,16 @@
                         </li>
                         <% } %>
                         <% if (hasFriends) { %>
-                            <% for(var i = 0; i < friends.length; i++) { %><li>
-                                <div class="row">
-                                    <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
-                                    <div>
-                                        <a href="/profile/<%= friends[i] %>"><%= friends[i] %></a>
-                                        <span id="status">Status: Looking to play</span>
-                                    </div>
+                        <% for(var i = 0; i < friends.length; i++) { %><li>
+                            <div class="row">
+                                <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
+                                <div>
+                                    <a href="/profile/<%= friends[i] %>"><%= friends[i] %></a>
+                                    <span id="status">Status: Looking to play</span>
                                 </div>
-                                </li>
-                            <% } %>
+                            </div>
+                        </li>
+                        <% } %>
                         <% } %>
                     </ul>
                 </div>
