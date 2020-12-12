@@ -100,6 +100,7 @@
                 <!-- Will be a React component eventually, temp class item -->
                 <% for(var i = 0; i < queues.length; i++) { %>
                 <div class="q-item shadow rounded-lg">
+                    <form action="/deleteQueue" id="delete" method="POST"></form>
                     <h1><%= queues[i].game  %></h1>
                     <p><%= queues[i].desc %></p>
                     <ul class="nav d-flex justify-content-around">
@@ -132,7 +133,7 @@
                         <li><a href=""><i class="fas fa-user-plus fa-2x"></i></a></li>
                     </ul>
                     <% if (queues[i].isCreator) { %>
-                        <button class="btn" id="delete-button">Delete</button>
+                        <button class="btn" id="delete-button" form="delete" name="id" value="<%- queues[i].id %>">Delete</button>
                     <% } %>
                 </div>
                 <% } %>
@@ -167,10 +168,9 @@
                             <ul>
                                 <li>
                                     <% for(var i = 0; i < requestedFriends.length; i++) { %>
-                                    <form id="acceptRequest" method="POST" name="test" action="/acceptFriendRequest">
-
+                                    <form id="acceptRequest" method="POST" action="/acceptFriendRequest">
                                     </form>
-                                    <form id="rejectRequest" method="POST" name="" action="/rejectFriendRequest">
+                                    <form id="rejectRequest" method="POST" action="/rejectFriendRequest">
                                     </form>
                                     <button class="requestButton" name="accept" value="<%- requestedFriends[i] %>"
                                         form="acceptRequest"><i class="fas fa-check"></i></button>

@@ -258,6 +258,7 @@ app.get("/public", function (req, res) {
                           var newLobby = queue.lobby;
                           newLobby[0] = lobbyist.name;
                           var newQueue = {
+                            id: queue._id,
                             game: queue.game,
                             desc: queue.description,
                             lobby: newLobby,
@@ -267,7 +268,6 @@ app.get("/public", function (req, res) {
                           newQs.push(newQueue);
                         }
                         if(newQs.length == qs.length) {
-                          console.log(newQs);
                             res.render("public", {
                               hasRequests: false,
                               hasFriends: true,
@@ -885,6 +885,23 @@ app.post("/privateCreate", function (req, res) {
 
   console.log(game + ", " + desc + ", " + avail + ", " + num + "," + visibility);
   res.redirect("/private");
+});
+
+app.post("/deleteQueue", function(req, res) {
+  if(req.isAuthenticated()) {
+    const id = req.body.id;
+    console.log(typeof id);
+    Queue.findByIdAndRemove(id, function(err) {
+      if(err) {
+        console.log(err);
+      } else {
+        res.redirect("/public");
+      }
+    });
+  } else {
+    res.redirect("/error/login");
+  }
+  
 });
 
 // Edit username -JS done-
