@@ -925,6 +925,46 @@ app.post("/joinQueue", function(req, res){
   */
 });
 
+app.post("/leaveQueue", function(req, res){
+  /* In the html find a way to know which queue
+  the user wants to join. Im just going to call
+  it "theQueue" */
+
+  /*
+  Queue.findOne({theQueue}, function(err, lobby){    // Remember to use findById of you're going to use ID
+    if(err){
+      console.log(err);
+    } else {
+      for (var i = 0; i<lobby.length; i++){
+        if (lobby[i] == req._passport.session.user[0]){
+          lobby[i] = null;
+          break;
+        }
+      }
+    }
+  });
+
+  // Delete the queue if it is empty
+  var numNulls = 0;
+  for (var i = 0; i<lobby.length; i++){
+    if (lobby[i] == null){
+      numNulls++;
+    }
+  }
+  if(numNulls == lobby.length){
+    //DELETE THE QUEUE
+  }
+  */
+
+  /*
+  if (avai == true) {
+    res.redirect("/public");
+  } else if (avai == false) {
+    res.redirect("/private");
+  }
+  */
+});
+
 // Deletes a queue
 app.post("/deleteQueue", function(req, res) {
   if(req.isAuthenticated()) {
