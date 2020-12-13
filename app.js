@@ -277,7 +277,6 @@ app.get("/public", function (req, res) {
                             res.render("public", {
                               hasRequests: false,
                               hasFriends: false,
-                              friends: firstFriendArr,
                               queues: newQs,
                             });
                           }
