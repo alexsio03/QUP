@@ -907,76 +907,65 @@ app.post("/privateCreate", function (req, res) {
 
 // Allows the user to join a queue
 app.post("/joinQueue", function(req, res){
-  // This might be bugged out the wazoo
+  var currentQueueID = req.body.joinID;
+  var avai;
+  var lever = true;
 
-  /* In the html find a way to know which queue
-  the user wants to join. Im just going to call
-  it "theQueue" */
-  // var currentQueue = theQueue;
-  // const avai = currentQueue.visibility;
-  /*
-  Queue.findOne({theQueue}, function(err, lobby){    // Remember to use findById of you're going to use ID
+  Queue.findById(currentQueueID, function(err, lobby){
     if(err){
       console.log(err);
     } else {
+      avai = Queue.findByID(currentQueueID).visibility;
       for (var i = 0; i<lobby.length; i++){
-        if (lobby[i] == null){
+        if (lobby[i] == null && lever){
           lobby[i] = req._passport.session.user[0];
-          break;
+          lever = false;
         }
       }
     }
   });
-  */
 
-  /*
   if (avai == true) {
     res.redirect("/public");
   } else if (avai == false) {
     res.redirect("/private");
   }
-  */
 });
 
 // Allows the user to leave a queue
 app.post("/leaveQueue", function(req, res){
-  /* In the html find a way to know which queue
-  the user wants to join. Im just going to call
-  it "theQueue" */
+  var currentQueueID = req.body.joinID;
+  var avai;
+  var lever = true;
+  var numNulls = 0;
 
-  /*
-  Queue.findOne({theQueue}, function(err, lobby){    // Remember to use findById of you're going to use ID
+  Queue.findById(currentQueueID, function(err, lobby){
     if(err){
       console.log(err);
     } else {
+      avai = Queue.findByID(currentQueueID).visibility;
       for (var i = 0; i<lobby.length; i++){
-        if (lobby[i] == req._passport.session.user[0]){
-          lobby[i] = null;
-          break;
+        if (lobby[i] == null && lever){
+          lobby[i] = req._passport.session.user[0];
+          lever = false;
         }
+      }
+      for (var i = 0; i<lobby.length; i++){
+        if (lobby[i] == null){
+          numNulls++;
+        }
+      }
+      if(numNulls == lobby.length){
+        Queue.findByIdAndRemove(currentQueueID);
       }
     }
   });
 
-  // Delete the queue if it is empty
-  var numNulls = 0;
-  for (var i = 0; i<lobby.length; i++){
-    if (lobby[i] == null){
-      numNulls++;
-    }
-  }
-  if(numNulls == lobby.length){
-    //DELETE THE QUEUE
-  }
-  */
-
-  /*
   if (avai == true) {
     res.redirect("/public");
   } else if (avai == false) {
     res.redirect("/private");
   }
-  */
 });
 
 // Deletes a queue
