@@ -9,14 +9,13 @@ const emailValidator = require("email-validator");
 const session = require("express-session");
 const passport = require("passport");
 const passportLocalMongoose = require("passport-local-mongoose");
-// New encryption package
 const bcrypt = require('bcrypt');
 const {
   assert
 } = require('console');
 const saltRounds = 10;
 
-// Setting up express and mongo
+// Setting up the main packages
 const app = express();
 app.set('view engine', 'ejs');
 app.use(session({
@@ -77,8 +76,6 @@ const queueSchema = new mongoose.Schema({
   game: {
     type: String,
     required: true
-    /* allow the user to choose from 
-    the list of games */
   },
   description: {
     type: String,
@@ -87,8 +84,8 @@ const queueSchema = new mongoose.Schema({
   },
   visibility: {
     type: Boolean,
-    // true: public
-    // false: private
+    /* true: public
+    false: private */
     required: true
   },
   lobby: {
@@ -164,7 +161,6 @@ app.route("/")
               res.redirect("/public");
             }
           });
-          console.log("Successfully logged in!");
         } else {
           // throw an error
           res.redirect('/error/badPswd');
@@ -176,48 +172,51 @@ app.route("/")
 
 // This page gets loaded when there is an error
 app.get("/error/:err", function (req, res) {
-  const error = req.params.err;
-  if (error == "noUser") {
-    res.render("login", {
-      errorMessage: "No user available. Please register."
-    });
-  } else if (error == "badPswd") {
-    res.render("login", {
-      errorMessage: "Invalid password."
-    });
-  } else if (error == "userTaken") {
-    res.render("login", {
-      errorMessage: "That username was already taken."
-    });
-  } else if (error == "emailTaken") {
-    res.render("login", {
-      errorMessage: "That email was already taken."
-    });
-  } else if (error == "badRegister") {
-    res.render("login", {
-      errorMessage: "Server side error. Please report this issue."
-    });
-  } else if (error == "noMatch") {
-    res.render("login", {
-      errorMessage: "Passwords did not match."
-    });
-  } else if (error == "invalidEmail") {
-    res.render("login", {
-      errorMessage: "Email was invalid. Please use proper format."
-    });
-  } else if (error == "invalidPassword") {
-    res.render("login", {
-      errorMessage: "Password was invalid. Please use user proper format."
-    });
-  } else if (error == "login") {
-    res.render("login", {
-      errorMessage: "Please login before entering"
-    });
-  }
-
+    const error = req.params.err;
+    if (error == "noUser") {
+      res.render("login", {
+        errorMessage: "No user available. Please register."
+      });
+    } else if (error == "badPswd") {
+      res.render("login", {
+        errorMessage: "Invalid password."
+      });
+    } else if (error == "userTaken") {
+      res.render("login", {
+        errorMessage: "That username was already taken."
+      });
+    } else if (error == "emailTaken") {
+      res.render("login", {
+        errorMessage: "That email was already taken."
+      });
+    } else if (error == "badRegister") {
+      res.render("login", {
+        errorMessage: "Server side error. Please report this issue."
+      });
+    } else if (error == "noMatch") {
+      res.render("login", {
+        errorMessage: "Passwords did not match."
+      });
+    } else if (error == "invalidEmail") {
+      res.render("login", {
+        errorMessage: "Email was invalid. Please use proper format."
+      });
+    } else if (error == "invalidPassword") {
+      res.render("login", {
+        errorMessage: "Password was invalid. Please use user proper format."
+      });
+    } else if (error == "login") {
+      res.render("login", {
+        errorMessage: "Please login before entering"
+      });
+    } else if (error == "sameGame") {
+      res.render("profile", {
+        gameError: "You cannot have more than one of the same game."
+      });
+    }
 });
 
-// Allows the user to log out
+// Logs the user out
 app.get("/logout", function (req, res) {
   req.logout();
   res.redirect("/");
@@ -226,14 +225,10 @@ app.get("/logout", function (req, res) {
 // Renders public lobbies page
 app.get("/public", function (req, res) {
   if (req.isAuthenticated()) {
-
-    User.findOne({
-      name: req._passport.session.user[0].name
-    }, function (err, user) {
+    User.findOne({name: req._passport.session.user[0].name}, function (err, user) {
       if (err) {
         console.log(err);
       } else if (user.requestedFriends.length == 0 && user.friends.length == 0) {
-        getQueues();
         res.render("public", {
           hasRequests: false,
           hasFriends: false
@@ -247,29 +242,46 @@ app.get("/public", function (req, res) {
             } else {
               firstFriendArr.push(friend.name);
               if (firstFriendArr.length == user.friends.length) {
-                Queue.find({visibility: true}, function(err, qs) {
-                  if(err) {
+                Queue.find({visibility: true}, function (err, qs) {
+                  if (err) {
                     console.log(err);
                   } else {
                     var newQs = [];
-                    qs.forEach(function(queue) {
-                      User.findById(queue.lobby[0], function(err, lobbyist) {
-                        if(err) {
-                          console.log(err);
-                        } else {
-                          var newLobby = queue.lobby;
-                          newLobby[0] = lobbyist.name;
-                          var newQueue = {
-                            id: queue._id,
-                            game: queue.game,
-                            desc: queue.description,
-                            lobby: newLobby,
-                            waiting: queue.waiting,
-                            isCreator: lobbyist._id == req._passport.session.user[0]._id
-                          };
-                          newQs.push(newQueue);
-                        }
-                        if(newQs.length == qs.length) {
+                    qs.forEach(function (queue) {
+                      var firstId = queue.lobby[0]._id;
+                      var newLobby = queue.lobby;
+                      var counter = 0;
+                      newLobby.forEach(function (user) {
+                        User.findById(user, function (err, lobbyist) {
+                          if (err) {
+                            console.log(err);
+                          } 
+                          if (lobbyist != null) {
+                            newLobby[newLobby.indexOf(user)] = lobbyist.name;
+                          } else if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
+                            newLobby[i] = lobbyist.name;
+                            var newQueue = {
+                              id: queue._id,
+                              game: queue.game,
+                              desc: queue.description,
+                              lobby: newLobby,
+                              waiting: queue.waiting,
+                              isCreator: firstId == req._passport.session.user[0]._id
+                            };
+                            newQs.push(newQueue);
+                          } else if (counter == newLobby.length - 1) {
+                            var newQueue = {
+                              id: queue._id,
+                              game: queue.game,
+                              desc: queue.description,
+                              lobby: newLobby,
+                              waiting: queue.waiting,
+                              isCreator: firstId == req._passport.session.user[0]._id
+                            };
+                            newQs.push(newQueue);
+                          }
+                          counter++;
+                          if (newQs.length == qs.length) {
                             res.render("public", {
                               hasRequests: false,
                               hasFriends: true,
@@ -277,6 +289,7 @@ app.get("/public", function (req, res) {
                               queues: newQs,
                             });
                         }
+                        })
                       })
                     })
                   }
@@ -432,7 +445,7 @@ app.get("/profile", function (req, res) {
   }
 });
 
-// Shows the profile page of a specific user
+// Render's a specific user's profile page
 app.get("/profile/:name", function (req, res) {
   if (req.isAuthenticated()) {
     const user = req.params.name;
@@ -493,8 +506,6 @@ app.post("/register", function (req, res) {
 
   // Check if the password is valid
   else if (!(pswdSchema.validate(password))) {
-    /* return to register page, the 
-    password is invalid! */
     res.redirect("/error/invalidPassword");
     console.log("The given password was invalid! : " + pswdSchema.validate(password, {
       list: true
@@ -575,7 +586,7 @@ app.post("/register", function (req, res) {
   }
 });
 
-// Allows the user to add a friend
+// Sends a friend request
 app.post("/addFriend", function (req, res) {
   if (req.isAuthenticated()) {
     const mainUser = req._passport.session.user[0].name;
@@ -651,7 +662,7 @@ app.post("/addFriend", function (req, res) {
   }
 });
 
-// Lets the user accept a friend request
+// Allows a user to accept a friend request
 app.post("/acceptFriendRequest", function (req, res) {
   if (req.isAuthenticated()) {
     var requester = req._passport.session.user[0].name;
@@ -719,7 +730,7 @@ app.post("/acceptFriendRequest", function (req, res) {
   }
 });
 
-// Lets the user reject a friend request
+// Allows a user to reject a friend request
 app.post("/rejectFriendRequest", function (req, res) {
   if (req.isAuthenticated()) {
     var requester = req._passport.session.user[0].name;
@@ -760,14 +771,14 @@ app.post("/rejectFriendRequest", function (req, res) {
   }
 });
 
-// Renders email recovery page
+// Render email recovery page
 app.post("/recover", function (req, res) {
   const email = req.body.email;
 
   console.log(email);
 });
 
-// Filters public lobbies
+// Filter public lobbies
 app.post("/filter", function (req, res) {
   const game = req.body.filterGame;
   const full = req.body.full;
@@ -789,7 +800,7 @@ app.post("/filter", function (req, res) {
   res.redirect("/public");
 });
 
-// Creates a public or private queue based on user selection
+// Allows the user to decide if they want to make a public or private queue
 app.post("/create", function (req, res) {
   const avai = req.body.availability;
   if (avai == "open") {
@@ -849,6 +860,7 @@ app.post("/publicCreate", function (req, res) {
 app.post("/privateCreate", function (req, res) {
   const game = req.body.game;
   const desc = req.body.desc;
+  //REMOVE req.body.availibility FROM THE CODE!!!!!
   const num = req.body.slots;
   const visibility = false;
   /* Alex will have to pass an array through
@@ -857,15 +869,17 @@ app.post("/privateCreate", function (req, res) {
   var lobby = [];
   var isFull = true;
 
-  // if (reserved.length() >= num) {
-  //   // throw error
-  //   console.log("You cannot have more available slots than slots total.")
-  // }
+  if (reserved.length() >= num) {
+    // throw error
+    console.log("You cannot have more available slots than slots total.")
+  }
 
   for (var i = 0; i < reserved; i++) {
     lobby.push(reserved[i]);
   }
   for (var i = reserved.length(); i < num; i++) {
+    /* In the html, show that if userSchema == null,
+    then show the spot as empty/available */
     lobby.push(null);
   }
 
@@ -900,7 +914,6 @@ app.post("/joinQueue", function(req, res){
   it "theQueue" */
   // var currentQueue = theQueue;
   // const avai = currentQueue.visibility;
-
   /*
   Queue.findOne({theQueue}, function(err, lobby){    // Remember to use findById of you're going to use ID
     if(err){
@@ -925,6 +938,7 @@ app.post("/joinQueue", function(req, res){
   */
 });
 
+// Allows the user to leave a queue
 app.post("/leaveQueue", function(req, res){
   /* In the html find a way to know which queue
   the user wants to join. Im just going to call
@@ -969,8 +983,8 @@ app.post("/leaveQueue", function(req, res){
 app.post("/deleteQueue", function(req, res) {
   if(req.isAuthenticated()) {
     const id = req.body.id;
-    Queue.findByIdAndRemove(id, function(err) {
-      if(err) {
+    Queue.findByIdAndRemove(id, function (err) {
+      if (err) {
         console.log(err);
       } else {
         res.redirect("/public");
@@ -979,9 +993,10 @@ app.post("/deleteQueue", function(req, res) {
   } else {
     res.redirect("/error/login");
   }
+
 });
 
-// Edit username
+// Allows the user to edit username
 app.post("/userEdit", function (req, res) {
   /* Enter old username */
   const oldUsername = req.body.oldUsername;
@@ -1039,13 +1054,19 @@ app.post("/userEdit", function (req, res) {
   }
 });
 
-// Edit 3 favorite games on profile
+// Allows the user to edit their 3 favorite games
 app.post("/gameEdit", function (req, res) {
   /* Enter current username */
   const user = req._passport.session.user[0].name;
   const game1 = req.body.newGame1;
   const game2 = req.body.newGame2;
   const game3 = req.body.newGame3;
+
+  if (game1 == game2 || game1 == game3 || game2 == game3){
+    console.log("You cannot have more than one of the same favorite game.");
+    res.redirect("/error/sameGame");
+  }
+
   const gameArr = [game1, game2, game3];
 
   // Updates the user's three favorite games
@@ -1061,10 +1082,11 @@ app.post("/gameEdit", function (req, res) {
   });
 });
 
+// Connects to the site
 let port = process.env.PORT;
 if (port == null || port == "") {
   port = 3000;
 }
-app.listen(port, function() {
+app.listen(port, function () {
   console.log("Server started on port " + port);
 });
