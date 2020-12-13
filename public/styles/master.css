@@ -17,6 +17,16 @@ textarea {
     color: red;
 }
 
+.queueButton {
+    background-color: rgba(15, 76, 117, 0);
+    border: none;
+}
+
+.queueButton:hover {
+    background-color: rgba(15, 76, 117, 0) !important;
+    border: none;
+}
+
 button:hover {
     background-color: rgb(221, 234, 243) !important;
     color: rgb(50, 130, 184) !important;
