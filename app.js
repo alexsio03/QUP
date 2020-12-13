@@ -65,6 +65,9 @@ const userSchema = new mongoose.Schema({
     type: Array,
     of: String,
     required: true
+  },
+  status: {
+    type: String
   }
 });
 
@@ -292,7 +295,10 @@ app.get("/public", function (req, res) {
             if (err) {
               console.log(err);
             } else {
-              firstFriendArr.push(friend.name);
+              firstFriendArr.push({
+                friendName: friend.name,
+                status: friend.status
+              });
               if (firstFriendArr.length == user.friends.length) {
                 Queue.find({
                   visibility: true
@@ -428,63 +434,66 @@ app.get("/public", function (req, res) {
                         if (err) {
                           console.log(err);
                         } else {
-                          friendArr.push(friend.name);
+                          friendArr.push({
+                            friendName: friend.name,
+                            status: friend.status
+                          });
                           if (friendArr.length == main.friends.length) {
                             Queue.find({
-                      visibility: true
-                    }, function (err, qs) {
-                      if (err) {
-                        console.log(err);
-                      } else {
-                        var newQs = [];
-                        qs.forEach(function (queue) {
-                          var firstId = queue.lobby[0]._id;
-                          var newLobby = queue.lobby;
-                          var counter = 0;
-                          newLobby.forEach(function (user) {
-                            User.findById(user, function (err, lobbyist) {
+                              visibility: true
+                            }, function (err, qs) {
                               if (err) {
                                 console.log(err);
+                              } else {
+                                var newQs = [];
+                                qs.forEach(function (queue) {
+                                  var firstId = queue.lobby[0]._id;
+                                  var newLobby = queue.lobby;
+                                  var counter = 0;
+                                  newLobby.forEach(function (user) {
+                                    User.findById(user, function (err, lobbyist) {
+                                      if (err) {
+                                        console.log(err);
+                                      }
+                                      if (lobbyist != null) {
+                                        newLobby[newLobby.indexOf(user)] = lobbyist.name;
+                                      } else if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
+                                        newLobby[i] = lobbyist.name;
+                                        var newQueue = {
+                                          id: queue._id,
+                                          game: queue.game,
+                                          desc: queue.description,
+                                          lobby: newLobby,
+                                          waiting: queue.waiting,
+                                          isCreator: firstId == req._passport.session.user[0]._id
+                                        };
+                                        newQs.push(newQueue);
+                                      } else if (counter == newLobby.length - 1) {
+                                        var newQueue = {
+                                          id: queue._id,
+                                          game: queue.game,
+                                          desc: queue.description,
+                                          lobby: newLobby,
+                                          waiting: queue.waiting,
+                                          isCreator: firstId == req._passport.session.user[0]._id
+                                        };
+                                        newQs.push(newQueue);
+                                      }
+                                      counter++;
+                                      if (newQs.length == qs.length) {
+                                        res.render("public", {
+                                          hasRequests: true,
+                                          hasFriends: true,
+                                          requestedFriends: requested,
+                                          friends: friendArr,
+                                          queues: newQs,
+                                        });
+                                      }
+                                    })
+                                  })
+                                })
                               }
-                              if (lobbyist != null) {
-                                newLobby[newLobby.indexOf(user)] = lobbyist.name;
-                              } else if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
-                                newLobby[i] = lobbyist.name;
-                                var newQueue = {
-                                  id: queue._id,
-                                  game: queue.game,
-                                  desc: queue.description,
-                                  lobby: newLobby,
-                                  waiting: queue.waiting,
-                                  isCreator: firstId == req._passport.session.user[0]._id
-                                };
-                                newQs.push(newQueue);
-                              } else if (counter == newLobby.length - 1) {
-                                var newQueue = {
-                                  id: queue._id,
-                                  game: queue.game,
-                                  desc: queue.description,
-                                  lobby: newLobby,
-                                  waiting: queue.waiting,
-                                  isCreator: firstId == req._passport.session.user[0]._id
-                                };
-                                newQs.push(newQueue);
-                              }
-                              counter++;
-                              if (newQs.length == qs.length) {
-                                res.render("public", {
-                                  hasRequests: true,
-                                  hasFriends: true,
-                                  requestedFriends: requested,
-                                  friends: friendArr,
-                                  queues: newQs,
-                                });
-                              }
-                            })
-                          })
-                        })
-                      }
-                    });
+                            });
                           }
                         }
                       })
@@ -607,8 +616,8 @@ app.get("/profile/:name", function (req, res) {
       } else if (user == req._passport.session.user[0].name) {
         res.render("profile", {
           username: user,
-          email: found.email,
           games: found.favoriteGames,
+          status: found.status,
           userError: "",
           gameError: "",
           isUser: true
@@ -616,8 +625,8 @@ app.get("/profile/:name", function (req, res) {
       } else {
         res.render("profile", {
           username: user,
-          email: found.email,
           games: found.favoriteGames,
+          status: found.status,
           userError: "",
           gameError: "",
           isUser: false
@@ -688,7 +697,8 @@ app.post("/register", function (req, res) {
                   name: username,
                   password: password,
                   email: email,
-                  favoriteGames: games
+                  favoriteGames: games,
+                  status: "No status set"
                 });
 
                 user.save();
@@ -792,7 +802,7 @@ app.post("/addFriend", function (req, res) {
           } else {
             var hasUser = false;
             for (var i = 0; i < friend.friends.length; i++) {
-              if (userRequesting._id.str === friend.friends[i].str) {
+              if (userRequesting._id == friend.friends[i]) {
                 hasUser = true;
               }
             }
@@ -1057,6 +1067,7 @@ app.post("/joinQueue", function (req, res) {
   /* In the html find a way to know which queue
   the user wants to join. Im just going to call
   it "theQueue" */
+  console.log(req.body.joinID);
   // var currentQueue = theQueue;
   // const avai = currentQueue.visibility;
   /*
@@ -1195,6 +1206,29 @@ app.post("/userEdit", function (req, res) {
         }
       }
     });
+  }
+});
+
+app.post("/statusEdit", function (req, res) {
+  if (req.isAuthenticated()) {
+    const user = req._passport.session.user[0].name;
+    const newStatus = req.body.newStatus;
+
+    User.findOneAndUpdate({
+      name: user
+    }, {
+      $set: {
+        status: newStatus
+      }
+    }, function (err) {
+      if (err) {
+        console.log(err);
+      }
+    });
+
+    res.redirect("/profile");
+  } else {
+    res.redirect("/error/login");
   }
 });
 

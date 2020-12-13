@@ -103,3 +103,8 @@ input {
     background-color: rgb(15, 76, 117);
     border: 2px solid black;
 }
+
+.statusInput textarea {
+    width: 60%;
+    display: inline-block;
+}

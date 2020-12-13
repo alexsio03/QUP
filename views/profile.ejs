@@ -49,7 +49,7 @@
                             <h2>Username: <span><%= username %></span></h2>
                         </div>
                         <div class="row justify-content-between">
-                            <h2>Email: <span><%= email %></span></h2>
+                            <h2>Status: <span><%= status %></span></h2>
                         </div>
                         <div class="row justify-content-between">
                             <h2>Games: 
@@ -77,7 +77,7 @@
                         <div class="row">
                             <% if ( isUser )
                             { %>
-                                <a data-target="#emailEdit" data-toggle="modal" href="#emailEdit"><button class="btn btn-primary shadow">Edit</button></a>
+                                <a data-target="#statusEdit" data-toggle="modal" href="#statusEdit"><button class="btn btn-primary shadow">Edit</button></a>
                             <% } %>
                         </div>
                         <div class="row">
@@ -130,6 +130,29 @@
                             <div>
                                 <label>Confirm new username: <input class="rounded shadow" type="text" name="confirmUsername" required></label>
                             </div>
+                            <div class="buttons row justify-content-around">
+                                <a href="/profile"><button class="btn btn-danger btn-lg shadow" type="button">Cancel</button></a>
+                                <a><button class="btn btn-success btn-lg shadow" type="submit">Submit</button></a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+    </div>
+
+    <!-- Status Edit Modal -->
+    <div class="modal fade" id="statusEdit" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="editForm shadow-lg">
+                        <form autocomplete="off" method="post" action="/statusEdit">
+                            <h3>Change Your Status</h3>
+                            <hr>
+                            <div class="statusInput">
+                                <label>New Status: <br><textarea class="rounded shadow" type="text" name="newStatus" cols="60" rows="2" required></textarea></label>
+                            </div>
+                            <br>
                             <div class="buttons row justify-content-around">
                                 <a href="/profile"><button class="btn btn-danger btn-lg shadow" type="button">Cancel</button></a>
                                 <a><button class="btn btn-success btn-lg shadow" type="submit">Submit</button></a>
