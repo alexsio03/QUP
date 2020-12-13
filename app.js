@@ -233,58 +233,58 @@ app.get("/public", function (req, res) {
         console.log(err);
       } else if (user.requestedFriends.length == 0 && user.friends.length == 0) {
         Queue.find({
-                  visibility: true
-                }, function (err, qs) {
+          visibility: true
+        }, function (err, qs) {
+          if (err) {
+            console.log(err);
+          } else {
+            var newQs = [];
+            qs.forEach(function (queue) {
+              var firstId = queue.lobby[0]._id;
+              var newLobby = queue.lobby;
+              var counter = 0;
+              newLobby.forEach(function (user) {
+                User.findById(user, function (err, lobbyist) {
                   if (err) {
                     console.log(err);
-                  } else {
-                    var newQs = [];
-                    qs.forEach(function (queue) {
-                      var firstId = queue.lobby[0]._id;
-                      var newLobby = queue.lobby;
-                      var counter = 0;
-                      newLobby.forEach(function (user) {
-                        User.findById(user, function (err, lobbyist) {
-                          if (err) {
-                            console.log(err);
-                          }
-                          if (lobbyist != null) {
-                            newLobby[newLobby.indexOf(user)] = lobbyist.name;
-                          } else if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
-                            newLobby[i] = lobbyist.name;
-                            var newQueue = {
-                              id: queue._id,
-                              game: queue.game,
-                              desc: queue.description,
-                              lobby: newLobby,
-                              waiting: queue.waiting,
-                              isCreator: firstId == req._passport.session.user[0]._id
-                            };
-                            newQs.push(newQueue);
-                          } else if (counter == newLobby.length - 1) {
-                            var newQueue = {
-                              id: queue._id,
-                              game: queue.game,
-                              desc: queue.description,
-                              lobby: newLobby,
-                              waiting: queue.waiting,
-                              isCreator: firstId == req._passport.session.user[0]._id
-                            };
-                            newQs.push(newQueue);
-                          }
-                          counter++;
-                          if (newQs.length == qs.length) {
-                            res.render("public", {
-                              hasRequests: false,
-                              hasFriends: false,
-                              queues: newQs,
-                            });
-                          }
-                        })
-                      })
-                    })
                   }
-                });
+                  if (lobbyist != null) {
+                    newLobby[newLobby.indexOf(user)] = lobbyist.name;
+                  } else if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
+                    newLobby[i] = lobbyist.name;
+                    var newQueue = {
+                      id: queue._id,
+                      game: queue.game,
+                      desc: queue.description,
+                      lobby: newLobby,
+                      waiting: queue.waiting,
+                      isCreator: firstId == req._passport.session.user[0]._id
+                    };
+                    newQs.push(newQueue);
+                  } else if (counter == newLobby.length - 1) {
+                    var newQueue = {
+                      id: queue._id,
+                      game: queue.game,
+                      desc: queue.description,
+                      lobby: newLobby,
+                      waiting: queue.waiting,
+                      isCreator: firstId == req._passport.session.user[0]._id
+                    };
+                    newQs.push(newQueue);
+                  }
+                  counter++;
+                  if (newQs.length == qs.length) {
+                    res.render("public", {
+                      hasRequests: false,
+                      hasFriends: false,
+                      queues: newQs,
+                    });
+                  }
+                })
+              })
+            })
+          }
+        });
       } else if (user.requestedFriends.length == 0 && user.friends.length > 0) {
         let firstFriendArr = [];
         user.friends.forEach(function (friendsId) {
@@ -367,11 +367,59 @@ app.get("/public", function (req, res) {
                   if (err) {
                     console.log(err);
                   } else if (main.friends.length == 0) {
-                    getQueues();
-                    res.render("public", {
-                      hasRequests: true,
-                      hasFriends: false,
-                      requestedFriends: requested
+                    Queue.find({
+                      visibility: true
+                    }, function (err, qs) {
+                      if (err) {
+                        console.log(err);
+                      } else {
+                        var newQs = [];
+                        qs.forEach(function (queue) {
+                          var firstId = queue.lobby[0]._id;
+                          var newLobby = queue.lobby;
+                          var counter = 0;
+                          newLobby.forEach(function (user) {
+                            User.findById(user, function (err, lobbyist) {
+                              if (err) {
+                                console.log(err);
+                              }
+                              if (lobbyist != null) {
+                                newLobby[newLobby.indexOf(user)] = lobbyist.name;
+                              } else if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
+                                newLobby[i] = lobbyist.name;
+                                var newQueue = {
+                                  id: queue._id,
+                                  game: queue.game,
+                                  desc: queue.description,
+                                  lobby: newLobby,
+                                  waiting: queue.waiting,
+                                  isCreator: firstId == req._passport.session.user[0]._id
+                                };
+                                newQs.push(newQueue);
+                              } else if (counter == newLobby.length - 1) {
+                                var newQueue = {
+                                  id: queue._id,
+                                  game: queue.game,
+                                  desc: queue.description,
+                                  lobby: newLobby,
+                                  waiting: queue.waiting,
+                                  isCreator: firstId == req._passport.session.user[0]._id
+                                };
+                                newQs.push(newQueue);
+                              }
+                              counter++;
+                              if (newQs.length == qs.length) {
+                                res.render("public", {
+                                  hasRequests: true,
+                                  hasFriends: false,
+                                  requestedFriends: requested,
+                                  queues: newQs,
+                                });
+                              }
+                            })
+                          })
+                        })
+                      }
                     });
                   } else {
                     let friendArr = [];
@@ -382,13 +430,61 @@ app.get("/public", function (req, res) {
                         } else {
                           friendArr.push(friend.name);
                           if (friendArr.length == main.friends.length) {
-                            getQueues();
-                            res.render("public", {
-                              hasRequests: true,
-                              hasFriends: false,
-                              requestedFriends: requested,
-                              friends: friendArr
-                            });
+                            Queue.find({
+                      visibility: true
+                    }, function (err, qs) {
+                      if (err) {
+                        console.log(err);
+                      } else {
+                        var newQs = [];
+                        qs.forEach(function (queue) {
+                          var firstId = queue.lobby[0]._id;
+                          var newLobby = queue.lobby;
+                          var counter = 0;
+                          newLobby.forEach(function (user) {
+                            User.findById(user, function (err, lobbyist) {
+                              if (err) {
+                                console.log(err);
+                              }
+                              if (lobbyist != null) {
+                                newLobby[newLobby.indexOf(user)] = lobbyist.name;
+                              } else if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
+                                newLobby[i] = lobbyist.name;
+                                var newQueue = {
+                                  id: queue._id,
+                                  game: queue.game,
+                                  desc: queue.description,
+                                  lobby: newLobby,
+                                  waiting: queue.waiting,
+                                  isCreator: firstId == req._passport.session.user[0]._id
+                                };
+                                newQs.push(newQueue);
+                              } else if (counter == newLobby.length - 1) {
+                                var newQueue = {
+                                  id: queue._id,
+                                  game: queue.game,
+                                  desc: queue.description,
+                                  lobby: newLobby,
+                                  waiting: queue.waiting,
+                                  isCreator: firstId == req._passport.session.user[0]._id
+                                };
+                                newQs.push(newQueue);
+                              }
+                              counter++;
+                              if (newQs.length == qs.length) {
+                                res.render("public", {
+                                  hasRequests: true,
+                                  hasFriends: true,
+                                  requestedFriends: requested,
+                                  friends: friendArr,
+                                  queues: newQs,
+                                });
+                              }
+                            })
+                          })
+                        })
+                      }
+                    });
                           }
                         }
                       })
