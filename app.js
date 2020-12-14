@@ -907,23 +907,16 @@ app.post("/privateCreate", function (req, res) {
 
 // Allows the user to join a queue
 app.post("/joinQueue", function(req, res){
-  var currentQueueID = req.body.joinID;
-  var avai;
+  var currentQueue = Queue.findById(req.body.joinID);
+  var avai = currentQueue.visibility;
   var lever = true;
 
-  Queue.findById(currentQueueID, function(err, lobby){
-    if(err){
-      console.log(err);
-    } else {
-      avai = Queue.findByID(currentQueueID).visibility;
-      for (var i = 0; i<lobby.length; i++){
-        if (lobby[i] == null && lever){
-          lobby[i] = req._passport.session.user[0];
-          lever = false;
-        }
-      }
+  for (var i = 0; i<currentQueue.lobby.length; i++){
+    if (currentQueue.lobby[i] == null && lever){
+      currentQueue.lobby[i] = req._passport.session.user[0];
+      lever = false;
     }
-  });
+  }
 
   if (avai == true) {
     res.redirect("/public");
@@ -934,32 +927,23 @@ app.post("/joinQueue", function(req, res){
 
 // Allows the user to leave a queue
 app.post("/leaveQueue", function(req, res){
-  var currentQueueID = req.body.joinID;
-  var avai;
+  var currentQueue = Queue.findById(req.body.joinID);
+  var avai = currentQueue.visibility;
   var lever = true;
   var numNulls = 0;
 
-  Queue.findById(currentQueueID, function(err, lobby){
-    if(err){
-      console.log(err);
-    } else {
-      avai = Queue.findByID(currentQueueID).visibility;
-      for (var i = 0; i<lobby.length; i++){
-        if (lobby[i] == null && lever){
-          lobby[i] = req._passport.session.user[0];
-          lever = false;
-        }
-      }
-      for (var i = 0; i<lobby.length; i++){
-        if (lobby[i] == null){
-          numNulls++;
-        }
-      }
-      if(numNulls == lobby.length){
-        Queue.findByIdAndRemove(currentQueueID);
-      }
+  for (var i = 0; i<currentQueue.lobby.length; i++){
+    if (currentQueue.lobby[i] == null){
+      numNulls++;
     }
-  });
+    if (currentQueue.lobby[i] == null && lever){
+      currentQueue.lobby[i] = req._passport.session.user[0];
+      lever = false;
+    }
+  }
+  if(numNulls == lobby.length){
+    Queue.findByIdAndRemove(req.body.joinID);
+  }
 
   if (avai == true) {
     res.redirect("/public");
