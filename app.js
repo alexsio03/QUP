@@ -9,14 +9,13 @@ const emailValidator = require("email-validator");
 const session = require("express-session");
 const passport = require("passport");
 const passportLocalMongoose = require("passport-local-mongoose");
-// New encryption package
 const bcrypt = require('bcrypt');
 const {
   assert
 } = require('console');
 const saltRounds = 10;
 
-// Setting up express and mongo
+// Setting up the main packages
 const app = express();
 app.set('view engine', 'ejs');
 app.use(session({
@@ -121,7 +120,7 @@ pswdSchema
   .is().max(30) // Maximum length 30
   .has().uppercase() // Must have uppercase letters
   .has().lowercase() // Must have lowercase letters
-  .has().digits(1) // Must have at least 2 digits
+  .has().digits(1) // Must have at least 1 digit
   .has().not().spaces(); // Spaces not allowed
 
 passport.use(User.createStrategy());
@@ -145,7 +144,6 @@ app.route("/")
       });
     }
   })
-
   .post(function (req, res) {
     const username = req.body.uname;
 
@@ -221,6 +219,7 @@ app.get("/error/:err", function (req, res) {
   }
 });
 
+// Logs the user out
 app.get("/logout", function (req, res) {
   req.logout();
   res.redirect("/");
@@ -604,6 +603,7 @@ app.get("/profile", function (req, res) {
   }
 });
 
+// Render's a specific user's profile page
 app.get("/profile/:name", function (req, res) {
   if (req.isAuthenticated()) {
     const user = req.params.name;
@@ -745,6 +745,7 @@ app.post("/register", function (req, res) {
   }
 });
 
+// Sends a friend request
 app.post("/addFriend", function (req, res) {
   if (req.isAuthenticated()) {
     const mainUser = req._passport.session.user[0].name;
@@ -820,6 +821,7 @@ app.post("/addFriend", function (req, res) {
   }
 });
 
+// Allows a user to accept a friend request
 app.post("/acceptFriendRequest", function (req, res) {
   if (req.isAuthenticated()) {
     var requester = req._passport.session.user[0].name;
@@ -887,6 +889,7 @@ app.post("/acceptFriendRequest", function (req, res) {
   }
 });
 
+// Allows a user to reject a friend request
 app.post("/rejectFriendRequest", function (req, res) {
   if (req.isAuthenticated()) {
     var requester = req._passport.session.user[0].name;
@@ -934,7 +937,7 @@ app.post("/recover", function (req, res) {
   console.log(email);
 });
 
-// Filter public lobbies -JS done-
+// Filter public lobbies
 app.post("/filter", function (req, res) {
   const game = req.body.filterGame;
   const full = req.body.full;
@@ -956,7 +959,7 @@ app.post("/filter", function (req, res) {
   res.redirect("/public");
 });
 
-// Creates a public queue
+// Allows the user to decide if they want to make a public or private queue
 app.post("/create", function (req, res) {
   const avai = req.body.availability;
   if (avai == "open") {
@@ -966,6 +969,7 @@ app.post("/create", function (req, res) {
   }
 });
 
+// Creates a public queue
 app.post("/publicCreate", function (req, res) {
   const game = req.body.game;
   const desc = req.body.desc;
@@ -1061,82 +1065,55 @@ app.post("/privateCreate", function (req, res) {
 });
 
 // Allows the user to join a queue
-app.post("/joinQueue", function (req, res) {
-  // This might be bugged out the wazoo
+app.post("/joinQueue", function(req, res){
+  var currentQueue = Queue.findById(req.body.joinID);
+  var avai = currentQueue.visibility;
+  var lever = true;
 
-  /* In the html find a way to know which queue
-  the user wants to join. Im just going to call
-  it "theQueue" */
-  console.log(req.body.joinID);
-  // var currentQueue = theQueue;
-  // const avai = currentQueue.visibility;
-  /*
-  Queue.findOne({theQueue}, function(err, lobby){    // Remember to use findById of you're going to use ID
-    if(err){
-      console.log(err);
-    } else {
-      for (var i = 0; i<lobby.length; i++){
-        if (lobby[i] == null){
-          lobby[i] = req._passport.session.user[0];
-          break;
-        }
-      }
+  for (var i = 0; i<currentQueue.lobby.length; i++){
+    if (currentQueue.lobby[i] == null && lever){
+      currentQueue.lobby[i] = req._passport.session.user[0];
+      lever = false;
     }
-  });
-  */
+  }
 
-  /*
   if (avai == true) {
     res.redirect("/public");
   } else if (avai == false) {
     res.redirect("/private");
   }
-  */
 });
 
-app.post("/leaveQueue", function (req, res) {
-  /* In the html find a way to know which queue
-  the user wants to join. Im just going to call
-  it "theQueue" */
-
-  /*
-  Queue.findOne({theQueue}, function(err, lobby){    // Remember to use findById of you're going to use ID
-    if(err){
-      console.log(err);
-    } else {
-      for (var i = 0; i<lobby.length; i++){
-        if (lobby[i] == req._passport.session.user[0]){
-          lobby[i] = null;
-          break;
-        }
-      }
-    }
-  });
-
-  // Delete the queue if it is empty
+// Allows the user to leave a queue
+app.post("/leaveQueue", function(req, res){
+  var currentQueue = Queue.findById(req.body.joinID);
+  var avai = currentQueue.visibility;
+  var lever = true;
   var numNulls = 0;
-  for (var i = 0; i<lobby.length; i++){
-    if (lobby[i] == null){
+
+  for (var i = 0; i<currentQueue.lobby.length; i++){
+    if (currentQueue.lobby[i] == null){
       numNulls++;
+    }
+    if (currentQueue.lobby[i] == null && lever){
+      currentQueue.lobby[i] = req._passport.session.user[0];
+      lever = false;
     }
   }
   if(numNulls == lobby.length){
-    //DELETE THE QUEUE
+    Queue.findByIdAndRemove(req.body.joinID);
   }
-  */
 
-  /*
   if (avai == true) {
     res.redirect("/public");
   } else if (avai == false) {
     res.redirect("/private");
   }
-  */
 });
 
-
-app.post("/deleteQueue", function (req, res) {
-  if (req.isAuthenticated()) {
+// Deletes a queue
+app.post("/deleteQueue", function(req, res) {
+  if(req.isAuthenticated()) {
     const id = req.body.id;
     Queue.findByIdAndRemove(id, function (err) {
       if (err) {
@@ -1151,7 +1128,7 @@ app.post("/deleteQueue", function (req, res) {
 
 });
 
-// Edit username -JS done-
+// Allows the user to edit username
 app.post("/userEdit", function (req, res) {
   /* Enter old username */
   const oldUsername = req.body.oldUsername;
@@ -1209,6 +1186,8 @@ app.post("/userEdit", function (req, res) {
   }
 });
 
+
+// Allows the user to edit their 3 favorite games
 app.post("/statusEdit", function (req, res) {
   if (req.isAuthenticated()) {
     const user = req._passport.session.user[0].name;
@@ -1262,7 +1241,7 @@ app.post("/gameEdit", function (req, res) {
 
 });
 
-
+// Connects to the site
 let port = process.env.PORT;
 if (port == null || port == "") {
   port = 3000;
