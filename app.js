@@ -64,6 +64,9 @@ const userSchema = new mongoose.Schema({
     type: Array,
     of: String,
     required: true
+  },
+  status: {
+    type: String
   }
 });
 
@@ -172,48 +175,48 @@ app.route("/")
 
 // This page gets loaded when there is an error
 app.get("/error/:err", function (req, res) {
-    const error = req.params.err;
-    if (error == "noUser") {
-      res.render("login", {
-        errorMessage: "No user available. Please register."
-      });
-    } else if (error == "badPswd") {
-      res.render("login", {
-        errorMessage: "Invalid password."
-      });
-    } else if (error == "userTaken") {
-      res.render("login", {
-        errorMessage: "That username was already taken."
-      });
-    } else if (error == "emailTaken") {
-      res.render("login", {
-        errorMessage: "That email was already taken."
-      });
-    } else if (error == "badRegister") {
-      res.render("login", {
-        errorMessage: "Server side error. Please report this issue."
-      });
-    } else if (error == "noMatch") {
-      res.render("login", {
-        errorMessage: "Passwords did not match."
-      });
-    } else if (error == "invalidEmail") {
-      res.render("login", {
-        errorMessage: "Email was invalid. Please use proper format."
-      });
-    } else if (error == "invalidPassword") {
-      res.render("login", {
-        errorMessage: "Password was invalid. Please use user proper format."
-      });
-    } else if (error == "login") {
-      res.render("login", {
-        errorMessage: "Please login before entering"
-      });
-    } else if (error == "sameGame") {
-      res.render("profile", {
-        gameError: "You cannot have more than one of the same game."
-      });
-    }
+  const error = req.params.err;
+  if (error == "noUser") {
+    res.render("login", {
+      errorMessage: "No user available. Please register."
+    });
+  } else if (error == "badPswd") {
+    res.render("login", {
+      errorMessage: "Invalid password."
+    });
+  } else if (error == "userTaken") {
+    res.render("login", {
+      errorMessage: "That username was already taken."
+    });
+  } else if (error == "emailTaken") {
+    res.render("login", {
+      errorMessage: "That email was already taken."
+    });
+  } else if (error == "badRegister") {
+    res.render("login", {
+      errorMessage: "Server side error. Please report this issue."
+    });
+  } else if (error == "noMatch") {
+    res.render("login", {
+      errorMessage: "Passwords did not match."
+    });
+  } else if (error == "invalidEmail") {
+    res.render("login", {
+      errorMessage: "Email was invalid. Please use proper format."
+    });
+  } else if (error == "invalidPassword") {
+    res.render("login", {
+      errorMessage: "Password was invalid. Please use user proper format."
+    });
+  } else if (error == "login") {
+    res.render("login", {
+      errorMessage: "Please login before entering"
+    });
+  } else if (error == "sameGame") {
+    res.render("profile", {
+      gameError: "You cannot have more than one of the same game."
+    });
+  }
 });
 
 // Logs the user out
@@ -225,13 +228,64 @@ app.get("/logout", function (req, res) {
 // Renders public lobbies page
 app.get("/public", function (req, res) {
   if (req.isAuthenticated()) {
-    User.findOne({name: req._passport.session.user[0].name}, function (err, user) {
+    User.findOne({
+      name: req._passport.session.user[0].name
+    }, function (err, user) {
       if (err) {
         console.log(err);
       } else if (user.requestedFriends.length == 0 && user.friends.length == 0) {
-        res.render("public", {
-          hasRequests: false,
-          hasFriends: false
+        Queue.find({
+          visibility: true
+        }, function (err, qs) {
+          if (err) {
+            console.log(err);
+          } else {
+            var newQs = [];
+            qs.forEach(function (queue) {
+              var firstId = queue.lobby[0]._id;
+              var newLobby = queue.lobby;
+              var counter = 0;
+              newLobby.forEach(function (user) {
+                User.findById(user, function (err, lobbyist) {
+                  if (err) {
+                    console.log(err);
+                  }
+                  if (lobbyist != null) {
+                    newLobby[newLobby.indexOf(user)] = lobbyist.name;
+                  } else if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
+                    newLobby[i] = lobbyist.name;
+                    var newQueue = {
+                      id: queue._id,
+                      game: queue.game,
+                      desc: queue.description,
+                      lobby: newLobby,
+                      waiting: queue.waiting,
+                      isCreator: firstId == req._passport.session.user[0]._id
+                    };
+                    newQs.push(newQueue);
+                  } else if (counter == newLobby.length - 1) {
+                    var newQueue = {
+                      id: queue._id,
+                      game: queue.game,
+                      desc: queue.description,
+                      lobby: newLobby,
+                      waiting: queue.waiting,
+                      isCreator: firstId == req._passport.session.user[0]._id
+                    };
+                    newQs.push(newQueue);
+                  }
+                  counter++;
+                  if (newQs.length == qs.length) {
+                    res.render("public", {
+                      hasRequests: false,
+                      hasFriends: false,
+                      queues: newQs,
+                    });
+                  }
+                })
+              })
+            })
+          }
         });
       } else if (user.requestedFriends.length == 0 && user.friends.length > 0) {
         let firstFriendArr = [];
@@ -240,9 +294,14 @@ app.get("/public", function (req, res) {
             if (err) {
               console.log(err);
             } else {
-              firstFriendArr.push(friend.name);
+              firstFriendArr.push({
+                friendName: friend.name,
+                status: friend.status
+              });
               if (firstFriendArr.length == user.friends.length) {
-                Queue.find({visibility: true}, function (err, qs) {
+                Queue.find({
+                  visibility: true
+                }, function (err, qs) {
                   if (err) {
                     console.log(err);
                   } else {
@@ -255,7 +314,7 @@ app.get("/public", function (req, res) {
                         User.findById(user, function (err, lobbyist) {
                           if (err) {
                             console.log(err);
-                          } 
+                          }
                           if (lobbyist != null) {
                             newLobby[newLobby.indexOf(user)] = lobbyist.name;
                           } else if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
@@ -288,7 +347,7 @@ app.get("/public", function (req, res) {
                               friends: firstFriendArr,
                               queues: newQs,
                             });
-                        }
+                          }
                         })
                       })
                     })
@@ -313,11 +372,59 @@ app.get("/public", function (req, res) {
                   if (err) {
                     console.log(err);
                   } else if (main.friends.length == 0) {
-                    getQueues();
-                    res.render("public", {
-                      hasRequests: true,
-                      hasFriends: false,
-                      requestedFriends: requested
+                    Queue.find({
+                      visibility: true
+                    }, function (err, qs) {
+                      if (err) {
+                        console.log(err);
+                      } else {
+                        var newQs = [];
+                        qs.forEach(function (queue) {
+                          var firstId = queue.lobby[0]._id;
+                          var newLobby = queue.lobby;
+                          var counter = 0;
+                          newLobby.forEach(function (user) {
+                            User.findById(user, function (err, lobbyist) {
+                              if (err) {
+                                console.log(err);
+                              }
+                              if (lobbyist != null) {
+                                newLobby[newLobby.indexOf(user)] = lobbyist.name;
+                              } else if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
+                                newLobby[i] = lobbyist.name;
+                                var newQueue = {
+                                  id: queue._id,
+                                  game: queue.game,
+                                  desc: queue.description,
+                                  lobby: newLobby,
+                                  waiting: queue.waiting,
+                                  isCreator: firstId == req._passport.session.user[0]._id
+                                };
+                                newQs.push(newQueue);
+                              } else if (counter == newLobby.length - 1) {
+                                var newQueue = {
+                                  id: queue._id,
+                                  game: queue.game,
+                                  desc: queue.description,
+                                  lobby: newLobby,
+                                  waiting: queue.waiting,
+                                  isCreator: firstId == req._passport.session.user[0]._id
+                                };
+                                newQs.push(newQueue);
+                              }
+                              counter++;
+                              if (newQs.length == qs.length) {
+                                res.render("public", {
+                                  hasRequests: true,
+                                  hasFriends: false,
+                                  requestedFriends: requested,
+                                  queues: newQs,
+                                });
+                              }
+                            })
+                          })
+                        })
+                      }
                     });
                   } else {
                     let friendArr = [];
@@ -326,14 +433,65 @@ app.get("/public", function (req, res) {
                         if (err) {
                           console.log(err);
                         } else {
-                          friendArr.push(friend.name);
+                          friendArr.push({
+                            friendName: friend.name,
+                            status: friend.status
+                          });
                           if (friendArr.length == main.friends.length) {
-                            getQueues();
-                            res.render("public", {
-                              hasRequests: true,
-                              hasFriends: false,
-                              requestedFriends: requested,
-                              friends: friendArr
+                            Queue.find({
+                              visibility: true
+                            }, function (err, qs) {
+                              if (err) {
+                                console.log(err);
+                              } else {
+                                var newQs = [];
+                                qs.forEach(function (queue) {
+                                  var firstId = queue.lobby[0]._id;
+                                  var newLobby = queue.lobby;
+                                  var counter = 0;
+                                  newLobby.forEach(function (user) {
+                                    User.findById(user, function (err, lobbyist) {
+                                      if (err) {
+                                        console.log(err);
+                                      }
+                                      if (lobbyist != null) {
+                                        newLobby[newLobby.indexOf(user)] = lobbyist.name;
+                                      } else if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
+                                        newLobby[i] = lobbyist.name;
+                                        var newQueue = {
+                                          id: queue._id,
+                                          game: queue.game,
+                                          desc: queue.description,
+                                          lobby: newLobby,
+                                          waiting: queue.waiting,
+                                          isCreator: firstId == req._passport.session.user[0]._id
+                                        };
+                                        newQs.push(newQueue);
+                                      } else if (counter == newLobby.length - 1) {
+                                        var newQueue = {
+                                          id: queue._id,
+                                          game: queue.game,
+                                          desc: queue.description,
+                                          lobby: newLobby,
+                                          waiting: queue.waiting,
+                                          isCreator: firstId == req._passport.session.user[0]._id
+                                        };
+                                        newQs.push(newQueue);
+                                      }
+                                      counter++;
+                                      if (newQs.length == qs.length) {
+                                        res.render("public", {
+                                          hasRequests: true,
+                                          hasFriends: true,
+                                          requestedFriends: requested,
+                                          friends: friendArr,
+                                          queues: newQs,
+                                        });
+                                      }
+                                    })
+                                  })
+                                })
+                              }
                             });
                           }
                         }
@@ -458,8 +616,8 @@ app.get("/profile/:name", function (req, res) {
       } else if (user == req._passport.session.user[0].name) {
         res.render("profile", {
           username: user,
-          email: found.email,
           games: found.favoriteGames,
+          status: found.status,
           userError: "",
           gameError: "",
           isUser: true
@@ -467,8 +625,8 @@ app.get("/profile/:name", function (req, res) {
       } else {
         res.render("profile", {
           username: user,
-          email: found.email,
           games: found.favoriteGames,
+          status: found.status,
           userError: "",
           gameError: "",
           isUser: false
@@ -539,7 +697,8 @@ app.post("/register", function (req, res) {
                   name: username,
                   password: password,
                   email: email,
-                  favoriteGames: games
+                  favoriteGames: games,
+                  status: "No status set"
                 });
 
                 user.save();
@@ -644,7 +803,7 @@ app.post("/addFriend", function (req, res) {
           } else {
             var hasUser = false;
             for (var i = 0; i < friend.friends.length; i++) {
-              if (userRequesting._id.str === friend.friends[i].str) {
+              if (userRequesting._id == friend.friends[i]) {
                 hasUser = true;
               }
             }
@@ -1027,7 +1186,32 @@ app.post("/userEdit", function (req, res) {
   }
 });
 
+
 // Allows the user to edit their 3 favorite games
+app.post("/statusEdit", function (req, res) {
+  if (req.isAuthenticated()) {
+    const user = req._passport.session.user[0].name;
+    const newStatus = req.body.newStatus;
+
+    User.findOneAndUpdate({
+      name: user
+    }, {
+      $set: {
+        status: newStatus
+      }
+    }, function (err) {
+      if (err) {
+        console.log(err);
+      }
+    });
+
+    res.redirect("/profile");
+  } else {
+    res.redirect("/error/login");
+  }
+});
+
+// Edit 3 favorite games on profile
 app.post("/gameEdit", function (req, res) {
   /* Enter current username */
   const user = req._passport.session.user[0].name;
@@ -1035,24 +1219,26 @@ app.post("/gameEdit", function (req, res) {
   const game2 = req.body.newGame2;
   const game3 = req.body.newGame3;
 
-  if (game1 == game2 || game1 == game3 || game2 == game3){
+  if (game1 == game2 || game1 == game3 || game2 == game3) {
     console.log("You cannot have more than one of the same favorite game.");
     res.redirect("/error/sameGame");
+  } else {
+    const gameArr = [game1, game2, game3];
+
+    // Updates the user's three favorite games
+    User.findOneAndUpdate({
+      name: user
+    }, {
+      favoriteGames: gameArr
+    }, {
+      new: true
+    }, function () {
+      req._passport.session.user[0].favoriteGames = gameArr;
+      res.redirect("profile/" + user);
+    });
   }
 
-  const gameArr = [game1, game2, game3];
 
-  // Updates the user's three favorite games
-  User.findOneAndUpdate({
-    name: user
-  }, {
-    favoriteGames: gameArr
-  }, {
-    new: true
-  }, function () {
-    req._passport.session.user[0].favoriteGames = gameArr;
-    res.redirect("profile/" + user);
-  });
 });
 
 // Connects to the site

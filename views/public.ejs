@@ -189,8 +189,8 @@
                             <div class="row">
                                 <img class="friend-img shadow" src="../assets/IMG_3463.jpg" alt="">
                                 <div>
-                                    <a href="/profile/<%= friends[i] %>"><%= friends[i] %></a>
-                                    <span id="status">Status: Looking to play</span>
+                                    <a href="/profile/<%= friends[i].friendName %>"><%= friends[i].friendName %></a>
+                                    <span id="status">Status: <%= friends[i].status %></span>
                                 </div>
                             </div>
                         </li>
