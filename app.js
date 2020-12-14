@@ -250,10 +250,8 @@ app.get("/public", function (req, res) {
                   if (err) {
                     console.log(err);
                   }
-                  if (lobbyist != null) {
+                  if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
                     newLobby[newLobby.indexOf(user)] = lobbyist.name;
-                  } else if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
-                    newLobby[i] = lobbyist.name;
                     var newQueue = {
                       id: queue._id,
                       game: queue.game,
@@ -263,6 +261,8 @@ app.get("/public", function (req, res) {
                       isCreator: firstId == req._passport.session.user[0]._id
                     };
                     newQs.push(newQueue);
+                  } else if (lobbyist != null && newLobby.indexOf(user) < newLobby.length - 1) {
+                    newLobby[newLobby.indexOf(user)] = lobbyist.name;
                   } else if (counter == newLobby.length - 1) {
                     var newQueue = {
                       id: queue._id,
@@ -315,10 +315,8 @@ app.get("/public", function (req, res) {
                           if (err) {
                             console.log(err);
                           }
-                          if (lobbyist != null) {
+                          if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
                             newLobby[newLobby.indexOf(user)] = lobbyist.name;
-                          } else if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
-                            newLobby[i] = lobbyist.name;
                             var newQueue = {
                               id: queue._id,
                               game: queue.game,
@@ -328,6 +326,8 @@ app.get("/public", function (req, res) {
                               isCreator: firstId == req._passport.session.user[0]._id
                             };
                             newQs.push(newQueue);
+                          } else if (lobbyist != null && newLobby.indexOf(user) < newLobby.length - 1) {
+                            newLobby[newLobby.indexOf(user)] = lobbyist.name;
                           } else if (counter == newLobby.length - 1) {
                             var newQueue = {
                               id: queue._id,
@@ -388,10 +388,8 @@ app.get("/public", function (req, res) {
                               if (err) {
                                 console.log(err);
                               }
-                              if (lobbyist != null) {
+                              if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
                                 newLobby[newLobby.indexOf(user)] = lobbyist.name;
-                              } else if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
-                                newLobby[i] = lobbyist.name;
                                 var newQueue = {
                                   id: queue._id,
                                   game: queue.game,
@@ -401,6 +399,8 @@ app.get("/public", function (req, res) {
                                   isCreator: firstId == req._passport.session.user[0]._id
                                 };
                                 newQs.push(newQueue);
+                              } else if (lobbyist != null && newLobby.indexOf(user) < newLobby.length - 1) {
+                                newLobby[newLobby.indexOf(user)] = lobbyist.name;
                               } else if (counter == newLobby.length - 1) {
                                 var newQueue = {
                                   id: queue._id,
@@ -454,9 +454,7 @@ app.get("/public", function (req, res) {
                                       if (err) {
                                         console.log(err);
                                       }
-                                      if (lobbyist != null) {
-                                        newLobby[newLobby.indexOf(user)] = lobbyist.name;
-                                      } else if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
+                                      if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
                                         newLobby[i] = lobbyist.name;
                                         var newQueue = {
                                           id: queue._id,
@@ -467,6 +465,8 @@ app.get("/public", function (req, res) {
                                           isCreator: firstId == req._passport.session.user[0]._id
                                         };
                                         newQs.push(newQueue);
+                                      } else if (lobbyist != null && newLobby.indexOf(user) < newLobby.length - 1) {
+                                        newLobby[newLobby.indexOf(user)] = lobbyist.name;
                                       } else if (counter == newLobby.length - 1) {
                                         var newQueue = {
                                           id: queue._id,
@@ -1065,42 +1065,72 @@ app.post("/privateCreate", function (req, res) {
 });
 
 // Allows the user to join a queue
-app.post("/joinQueue", function(req, res){
-  var currentQueue = Queue.findById(req.body.joinID);
-  var avai = currentQueue.visibility;
-  var lever = true;
+app.post("/joinQueue", function (req, res) {
+  var currentQueue = req.body.joinID;
+  var user = req._passport.session.user[0]._id;
+  var newLobby = [];
 
-  for (var i = 0; i<currentQueue.lobby.length; i++){
-    if (currentQueue.lobby[i] == null && lever){
-      currentQueue.lobby[i] = req._passport.session.user[0];
-      lever = false;
-    }
-  }
-
-  if (avai == true) {
-    res.redirect("/public");
-  } else if (avai == false) {
-    res.redirect("/private");
-  }
+  Queue.findById(currentQueue, function (err, queue) {
+        if(err) {
+          console.log(err);
+        }
+        var length = queue.lobby.length
+        for(var i = 0; i < queue.lobby.length; i++) {
+          if(queue.lobby[i] != null) {
+            newLobby[i] = queue.lobby[i];
+          }
+        }
+        if (newLobby.length == length) {
+          var avai = queue.visibility;
+            if(avai) {
+              res.redirect("/public");
+            } else {
+              res.redirect("/private");
+            }
+        } else {
+        Queue.findByIdAndUpdate(currentQueue, {lobby: newLobby}, {new: true}, function(err, queue) {
+          if(err) {
+            console.log(err);
+          }
+          Queue.findByIdAndUpdate(currentQueue, { $addToSet: { lobby: user } }, {new: true}, function(err, queue) {
+            if(err) {
+              console.log(err);
+            }
+            var finalLobby = queue.lobby;
+            for(var j = queue.lobby.length; j < length; j++) {
+              finalLobby.push(null);
+            }
+            Queue.findByIdAndUpdate(currentQueue, {lobby: finalLobby}, {new: true}, function(err) {
+              var avai = queue.visibility;
+              if(avai) {
+                res.redirect("/public");
+              } else {
+                res.redirect("/private");
+              }
+            });
+          });
+        });
+      }
+  })
 });
 
 // Allows the user to leave a queue
-app.post("/leaveQueue", function(req, res){
+app.post("/leaveQueue", function (req, res) {
   var currentQueue = Queue.findById(req.body.joinID);
   var avai = currentQueue.visibility;
   var lever = true;
   var numNulls = 0;
 
-  for (var i = 0; i<currentQueue.lobby.length; i++){
-    if (currentQueue.lobby[i] == null){
+  for (var i = 0; i < currentQueue.lobby.length; i++) {
+    if (currentQueue.lobby[i] == null) {
       numNulls++;
     }
-    if (currentQueue.lobby[i] == null && lever){
+    if (currentQueue.lobby[i] == null && lever) {
       currentQueue.lobby[i] = req._passport.session.user[0];
       lever = false;
     }
   }
-  if(numNulls == lobby.length){
+  if (numNulls == lobby.length) {
     Queue.findByIdAndRemove(req.body.joinID);
   }
 
@@ -1112,8 +1142,8 @@ app.post("/leaveQueue", function(req, res){
 });
 
 // Deletes a queue
-app.post("/deleteQueue", function(req, res) {
-  if(req.isAuthenticated()) {
+app.post("/deleteQueue", function (req, res) {
+  if (req.isAuthenticated()) {
     const id = req.body.id;
     Queue.findByIdAndRemove(id, function (err) {
       if (err) {
