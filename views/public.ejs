@@ -102,8 +102,18 @@
                 <div class="q-item shadow rounded-lg">
                     <form action="/deleteQueue" id="delete" method="POST"></form>
                     <form action="/joinQueue" id="join" method="POST"></form>
-                    <h1><%= queues[i].game  %></h1>
-                    <p><%= queues[i].desc %></p>
+                    <form action="/leaveQueue" id="leave" method="POST"></form>
+                    <div class="row">
+                        <div class="col-md-10">
+                            <h1><%= queues[i].game  %></h1>
+                            <p><%= queues[i].desc %></p>
+                        </div>
+                        <% if(queues[i].queueMember) { %>
+                        <div class="col-md-2">
+                            <button class="btn" id="leave-button" form="leave" name="leaveID" value="<%= queues[i].id %>">Leave</button>
+                        </div>
+                        <% } %>
+                    </div>
                     <ul class="nav d-flex justify-content-around">
                         <% for(var k = 0; k < queues[i].lobby.length; k++) { %>
                            <% if(queues[i].lobby[k] != null) { %>

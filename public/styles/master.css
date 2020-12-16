@@ -40,8 +40,21 @@ button:hover {
     margin: 2% 9%;
 }
 
+#leave-button {
+    background-color: crimson !important;
+    width: 80%;
+    border: none;
+    color: white;
+    margin: 15% 15% 0 0;
+}
+
 button#delete-button:hover {
     color:white !important;
+    background-color: red !important;
+}
+
+button#leave-button:hover {
+    color: white !important;
     background-color: red !important;
 }
 

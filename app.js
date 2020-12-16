@@ -67,6 +67,12 @@ const userSchema = new mongoose.Schema({
   },
   status: {
     type: String
+  },
+  inQueue: {
+    type: Boolean
+  },
+  currentQueue: {
+    type: mongoose.ObjectId
   }
 });
 
@@ -258,6 +264,7 @@ app.get("/public", function (req, res) {
                       desc: queue.description,
                       lobby: newLobby,
                       waiting: queue.waiting,
+                      queueMember: queue._id == req._passport.session.user[0].currentQueue,
                       isCreator: firstId == req._passport.session.user[0]._id
                     };
                     newQs.push(newQueue);
@@ -270,6 +277,7 @@ app.get("/public", function (req, res) {
                       desc: queue.description,
                       lobby: newLobby,
                       waiting: queue.waiting,
+                      queueMember: queue._id == req._passport.session.user[0].currentQueue,
                       isCreator: firstId == req._passport.session.user[0]._id
                     };
                     newQs.push(newQueue);
@@ -323,6 +331,7 @@ app.get("/public", function (req, res) {
                               desc: queue.description,
                               lobby: newLobby,
                               waiting: queue.waiting,
+                              queueMember: queue._id == req._passport.session.user[0].currentQueue,
                               isCreator: firstId == req._passport.session.user[0]._id
                             };
                             newQs.push(newQueue);
@@ -335,6 +344,7 @@ app.get("/public", function (req, res) {
                               desc: queue.description,
                               lobby: newLobby,
                               waiting: queue.waiting,
+                              queueMember: queue._id == req._passport.session.user[0].currentQueue,
                               isCreator: firstId == req._passport.session.user[0]._id
                             };
                             newQs.push(newQueue);
@@ -396,6 +406,7 @@ app.get("/public", function (req, res) {
                                   desc: queue.description,
                                   lobby: newLobby,
                                   waiting: queue.waiting,
+                                  queueMember: queue._id == req._passport.session.user[0].currentQueue,
                                   isCreator: firstId == req._passport.session.user[0]._id
                                 };
                                 newQs.push(newQueue);
@@ -408,6 +419,7 @@ app.get("/public", function (req, res) {
                                   desc: queue.description,
                                   lobby: newLobby,
                                   waiting: queue.waiting,
+                                  queueMember: queue._id == req._passport.session.user[0].currentQueue,
                                   isCreator: firstId == req._passport.session.user[0]._id
                                 };
                                 newQs.push(newQueue);
@@ -462,6 +474,7 @@ app.get("/public", function (req, res) {
                                           desc: queue.description,
                                           lobby: newLobby,
                                           waiting: queue.waiting,
+                                          queueMember: queue._id == req._passport.session.user[0].currentQueue,
                                           isCreator: firstId == req._passport.session.user[0]._id
                                         };
                                         newQs.push(newQueue);
@@ -474,6 +487,7 @@ app.get("/public", function (req, res) {
                                           desc: queue.description,
                                           lobby: newLobby,
                                           waiting: queue.waiting,
+                                          queueMember: queue._id == req._passport.session.user[0].currentQueue,
                                           isCreator: firstId == req._passport.session.user[0]._id
                                         };
                                         newQs.push(newQueue);
@@ -971,48 +985,70 @@ app.post("/create", function (req, res) {
 
 // Creates a public queue
 app.post("/publicCreate", function (req, res) {
-  const game = req.body.game;
-  const desc = req.body.desc;
-  const num = req.body.slots;
-  const visibility = true;
-  /* Alex will have to pass an array through
-  from the html site to this js l0l  */
-  //const reserved = req.body.reserved;
-  var lobby = [req._passport.session.user[0]._id];
-  var isFull = true;
+  if (req.isAuthenticated()) {
 
-  // if (reserved.length >= num) {
-  //   // throw error
-  //   console.log("You cannot have more available slots than slots total.");
-  // }
+    if (req._passport.session.user[0].inQueue) {
+      res.redirect("/public");
+    } else {
+      const game = req.body.game;
+      const desc = req.body.desc;
+      const num = req.body.slots;
+      const visibility = true;
+      var lobby = [req._passport.session.user[0]._id];
+      var isFull = true;
 
-  for (var i = lobby.length; i <= num; i++) {
-    /* In the html, show that if userSchema == null,
-    then show the spot as empty/available */
-    lobby.push(null);
+
+      for (var i = lobby.length; i <= num; i++) {
+        lobby.push(null);
+      }
+
+      for (var i = 0; i < lobby.length; i++) {
+        if (lobby[i] == null) {
+          isFull = false;
+        }
+      }
+
+      // Create a new queue object with the given properties
+      const queue = new Queue({
+        game: game,
+        description: desc,
+        visibility: visibility,
+        lobby: lobby,
+        full: isFull,
+        creator: req._passport.session.user[0]._id
+      });
+
+      // Save the queue to the DB
+      queue.save();
+
+      setTimeout(function () {
+        Queue.findOne({
+          creator: req._passport.session.user[0]._id
+        }, function (err, q) {
+          if (err) {
+            console.log(err);
+          }
+          User.findByIdAndUpdate(req._passport.session.user[0]._id, {
+            $set: {
+              inQueue: true,
+              currentQueue: q._id
+            }
+          },
+          { new: true }, function (err) {
+            if (err) {
+              console.log(err);
+            }
+            req._passport.session.user[0].inQueue = false;
+            req._passport.session.user[0].currentQueue = false;
+            res.redirect("/public");
+          });
+        });
+      }, 3000);
   }
 
-  for (var i = 0; i < lobby.length; i++) {
-    if (lobby[i] == null) {
-      isFull = false;
-    }
+  } else {
+    res.redirect("/error/login");
   }
-
-  // Create a new queue object with the given properties
-  const queue = new Queue({
-    game: game,
-    description: desc,
-    visibility: visibility,
-    lobby: lobby,
-    full: isFull,
-    creator: req._passport.session.user[0]._id
-  });
-
-  // Save the queue to the DB
-  queue.save();
-  console.log("saved queue");
-
-  res.redirect("/public");
 });
 
 // Creates a private queue
@@ -1066,78 +1102,130 @@ app.post("/privateCreate", function (req, res) {
 
 // Allows the user to join a queue
 app.post("/joinQueue", function (req, res) {
-  var currentQueue = req.body.joinID;
+  if(req.isAuthenticated()) {
+    var joiningQueue = req.body.joinID;
   var user = req._passport.session.user[0]._id;
   var newLobby = [];
 
-  Queue.findById(currentQueue, function (err, queue) {
-        if(err) {
+  User.findById(user, function (err, found) {
+    if (found.inQueue) {
+      res.redirect("/public");
+    } else {
+      Queue.findById(joiningQueue, function (err, queue) {
+        if (err) {
           console.log(err);
         }
         var length = queue.lobby.length
-        for(var i = 0; i < queue.lobby.length; i++) {
-          if(queue.lobby[i] != null) {
+        for (var i = 0; i < queue.lobby.length; i++) {
+          if (queue.lobby[i] != null) {
             newLobby[i] = queue.lobby[i];
           }
         }
         if (newLobby.length == length) {
           var avai = queue.visibility;
-            if(avai) {
-              res.redirect("/public");
-            } else {
-              res.redirect("/private");
-            }
-        } else {
-        Queue.findByIdAndUpdate(currentQueue, {lobby: newLobby}, {new: true}, function(err, queue) {
-          if(err) {
-            console.log(err);
+          if (avai) {
+            res.redirect("/public");
+          } else {
+            res.redirect("/private");
           }
-          Queue.findByIdAndUpdate(currentQueue, { $addToSet: { lobby: user } }, {new: true}, function(err, queue) {
-            if(err) {
+        } else {
+          Queue.findByIdAndUpdate(joiningQueue, {
+            lobby: newLobby
+          }, {
+            new: true
+          }, function (err, queue) {
+            if (err) {
               console.log(err);
             }
-            var finalLobby = queue.lobby;
-            for(var j = queue.lobby.length; j < length; j++) {
-              finalLobby.push(null);
-            }
-            Queue.findByIdAndUpdate(currentQueue, {lobby: finalLobby}, {new: true}, function(err) {
-              var avai = queue.visibility;
-              if(avai) {
-                res.redirect("/public");
-              } else {
-                res.redirect("/private");
+            Queue.findByIdAndUpdate(joiningQueue, {
+              $addToSet: {
+                lobby: user
               }
+            }, {
+              new: true
+            }, function (err, queue) {
+              if (err) {
+                console.log(err);
+              }
+              var finalLobby = queue.lobby;
+              for (var j = queue.lobby.length; j < length; j++) {
+                finalLobby.push(null);
+              }
+              Queue.findByIdAndUpdate(joiningQueue, {
+                lobby: finalLobby
+              }, {
+                new: true
+              }, function (err) {
+                User.findByIdAndUpdate(user, {
+                  $set: {
+                    inQueue: true,
+                    currentQueue: joiningQueue
+                  }
+                }, {new: true}, function (err) {
+                  req._passport.session.user[0].inQueue = true;
+                  req._passport.session.user[0].currentQueue = joiningQueue;
+                  var avai = queue.visibility;
+                  if (avai) {
+                    res.redirect("/public");
+                  } else {
+                    res.redirect("/private");
+                  }
+                });
+              });
             });
           });
-        });
-      }
-  })
+        }
+      })
+    }
+  });
+  } else {
+    res.redirect("/error/login");
+  }
 });
 
 // Allows the user to leave a queue
 app.post("/leaveQueue", function (req, res) {
-  var currentQueue = Queue.findById(req.body.joinID);
-  var avai = currentQueue.visibility;
-  var lever = true;
-  var numNulls = 0;
+  if(req.isAuthenticated()) {
+    var currentQueue = req.body.leaveID;
+    var requestingUser = req._passport.session.user[0]._id;
 
-  for (var i = 0; i < currentQueue.lobby.length; i++) {
-    if (currentQueue.lobby[i] == null) {
-      numNulls++;
-    }
-    if (currentQueue.lobby[i] == null && lever) {
-      currentQueue.lobby[i] = req._passport.session.user[0];
-      lever = false;
-    }
-  }
-  if (numNulls == lobby.length) {
-    Queue.findByIdAndRemove(req.body.joinID);
-  }
+    Queue.findById(currentQueue, function(err, queue) {
+      if(err) {
+        console.log(err);
+      }
+      if(queue.creator == requestingUser) {
+        res.redirect("/deleteQueue");
+      } else {
+        var newLobby = queue.lobby;
+        for(var i = 0; i < newLobby.length; i++) {
+          if(newLobby[i] == requestingUser) {
+            newLobby[i] = null;
+            break;
+          }
+        }
+        Queue.findByIdAndUpdate(currentQueue, { $set: {lobby: newLobby}}, {new: true}, function(err) {
+          if(err) {
+            log
+          }
+            if(err) {
+            console.log(err);
+          } else {
+            User.findByIdAndUpdate(requestingUser, { $set: { inQueue: false, currentQueue: null } }, {new: true}, function(err) {
+              if(err) {
+                console.log(err);
+              } else {
+                req._passport.session.user[0].inQueue = false;
+                req._passport.session.user[0].currentQueue = null;
+                res.redirect("/public");
+              }
+            });
+          }
+        })
+      }
+    });
 
-  if (avai == true) {
-    res.redirect("/public");
-  } else if (avai == false) {
-    res.redirect("/private");
+  } else {
+    res.redirect("/error/login");
   }
 });
 
@@ -1145,10 +1233,17 @@ app.post("/leaveQueue", function (req, res) {
 app.post("/deleteQueue", function (req, res) {
   if (req.isAuthenticated()) {
     const id = req.body.id;
-    Queue.findByIdAndRemove(id, function (err) {
+    Queue.findByIdAndRemove(id, function (err, q) {
       if (err) {
         console.log(err);
       } else {
+        q.lobby.forEach(function(user) {
+          User.findByIdAndUpdate(user, { $set: { inQueue: false, currentQueue: null}}, {new: true}, function(err) {
+            if(err) {
+              console.log(err);
+            }
+          })
+        })
         res.redirect("/public");
       }
     });
@@ -1277,5 +1372,5 @@ if (port == null || port == "") {
   port = 3000;
 }
 app.listen(port, function () {
-  console.log("Server started on port " + port);
+  console.log("Server started on the port " + port);
 });
