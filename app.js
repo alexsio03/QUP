@@ -1194,8 +1194,7 @@ app.post("/leaveQueue", function (req, res) {
         console.log(err);
       }
       if(queue.creator == requestingUser) {
-        const id = req.body.id;
-        Queue.findByIdAndRemove(id, function (err, q) {
+        Queue.findByIdAndRemove(currentQueue, function (err, q) {
           if (err) {
             console.log(err);
           } else {
@@ -1206,6 +1205,8 @@ app.post("/leaveQueue", function (req, res) {
                 }
               })
             })
+            req._passport.session.user[0].inQueue = false;
+            req._passport.session.user[0].currentQueue = null;
             res.redirect("/public");
           }
         });
