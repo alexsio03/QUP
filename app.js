@@ -1194,7 +1194,21 @@ app.post("/leaveQueue", function (req, res) {
         console.log(err);
       }
       if(queue.creator == requestingUser) {
-        res.redirect("/deleteQueue");
+        const id = req.body.id;
+        Queue.findByIdAndRemove(id, function (err, q) {
+          if (err) {
+            console.log(err);
+          } else {
+            q.lobby.forEach(function(user) {
+              User.findByIdAndUpdate(user, { $set: { inQueue: false, currentQueue: null}}, {new: true}, function(err) {
+                if(err) {
+                  console.log(err);
+                }
+              })
+            })
+            res.redirect("/public");
+          }
+        });
       } else {
         var newLobby = queue.lobby;
         for(var i = 0; i < newLobby.length; i++) {
