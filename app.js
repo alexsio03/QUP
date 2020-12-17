@@ -1315,6 +1315,71 @@ app.post("/deleteQueue", function (req, res) {
 
 });
 
+// Allows the user to join a wait queue
+app.post("/joinWaiting", function(req, res){
+  if(req.isAuthenticated()) {
+    var waitingID = req.body.waitingID;
+    var user = req._passport.session.user[0]._id;
+
+    User.findById(user, function (err, found) {
+      if (found.inQueue) {
+        res.redirect("/public");
+      } else {
+        Queue.findById(waitingID, function (err, waiting) {
+          if (err) {
+            console.log(err);
+          }
+            var length = waiting.waiting.length
+            if (length != 5){
+              /* If this isn't the way to add 
+              someone to the waiting array, change 
+              it. This is probably bugged. */
+              waiting.push(found);
+            } else {
+              /* Throw error or something, 
+              redirect saying it's full.
+              The comment below is just in case you need it */
+              // var avai = waiting.visibility;
+              // if (avai) {
+              //   res.redirect("/public");
+              // } else {
+              //   res.redirect("/private");
+              // }
+            }
+        });
+      }
+    });
+  } else {
+    res.redirect("/error/login");
+  }
+});
+
+// Allows the user to leave a wait
+app.post("/leaveWaiting", function(req, res){
+  if(req.isAuthenticated()) {
+    var waitingID = req.body.waitingID;
+    var user = req._passport.session.user[0]._id;
+
+    User.findById(user, function (err, found) {
+      Queue.findById(waitingID, function (err, waiting) {
+      if (err) {
+        console.log(err);
+      }
+      /* This for loop is to remove the user from the
+      waiting queue. I am 100% sure this does not
+      work, so change it :^) */
+        for (var i = 0; i < waiting.length; i++){
+          if (waitingID == waiting[i]){
+            waiting.splice(i, 1);
+          }
+        }
+      });
+    });
+  } else {
+    res.redirect("/error/login");
+  }
+});
+
 // Allows the user to edit username
 app.post("/userEdit", function (req, res) {
   /* Enter old username */
