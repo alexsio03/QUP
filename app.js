@@ -234,6 +234,211 @@ app.get("/logout", function (req, res) {
 // Renders public lobbies page
 app.get("/public", function (req, res) {
   if (req.isAuthenticated()) {
+
+    function none(qs) {
+      var newQs = [];
+      qs.forEach(function (queue) {
+        var firstId = queue.lobby[0]._id;
+        var newLobby = queue.lobby;
+        var counter = 0;
+        newLobby.forEach(function (user) {
+          User.findById(user, function (err, lobbyist) {
+            if (err) {
+              console.log(err);
+            }
+            if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
+              newLobby[newLobby.indexOf(user)] = lobbyist.name;
+              var newQueue = {
+                id: queue._id,
+                game: queue.game,
+                desc: queue.description,
+                lobby: newLobby,
+                waiting: queue.waiting,
+                queueMember: queue._id == req._passport.session.user[0].currentQueue,
+                isCreator: firstId == req._passport.session.user[0]._id
+              };
+              newQs.push(newQueue);
+            } else if (lobbyist != null && newLobby.indexOf(user) < newLobby.length - 1) {
+              newLobby[newLobby.indexOf(user)] = lobbyist.name;
+            } else if (counter == newLobby.length - 1) {
+              var newQueue = {
+                id: queue._id,
+                game: queue.game,
+                desc: queue.description,
+                lobby: newLobby,
+                waiting: queue.waiting,
+                queueMember: queue._id == req._passport.session.user[0].currentQueue,
+                isCreator: firstId == req._passport.session.user[0]._id
+              };
+              newQs.push(newQueue);
+            }
+            counter++;
+            if (newQs.length == qs.length) {
+              res.render("public", {
+                hasRequests: false,
+                hasFriends: false,
+                queues: newQs,
+              });
+            }
+          })
+        })
+      })
+    }
+
+    function onlyFriends(qs, firstFriendArr) {
+      var newQs = [];
+      qs.forEach(function (queue) {
+        var firstId = queue.lobby[0]._id;
+        var newLobby = queue.lobby;
+        var counter = 0;
+        newLobby.forEach(function (user) {
+          User.findById(user, function (err, lobbyist) {
+            if (err) {
+              console.log(err);
+            }
+            if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
+              newLobby[newLobby.indexOf(user)] = lobbyist.name;
+              var newQueue = {
+                id: queue._id,
+                game: queue.game,
+                desc: queue.description,
+                lobby: newLobby,
+                waiting: queue.waiting,
+                queueMember: queue._id == req._passport.session.user[0].currentQueue,
+                isCreator: firstId == req._passport.session.user[0]._id
+              };
+              newQs.push(newQueue);
+            } else if (lobbyist != null && newLobby.indexOf(user) < newLobby.length - 1) {
+              newLobby[newLobby.indexOf(user)] = lobbyist.name;
+            } else if (counter == newLobby.length - 1) {
+              var newQueue = {
+                id: queue._id,
+                game: queue.game,
+                desc: queue.description,
+                lobby: newLobby,
+                waiting: queue.waiting,
+                queueMember: queue._id == req._passport.session.user[0].currentQueue,
+                isCreator: firstId == req._passport.session.user[0]._id
+              };
+              newQs.push(newQueue);
+            }
+            counter++;
+            if (newQs.length == qs.length) {
+              res.render("public", {
+                hasRequests: false,
+                hasFriends: true,
+                friends: firstFriendArr,
+                queues: newQs,
+              });
+            }
+          })
+        })
+      })
+    }
+
+    function onlyRequests(qs, requested) {
+      var newQs = [];
+      qs.forEach(function (queue) {
+        var firstId = queue.lobby[0]._id;
+        var newLobby = queue.lobby;
+        var counter = 0;
+        newLobby.forEach(function (user) {
+          User.findById(user, function (err, lobbyist) {
+            if (err) {
+              console.log(err);
+            }
+            if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
+              newLobby[newLobby.indexOf(user)] = lobbyist.name;
+              var newQueue = {
+                id: queue._id,
+                game: queue.game,
+                desc: queue.description,
+                lobby: newLobby,
+                waiting: queue.waiting,
+                queueMember: queue._id == req._passport.session.user[0].currentQueue,
+                isCreator: firstId == req._passport.session.user[0]._id
+              };
+              newQs.push(newQueue);
+            } else if (lobbyist != null && newLobby.indexOf(user) < newLobby.length - 1) {
+              newLobby[newLobby.indexOf(user)] = lobbyist.name;
+            } else if (counter == newLobby.length - 1) {
+              var newQueue = {
+                id: queue._id,
+                game: queue.game,
+                desc: queue.description,
+                lobby: newLobby,
+                waiting: queue.waiting,
+                queueMember: queue._id == req._passport.session.user[0].currentQueue,
+                isCreator: firstId == req._passport.session.user[0]._id
+              };
+              newQs.push(newQueue);
+            }
+            counter++;
+            if (newQs.length == qs.length) {
+              res.render("public", {
+                hasRequests: true,
+                hasFriends: false,
+                requestedFriends: requested,
+                queues: newQs,
+              });
+            }
+          })
+        })
+      })
+    }
+
+    function both(qs, requested, friendArr) {
+      var newQs = [];
+      qs.forEach(function (queue) {
+        var firstId = queue.lobby[0]._id;
+        var newLobby = queue.lobby;
+        var counter = 0;
+        newLobby.forEach(function (user) {
+          User.findById(user, function (err, lobbyist) {
+            if (err) {
+              console.log(err);
+            }
+            if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
+              newLobby[i] = lobbyist.name;
+              var newQueue = {
+                id: queue._id,
+                game: queue.game,
+                desc: queue.description,
+                lobby: newLobby,
+                waiting: queue.waiting,
+                queueMember: queue._id == req._passport.session.user[0].currentQueue,
+                isCreator: firstId == req._passport.session.user[0]._id
+              };
+              newQs.push(newQueue);
+            } else if (lobbyist != null && newLobby.indexOf(user) < newLobby.length - 1) {
+              newLobby[newLobby.indexOf(user)] = lobbyist.name;
+            } else if (counter == newLobby.length - 1) {
+              var newQueue = {
+                id: queue._id,
+                game: queue.game,
+                desc: queue.description,
+                lobby: newLobby,
+                waiting: queue.waiting,
+                queueMember: queue._id == req._passport.session.user[0].currentQueue,
+                isCreator: firstId == req._passport.session.user[0]._id
+              };
+              newQs.push(newQueue);
+            }
+            counter++;
+            if (newQs.length == qs.length) {
+              res.render("public", {
+                hasRequests: true,
+                hasFriends: true,
+                requestedFriends: requested,
+                friends: friendArr,
+                queues: newQs,
+              });
+            }
+          })
+        })
+      })
+    }
+
     User.findOne({
       name: req._passport.session.user[0].name
     }, function (err, user) {
@@ -246,53 +451,7 @@ app.get("/public", function (req, res) {
           if (err) {
             console.log(err);
           } else {
-            var newQs = [];
-            qs.forEach(function (queue) {
-              var firstId = queue.lobby[0]._id;
-              var newLobby = queue.lobby;
-              var counter = 0;
-              newLobby.forEach(function (user) {
-                User.findById(user, function (err, lobbyist) {
-                  if (err) {
-                    console.log(err);
-                  }
-                  if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
-                    newLobby[newLobby.indexOf(user)] = lobbyist.name;
-                    var newQueue = {
-                      id: queue._id,
-                      game: queue.game,
-                      desc: queue.description,
-                      lobby: newLobby,
-                      waiting: queue.waiting,
-                      queueMember: queue._id == req._passport.session.user[0].currentQueue,
-                      isCreator: firstId == req._passport.session.user[0]._id
-                    };
-                    newQs.push(newQueue);
-                  } else if (lobbyist != null && newLobby.indexOf(user) < newLobby.length - 1) {
-                    newLobby[newLobby.indexOf(user)] = lobbyist.name;
-                  } else if (counter == newLobby.length - 1) {
-                    var newQueue = {
-                      id: queue._id,
-                      game: queue.game,
-                      desc: queue.description,
-                      lobby: newLobby,
-                      waiting: queue.waiting,
-                      queueMember: queue._id == req._passport.session.user[0].currentQueue,
-                      isCreator: firstId == req._passport.session.user[0]._id
-                    };
-                    newQs.push(newQueue);
-                  }
-                  counter++;
-                  if (newQs.length == qs.length) {
-                    res.render("public", {
-                      hasRequests: false,
-                      hasFriends: false,
-                      queues: newQs,
-                    });
-                  }
-                })
-              })
-            })
+            none(qs);
           }
         });
       } else if (user.requestedFriends.length == 0 && user.friends.length > 0) {
@@ -313,54 +472,7 @@ app.get("/public", function (req, res) {
                   if (err) {
                     console.log(err);
                   } else {
-                    var newQs = [];
-                    qs.forEach(function (queue) {
-                      var firstId = queue.lobby[0]._id;
-                      var newLobby = queue.lobby;
-                      var counter = 0;
-                      newLobby.forEach(function (user) {
-                        User.findById(user, function (err, lobbyist) {
-                          if (err) {
-                            console.log(err);
-                          }
-                          if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
-                            newLobby[newLobby.indexOf(user)] = lobbyist.name;
-                            var newQueue = {
-                              id: queue._id,
-                              game: queue.game,
-                              desc: queue.description,
-                              lobby: newLobby,
-                              waiting: queue.waiting,
-                              queueMember: queue._id == req._passport.session.user[0].currentQueue,
-                              isCreator: firstId == req._passport.session.user[0]._id
-                            };
-                            newQs.push(newQueue);
-                          } else if (lobbyist != null && newLobby.indexOf(user) < newLobby.length - 1) {
-                            newLobby[newLobby.indexOf(user)] = lobbyist.name;
-                          } else if (counter == newLobby.length - 1) {
-                            var newQueue = {
-                              id: queue._id,
-                              game: queue.game,
-                              desc: queue.description,
-                              lobby: newLobby,
-                              waiting: queue.waiting,
-                              queueMember: queue._id == req._passport.session.user[0].currentQueue,
-                              isCreator: firstId == req._passport.session.user[0]._id
-                            };
-                            newQs.push(newQueue);
-                          }
-                          counter++;
-                          if (newQs.length == qs.length) {
-                            res.render("public", {
-                              hasRequests: false,
-                              hasFriends: true,
-                              friends: firstFriendArr,
-                              queues: newQs,
-                            });
-                          }
-                        })
-                      })
-                    })
+                    onlyFriends(qs, firstFriendArr);
                   }
                 });
               }
@@ -388,54 +500,7 @@ app.get("/public", function (req, res) {
                       if (err) {
                         console.log(err);
                       } else {
-                        var newQs = [];
-                        qs.forEach(function (queue) {
-                          var firstId = queue.lobby[0]._id;
-                          var newLobby = queue.lobby;
-                          var counter = 0;
-                          newLobby.forEach(function (user) {
-                            User.findById(user, function (err, lobbyist) {
-                              if (err) {
-                                console.log(err);
-                              }
-                              if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
-                                newLobby[newLobby.indexOf(user)] = lobbyist.name;
-                                var newQueue = {
-                                  id: queue._id,
-                                  game: queue.game,
-                                  desc: queue.description,
-                                  lobby: newLobby,
-                                  waiting: queue.waiting,
-                                  queueMember: queue._id == req._passport.session.user[0].currentQueue,
-                                  isCreator: firstId == req._passport.session.user[0]._id
-                                };
-                                newQs.push(newQueue);
-                              } else if (lobbyist != null && newLobby.indexOf(user) < newLobby.length - 1) {
-                                newLobby[newLobby.indexOf(user)] = lobbyist.name;
-                              } else if (counter == newLobby.length - 1) {
-                                var newQueue = {
-                                  id: queue._id,
-                                  game: queue.game,
-                                  desc: queue.description,
-                                  lobby: newLobby,
-                                  waiting: queue.waiting,
-                                  queueMember: queue._id == req._passport.session.user[0].currentQueue,
-                                  isCreator: firstId == req._passport.session.user[0]._id
-                                };
-                                newQs.push(newQueue);
-                              }
-                              counter++;
-                              if (newQs.length == qs.length) {
-                                res.render("public", {
-                                  hasRequests: true,
-                                  hasFriends: false,
-                                  requestedFriends: requested,
-                                  queues: newQs,
-                                });
-                              }
-                            })
-                          })
-                        })
+                        onlyRequests(qs, requested);
                       }
                     });
                   } else {
@@ -456,55 +521,7 @@ app.get("/public", function (req, res) {
                               if (err) {
                                 console.log(err);
                               } else {
-                                var newQs = [];
-                                qs.forEach(function (queue) {
-                                  var firstId = queue.lobby[0]._id;
-                                  var newLobby = queue.lobby;
-                                  var counter = 0;
-                                  newLobby.forEach(function (user) {
-                                    User.findById(user, function (err, lobbyist) {
-                                      if (err) {
-                                        console.log(err);
-                                      }
-                                      if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
-                                        newLobby[i] = lobbyist.name;
-                                        var newQueue = {
-                                          id: queue._id,
-                                          game: queue.game,
-                                          desc: queue.description,
-                                          lobby: newLobby,
-                                          waiting: queue.waiting,
-                                          queueMember: queue._id == req._passport.session.user[0].currentQueue,
-                                          isCreator: firstId == req._passport.session.user[0]._id
-                                        };
-                                        newQs.push(newQueue);
-                                      } else if (lobbyist != null && newLobby.indexOf(user) < newLobby.length - 1) {
-                                        newLobby[newLobby.indexOf(user)] = lobbyist.name;
-                                      } else if (counter == newLobby.length - 1) {
-                                        var newQueue = {
-                                          id: queue._id,
-                                          game: queue.game,
-                                          desc: queue.description,
-                                          lobby: newLobby,
-                                          waiting: queue.waiting,
-                                          queueMember: queue._id == req._passport.session.user[0].currentQueue,
-                                          isCreator: firstId == req._passport.session.user[0]._id
-                                        };
-                                        newQs.push(newQueue);
-                                      }
-                                      counter++;
-                                      if (newQs.length == qs.length) {
-                                        res.render("public", {
-                                          hasRequests: true,
-                                          hasFriends: true,
-                                          requestedFriends: requested,
-                                          friends: friendArr,
-                                          queues: newQs,
-                                        });
-                                      }
-                                    })
-                                  })
-                                })
+                                both(qs, requested, friendArr);
                               }
                             });
                           }
@@ -1033,8 +1050,9 @@ app.post("/publicCreate", function (req, res) {
               inQueue: true,
               currentQueue: q._id
             }
-          },
-          { new: true }, function (err) {
+          }, {
+            new: true
+          }, function (err) {
             if (err) {
               console.log(err);
             }
@@ -1044,7 +1062,7 @@ app.post("/publicCreate", function (req, res) {
           });
         });
       }, 3000);
-  }
+    }
 
   } else {
     res.redirect("/error/login");
@@ -1102,82 +1120,84 @@ app.post("/privateCreate", function (req, res) {
 
 // Allows the user to join a queue
 app.post("/joinQueue", function (req, res) {
-  if(req.isAuthenticated()) {
+  if (req.isAuthenticated()) {
     var joiningQueue = req.body.joinID;
-  var user = req._passport.session.user[0]._id;
-  var newLobby = [];
+    var user = req._passport.session.user[0]._id;
+    var newLobby = [];
 
-  User.findById(user, function (err, found) {
-    if (found.inQueue) {
-      res.redirect("/public");
-    } else {
-      Queue.findById(joiningQueue, function (err, queue) {
-        if (err) {
-          console.log(err);
-        }
-        var length = queue.lobby.length
-        for (var i = 0; i < queue.lobby.length; i++) {
-          if (queue.lobby[i] != null) {
-            newLobby[i] = queue.lobby[i];
+    User.findById(user, function (err, found) {
+      if (found.inQueue) {
+        res.redirect("/public");
+      } else {
+        Queue.findById(joiningQueue, function (err, queue) {
+          if (err) {
+            console.log(err);
           }
-        }
-        if (newLobby.length == length) {
-          var avai = queue.visibility;
-          if (avai) {
-            res.redirect("/public");
-          } else {
-            res.redirect("/private");
-          }
-        } else {
-          Queue.findByIdAndUpdate(joiningQueue, {
-            lobby: newLobby
-          }, {
-            new: true
-          }, function (err, queue) {
-            if (err) {
-              console.log(err);
+          var length = queue.lobby.length
+          for (var i = 0; i < queue.lobby.length; i++) {
+            if (queue.lobby[i] != null) {
+              newLobby[i] = queue.lobby[i];
             }
+          }
+          if (newLobby.length == length) {
+            var avai = queue.visibility;
+            if (avai) {
+              res.redirect("/public");
+            } else {
+              res.redirect("/private");
+            }
+          } else {
             Queue.findByIdAndUpdate(joiningQueue, {
-              $addToSet: {
-                lobby: user
-              }
+              lobby: newLobby
             }, {
               new: true
             }, function (err, queue) {
               if (err) {
                 console.log(err);
               }
-              var finalLobby = queue.lobby;
-              for (var j = queue.lobby.length; j < length; j++) {
-                finalLobby.push(null);
-              }
               Queue.findByIdAndUpdate(joiningQueue, {
-                lobby: finalLobby
+                $addToSet: {
+                  lobby: user
+                }
               }, {
                 new: true
-              }, function (err) {
-                User.findByIdAndUpdate(user, {
-                  $set: {
-                    inQueue: true,
-                    currentQueue: joiningQueue
-                  }
-                }, {new: true}, function (err) {
-                  req._passport.session.user[0].inQueue = true;
-                  req._passport.session.user[0].currentQueue = joiningQueue;
-                  var avai = queue.visibility;
-                  if (avai) {
-                    res.redirect("/public");
-                  } else {
-                    res.redirect("/private");
-                  }
+              }, function (err, queue) {
+                if (err) {
+                  console.log(err);
+                }
+                var finalLobby = queue.lobby;
+                for (var j = queue.lobby.length; j < length; j++) {
+                  finalLobby.push(null);
+                }
+                Queue.findByIdAndUpdate(joiningQueue, {
+                  lobby: finalLobby
+                }, {
+                  new: true
+                }, function (err) {
+                  User.findByIdAndUpdate(user, {
+                    $set: {
+                      inQueue: true,
+                      currentQueue: joiningQueue
+                    }
+                  }, {
+                    new: true
+                  }, function (err) {
+                    req._passport.session.user[0].inQueue = true;
+                    req._passport.session.user[0].currentQueue = joiningQueue;
+                    var avai = queue.visibility;
+                    if (avai) {
+                      res.redirect("/public");
+                    } else {
+                      res.redirect("/private");
+                    }
+                  });
                 });
               });
             });
-          });
-        }
-      })
-    }
-  });
+          }
+        })
+      }
+    });
   } else {
     res.redirect("/error/login");
   }
@@ -1185,22 +1205,29 @@ app.post("/joinQueue", function (req, res) {
 
 // Allows the user to leave a queue
 app.post("/leaveQueue", function (req, res) {
-  if(req.isAuthenticated()) {
+  if (req.isAuthenticated()) {
     var currentQueue = req.body.leaveID;
     var requestingUser = req._passport.session.user[0]._id;
 
-    Queue.findById(currentQueue, function(err, queue) {
-      if(err) {
+    Queue.findById(currentQueue, function (err, queue) {
+      if (err) {
         console.log(err);
       }
-      if(queue.creator == requestingUser) {
+      if (queue.creator == requestingUser) {
         Queue.findByIdAndRemove(currentQueue, function (err, q) {
           if (err) {
             console.log(err);
           } else {
-            q.lobby.forEach(function(user) {
-              User.findByIdAndUpdate(user, { $set: { inQueue: false, currentQueue: null}}, {new: true}, function(err) {
-                if(err) {
+            q.lobby.forEach(function (user) {
+              User.findByIdAndUpdate(user, {
+                $set: {
+                  inQueue: false,
+                  currentQueue: null
+                }
+              }, {
+                new: true
+              }, function (err) {
+                if (err) {
                   console.log(err);
                 }
               })
@@ -1212,21 +1239,34 @@ app.post("/leaveQueue", function (req, res) {
         });
       } else {
         var newLobby = queue.lobby;
-        for(var i = 0; i < newLobby.length; i++) {
-          if(newLobby[i] == requestingUser) {
+        for (var i = 0; i < newLobby.length; i++) {
+          if (newLobby[i] == requestingUser) {
             newLobby[i] = null;
             break;
           }
         }
-        Queue.findByIdAndUpdate(currentQueue, { $set: {lobby: newLobby}}, {new: true}, function(err) {
-          if(err) {
+        Queue.findByIdAndUpdate(currentQueue, {
+          $set: {
+            lobby: newLobby
+          }
+        }, {
+          new: true
+        }, function (err) {
+          if (err) {
             log
           }
-            if(err) {
+          if (err) {
             console.log(err);
           } else {
-            User.findByIdAndUpdate(requestingUser, { $set: { inQueue: false, currentQueue: null } }, {new: true}, function(err) {
-              if(err) {
+            User.findByIdAndUpdate(requestingUser, {
+              $set: {
+                inQueue: false,
+                currentQueue: null
+              }
+            }, {
+              new: true
+            }, function (err) {
+              if (err) {
                 console.log(err);
               } else {
                 req._passport.session.user[0].inQueue = false;
@@ -1252,9 +1292,16 @@ app.post("/deleteQueue", function (req, res) {
       if (err) {
         console.log(err);
       } else {
-        q.lobby.forEach(function(user) {
-          User.findByIdAndUpdate(user, { $set: { inQueue: false, currentQueue: null}}, {new: true}, function(err) {
-            if(err) {
+        q.lobby.forEach(function (user) {
+          User.findByIdAndUpdate(user, {
+            $set: {
+              inQueue: false,
+              currentQueue: null
+            }
+          }, {
+            new: true
+          }, function (err) {
+            if (err) {
               console.log(err);
             }
           })
