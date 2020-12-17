@@ -399,7 +399,7 @@ app.get("/public", function (req, res) {
               console.log(err);
             }
             if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
-              newLobby[i] = lobbyist.name;
+              newLobby[newLobby.indexOf(user)] = lobbyist.name;
               var newQueue = {
                 id: queue._id,
                 game: queue.game,
