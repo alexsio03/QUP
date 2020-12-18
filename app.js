@@ -143,7 +143,7 @@ passport.deserializeUser(function (user, done) {
 app.route("/")
   .get(function (req, res) {
     if (req.isAuthenticated()) {
-      res.redirect("/public");
+      res.redirect("/profile/" + req._passport.session.user[0].name);
     } else {
       res.render("login", {
         errorMessage: ""
