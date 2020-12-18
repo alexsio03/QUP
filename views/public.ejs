@@ -103,6 +103,7 @@
                     <form action="/deleteQueue" id="delete" method="POST"></form>
                     <form action="/joinQueue" id="join" method="POST"></form>
                     <form action="/leaveQueue" id="leave" method="POST"></form>
+                    <form action="/joinWaiting" id="joinWait" method="POST"></form>
                     <div class="row">
                         <div class="col-md-10">
                             <h1><%= queues[i].game  %></h1>
@@ -137,11 +138,11 @@
                         <li>
                             <ol class="nav q-list">
                                 <% for(var w = 0; w < queues[i].waiting.length; w++) { %>
-                                <li><a href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt=""> <%= queues[i].waiting[w] %> </a></li>
+                                <li><a href="/profile/<%= queues[i].waiting[k] %>"><img class="shadow" src="../assets/IMG_3463.jpg" alt=""> <%= queues[i].waiting[w] %> </a></li>
                                 <% } %>
                             </ol>
                         </li>
-                        <li><a href=""><i class="fas fa-user-plus fa-2x"></i></a></li>
+                        <li><button class="queueButton" form="joinWait" name="waitingID" value="<%= queues[i].id %>"><a href=""><i class="fas fa-user-plus fa-2x"></i></a></button></li>
                     </ul>
                     <% if (queues[i].isCreator) { %>
                         <button class="btn" id="delete-button" form="delete" name="id" value="<%- queues[i].id %>">Delete</button>

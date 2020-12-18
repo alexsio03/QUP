@@ -104,7 +104,7 @@ const queueSchema = new mongoose.Schema({
   },
   waiting: {
     type: Array,
-    of: mongoose.ObjectId,
+    of: String,
     required: false
   },
   full: {
@@ -318,6 +318,7 @@ app.get("/public", function (req, res) {
                     qs.forEach(function (queue) {
                       var firstId = queue.lobby[0]._id;
                       var newLobby = queue.lobby;
+                      var newWaiting = queue.waiting;
                       var counter = 0;
                       newLobby.forEach(function (user) {
                         User.findById(user, function (err, lobbyist) {
@@ -336,6 +337,14 @@ app.get("/public", function (req, res) {
                               isCreator: firstId == req._passport.session.user[0]._id
                             };
                             newQs.push(newQueue);
+                            if (newQs.length == qs.length) {
+                              res.render("public", {
+                                hasRequests: false,
+                                hasFriends: true,
+                                friends: firstFriendArr,
+                                queues: newQs,
+                              });
+                            }
                           } else if (lobbyist != null && newLobby.indexOf(user) < newLobby.length - 1) {
                             newLobby[newLobby.indexOf(user)] = lobbyist.name;
                           } else if (counter == newLobby.length - 1) {
@@ -1222,27 +1231,20 @@ app.post("/leaveQueue", function (req, res) {
           }
         });
       } else {
-        var newLobby = queue.lobby;
-        for (var i = 0; i < newLobby.length; i++) {
-          if (newLobby[i] == requestingUser) {
-            newLobby[i] = null;
-            break;
-          }
-        }
-        Queue.findByIdAndUpdate(currentQueue, {
-          $set: {
-            lobby: newLobby
-          }
-        }, {
-          new: true
-        }, function (err) {
-          if (err) {
-            log
-          }
+        User.findById(requestingUser, function (err, found) {
           if (err) {
             console.log(err);
-          } else {
-            User.findByIdAndUpdate(requestingUser, {
+          }
+          if (queue.waiting.includes(found.name)) {
+            Queue.findByIdAndUpdate(currentQueue, {
+            $pull: {
+              waiting: found.name
+            }
+          }, function (err) {
+            if (err) {
+              console.log(err);
+            }
+            User.findOneAndUpdate({name: found.name}, {
               $set: {
                 inQueue: false,
                 currentQueue: null
@@ -1250,19 +1252,57 @@ app.post("/leaveQueue", function (req, res) {
             }, {
               new: true
             }, function (err) {
+              if(err) {
+                console.log(err);
+              }
+              req._passport.session.user[0].inQueue = false;
+              req._passport.session.user[0].currentQueue = null;
+              res.redirect("/public");
+            });
+          });
+          } else {
+            var newLobby = queue.lobby;
+            for (var i = 0; i < newLobby.length; i++) {
+              if (newLobby[i] == requestingUser) {
+                newLobby[i] = null;
+                break;
+              }
+            }
+            Queue.findByIdAndUpdate(currentQueue, {
+              $set: {
+                lobby: newLobby
+              }
+            }, {
+              new: true
+            }, function (err) {
+              if (err) {
+                log
+              }
               if (err) {
                 console.log(err);
               } else {
-                req._passport.session.user[0].inQueue = false;
-                req._passport.session.user[0].currentQueue = null;
-                res.redirect("/public");
+                User.findByIdAndUpdate(requestingUser, {
+                  $set: {
+                    inQueue: false,
+                    currentQueue: null
+                  }
+                }, {
+                  new: true
+                }, function (err) {
+                  if (err) {
+                    console.log(err);
+                  } else {
+                    req._passport.session.user[0].inQueue = false;
+                    req._passport.session.user[0].currentQueue = null;
+                    res.redirect("/public");
+                  }
+                });
               }
-            });
+            })
           }
         })
       }
     });
-
   } else {
     res.redirect("/error/login");
   }
@@ -1309,55 +1349,48 @@ app.post("/joinWaiting", function (req, res) {
       if (found.inQueue) {
         res.redirect("/public");
       } else {
-        Queue.findById(waitingID, function (err, waiting) {
+        Queue.findById(waitingID, function (err, waitingQueue) {
           if (err) {
             console.log(err);
           }
-          var length = waiting.waiting.length
+          var length = waitingQueue.waiting.length
           if (length != 5) {
             /* If this isn't the way to add 
             someone to the waiting array, change 
             it. This is probably bugged. */
-            waiting.push(found);
+            Queue.findByIdAndUpdate(waitingID, {
+              $addToSet: {
+                waiting: found.name
+              }
+            }, function (err) {
+              if (err) {
+                console.log(err);
+              }
+              User.findByIdAndUpdate(user, {
+                $set: {
+                  inQueue: true,
+                  currentQueue: waitingID
+                }
+              }, {
+                new: true
+              }, function (err) {
+                req._passport.session.user[0].inQueue = true;
+                req._passport.session.user[0].currentQueue = waitingID;
+                var avai = waitingQueue.visibility;
+                if (avai) {
+                  res.redirect("/public");
+                } else {
+                  res.redirect("/private");
+                }
+              });
+            })
+
           } else {
-            /* Throw error or something, 
-            redirect saying it's full.
-            The comment below is just in case you need it */
-            // var avai = waiting.visibility;
-            // if (avai) {
-            //   res.redirect("/public");
-            // } else {
-            //   res.redirect("/private");
-            // }
+            res.redirect("/public");
+            console.log("Waiting full");
           }
         });
       }
-    });
-  } else {
-    res.redirect("/error/login");
-  }
-});
-
-// Allows the user to leave a wait
-app.post("/leaveWaiting", function (req, res) {
-  if (req.isAuthenticated()) {
-    var waitingID = req.body.waitingID;
-    var user = req._passport.session.user[0]._id;
-
-    User.findById(user, function (err, found) {
-      Queue.findById(waitingID, function (err, waiting) {
-        if (err) {
-          console.log(err);
-        }
-        /* This for loop is to remove the user from the
-        waiting queue. I am 100% sure this does not
-        work, so change it :^) */
-        for (var i = 0; i < waiting.length; i++) {
-          if (waitingID == waiting[i]) {
-            waiting.splice(i, 1);
-          }
-        }
-      });
     });
   } else {
     res.redirect("/error/login");
