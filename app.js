@@ -1049,8 +1049,8 @@ app.post("/publicCreate", function (req, res) {
             if (err) {
               console.log(err);
             }
-            req._passport.session.user[0].inQueue = false;
-            req._passport.session.user[0].currentQueue = false;
+            req._passport.session.user[0].inQueue = true;
+            req._passport.session.user[0].currentQueue = q._id;
             res.redirect("/public");
           });
         });
