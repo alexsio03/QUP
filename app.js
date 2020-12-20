@@ -1054,7 +1054,7 @@ app.post("/publicCreate", function (req, res) {
             res.redirect("/public");
           });
         });
-      }, 3000);
+      }, 1000);
     }
 
   } else {
