@@ -315,6 +315,7 @@ app.get("/public", function (req, res) {
                     console.log(err);
                   } else {
                     var newQs = [];
+                    console.log(qs.length);
                     qs.forEach(function (queue) {
                       var firstId = queue.lobby[0]._id;
                       var newLobby = queue.lobby;
@@ -332,19 +333,11 @@ app.get("/public", function (req, res) {
                               game: queue.game,
                               desc: queue.description,
                               lobby: newLobby,
-                              waiting: queue.waiting,
+                              waiting: newWaiting,
                               queueMember: queue._id == req._passport.session.user[0].currentQueue,
                               isCreator: firstId == req._passport.session.user[0]._id
                             };
                             newQs.push(newQueue);
-                            if (newQs.length == qs.length) {
-                              res.render("public", {
-                                hasRequests: false,
-                                hasFriends: true,
-                                friends: firstFriendArr,
-                                queues: newQs,
-                              });
-                            }
                           } else if (lobbyist != null && newLobby.indexOf(user) < newLobby.length - 1) {
                             newLobby[newLobby.indexOf(user)] = lobbyist.name;
                           } else if (counter == newLobby.length - 1) {
@@ -353,20 +346,22 @@ app.get("/public", function (req, res) {
                               game: queue.game,
                               desc: queue.description,
                               lobby: newLobby,
-                              waiting: queue.waiting,
+                              waiting: newWaiting,
                               queueMember: queue._id == req._passport.session.user[0].currentQueue,
                               isCreator: firstId == req._passport.session.user[0]._id
                             };
                             newQs.push(newQueue);
                           }
                           counter++;
+                          console.log(newQs.length);
                           if (newQs.length == qs.length) {
                             res.render("public", {
                               hasRequests: false,
                               hasFriends: true,
                               friends: firstFriendArr,
-                              queues: newQs,
+                              queues: newQs
                             });
+                            console.log("Rendered public");
                           }
                         })
                       })
