@@ -315,7 +315,6 @@ app.get("/public", function (req, res) {
                     console.log(err);
                   } else {
                     var newQs = [];
-                    console.log(qs.length);
                     qs.forEach(function (queue) {
                       var firstId = queue.lobby[0]._id;
                       var newLobby = queue.lobby;
@@ -353,7 +352,6 @@ app.get("/public", function (req, res) {
                             newQs.push(newQueue);
                           }
                           counter++;
-                          console.log(newQs.length);
                           if (newQs.length == qs.length) {
                             res.render("public", {
                               hasRequests: false,
@@ -532,17 +530,83 @@ app.get("/public", function (req, res) {
 // Renders private lobbies page
 app.get("/private", function (req, res) {
   if (req.isAuthenticated()) {
-    console.log("redirected");
+    console.log("private");
     User.findOne({
       name: req._passport.session.user[0].name
     }, function (err, user) {
       if (err) {
         console.log(err);
       } else if (user.requestedFriends.length == 0 && user.friends.length == 0) {
-        res.render("private", {
-          hasRequests: false,
-          hasFriends: false
-        });
+        var queues = [];
+        var count = 0;
+        user.friends.forEach(function (friend) {
+          User.findById(friend, function (err, foundFriend) {
+            if (err) {
+              console.log(err);
+            } else {
+              if (foundFriend.inQueue) {
+                Queue.findById(foundFriend.currentQueue, function (err, friendQueue) {
+                  if (err) {
+                    console.log(err);
+                  } else {
+                    queues.push(friendQueue);
+                    count++;
+                    if (count == user.friends.length) {
+                      var newQs = [];
+                      queues.forEach(function (queue) {
+                        var firstId = queue.lobby[0]._id;
+                        var newLobby = queue.lobby;
+                        var counter = 0;
+                        newLobby.forEach(function (user) {
+                          User.findById(user, function (err, lobbyist) {
+                            if (err) {
+                              console.log(err);
+                            }
+                            if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
+                              newLobby[newLobby.indexOf(user)] = lobbyist.name;
+                              var newQueue = {
+                                id: queue._id,
+                                game: queue.game,
+                                desc: queue.description,
+                                lobby: newLobby,
+                                waiting: queue.waiting,
+                                queueMember: queue._id == req._passport.session.user[0].currentQueue,
+                                isCreator: firstId == req._passport.session.user[0]._id
+                              };
+                              newQs.push(newQueue);
+                            } else if (lobbyist != null && newLobby.indexOf(user) < newLobby.length - 1) {
+                              newLobby[newLobby.indexOf(user)] = lobbyist.name;
+                            } else if (counter == newLobby.length - 1) {
+                              var newQueue = {
+                                id: queue._id,
+                                game: queue.game,
+                                desc: queue.description,
+                                lobby: newLobby,
+                                waiting: queue.waiting,
+                                queueMember: queue._id == req._passport.session.user[0].currentQueue,
+                                isCreator: firstId == req._passport.session.user[0]._id
+                              };
+                              newQs.push(newQueue);
+                            }
+                            counter++;
+                            if (newQs.length == queues.length) {
+                              console.log(newQs);
+                              res.render("private", {
+                                hasRequests: false,
+                                hasFriends: false,
+                                queues: newQs,
+                              });
+                            }
+                          })
+                        })
+                      })
+                    }
+                  }
+                })
+              }
+            }
+          })
+        })
       } else if (user.requestedFriends.length == 0 && user.friends.length > 0) {
         let firstFriendArr = [];
         user.friends.forEach(function (friendsId) {
@@ -552,11 +616,82 @@ app.get("/private", function (req, res) {
             } else {
               firstFriendArr.push(friend.name);
               if (firstFriendArr.length == user.friends.length) {
-                res.render("private", {
-                  hasRequests: false,
-                  hasFriends: true,
-                  friends: firstFriendArr
-                });
+                console.log("step 1");
+                var queues = [];
+                var count = 0;
+                console.log(user.friends.length);
+                user.friends.forEach(function (friend) {
+                  User.findById(friend, function (err, foundFriend) {
+                    if (err) {
+                      console.log(err);
+                    } else {
+                      count++;
+                      if (foundFriend.inQueue) {
+                        Queue.findById(foundFriend.currentQueue, function (err, friendQueue) {
+                          if (err) {
+                            console.log(err);
+                          } else {
+                            queues.push(friendQueue);
+                            console.log(count);
+                            // Figure out how to stop the forEach here
+                            if (count == user.friends.length) {
+                              console.log("step 2");
+                              var newQs = [];
+                              queues.forEach(function (queue) {
+                                var firstId = queue.lobby[0]._id;
+                                var newLobby = queue.lobby;
+                                var counter = 0;
+                                newLobby.forEach(function (user) {
+                                  User.findById(user, function (err, lobbyist) {
+                                    if (err) {
+                                      console.log(err);
+                                    }
+                                    if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
+                                      newLobby[newLobby.indexOf(user)] = lobbyist.name;
+                                      var newQueue = {
+                                        id: queue._id,
+                                        game: queue.game,
+                                        desc: queue.description,
+                                        lobby: newLobby,
+                                        waiting: queue.waiting,
+                                        queueMember: queue._id == req._passport.session.user[0].currentQueue,
+                                        isCreator: firstId == req._passport.session.user[0]._id
+                                      };
+                                      newQs.push(newQueue);
+                                    } else if (lobbyist != null && newLobby.indexOf(user) < newLobby.length - 1) {
+                                      newLobby[newLobby.indexOf(user)] = lobbyist.name;
+                                    } else if (counter == newLobby.length - 1) {
+                                      var newQueue = {
+                                        id: queue._id,
+                                        game: queue.game,
+                                        desc: queue.description,
+                                        lobby: newLobby,
+                                        waiting: queue.waiting,
+                                        queueMember: queue._id == req._passport.session.user[0].currentQueue,
+                                        isCreator: firstId == req._passport.session.user[0]._id
+                                      };
+                                      newQs.push(newQueue);
+                                    }
+                                    counter++;
+                                    if (newQs.length == queues.length) {
+                                      console.log(newQs);
+                                      res.render("private", {
+                                        hasRequests: false,
+                                        hasFriends: true,
+                                        friends: firstFriendArr,
+                                        queues: newQs,
+                                      });
+                                    }
+                                  })
+                                })
+                              })
+                            }
+                          }
+                        })
+                      }
+                    }
+                  })
+                })
               }
             }
           });
@@ -576,11 +711,78 @@ app.get("/private", function (req, res) {
                   if (err) {
                     console.log(err);
                   } else if (main.friends.length == 0) {
-                    res.render("private", {
-                      hasRequests: true,
-                      hasFriends: false,
-                      requestedFriends: requested
-                    });
+                    var queues = [];
+                    var count = 0;
+                    user.friends.forEach(function (friend) {
+                      User.findById(friend, function (err, foundFriend) {
+                        if (err) {
+                          console.log(err);
+                        } else {
+                          if (foundFriend.inQueue) {
+                            Queue.findById(foundFriend.currentQueue, function (err, friendQueue) {
+                              if (err) {
+                                console.log(err);
+                              } else {
+                                queues.push(friendQueue);
+                                count++;
+                                // Figure out how to stop the forEach here
+                                if (count == user.friends.length) {
+                                  var newQs = [];
+                                  queues.forEach(function (queue) {
+                                    var firstId = queue.lobby[0]._id;
+                                    var newLobby = queue.lobby;
+                                    var counter = 0;
+                                    newLobby.forEach(function (user) {
+                                      User.findById(user, function (err, lobbyist) {
+                                        if (err) {
+                                          console.log(err);
+                                        }
+                                        if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
+                                          newLobby[newLobby.indexOf(user)] = lobbyist.name;
+                                          var newQueue = {
+                                            id: queue._id,
+                                            game: queue.game,
+                                            desc: queue.description,
+                                            lobby: newLobby,
+                                            waiting: queue.waiting,
+                                            queueMember: queue._id == req._passport.session.user[0].currentQueue,
+                                            isCreator: firstId == req._passport.session.user[0]._id
+                                          };
+                                          newQs.push(newQueue);
+                                        } else if (lobbyist != null && newLobby.indexOf(user) < newLobby.length - 1) {
+                                          newLobby[newLobby.indexOf(user)] = lobbyist.name;
+                                        } else if (counter == newLobby.length - 1) {
+                                          var newQueue = {
+                                            id: queue._id,
+                                            game: queue.game,
+                                            desc: queue.description,
+                                            lobby: newLobby,
+                                            waiting: queue.waiting,
+                                            queueMember: queue._id == req._passport.session.user[0].currentQueue,
+                                            isCreator: firstId == req._passport.session.user[0]._id
+                                          };
+                                          newQs.push(newQueue);
+                                        }
+                                        counter++;
+                                        if (newQs.length == queues.length) {
+                                          console.log(newQs);
+                                          res.render("private", {
+                                            hasRequests: true,
+                                            hasFriends: false,
+                                            requestedFriends: requested,
+                                            queues: newQs,
+                                          });
+                                        }
+                                      })
+                                    })
+                                  })
+                                }
+                              }
+                            })
+                          }
+                        }
+                      })
+                    })
                   } else {
                     let friendArr = [];
                     main.friends.forEach(function (friendId) {
@@ -590,12 +792,79 @@ app.get("/private", function (req, res) {
                         } else {
                           friendArr.push(friend.name);
                           if (friendArr.length == main.friends.length) {
-                            res.render("private", {
-                              hasRequests: true,
-                              hasFriends: false,
-                              requestedFriends: requested,
-                              friends: friendArr
-                            });
+                            var queues = [];
+                            var count = 0;
+                            user.friends.forEach(function (friend) {
+                              User.findById(friend, function (err, foundFriend) {
+                                if (err) {
+                                  console.log(err);
+                                } else {
+                                  if (foundFriend.inQueue) {
+                                    Queue.findById(foundFriend.currentQueue, function (err, friendQueue) {
+                                      if (err) {
+                                        console.log(err);
+                                      } else {
+                                        queues.push(friendQueue);
+                                        count++;
+                                        // Figure out how to stop the forEach here
+                                        if (count == user.friends.length) {
+                                          var newQs = [];
+                                          queues.forEach(function (queue) {
+                                            var firstId = queue.lobby[0]._id;
+                                            var newLobby = queue.lobby;
+                                            var counter = 0;
+                                            newLobby.forEach(function (user) {
+                                              User.findById(user, function (err, lobbyist) {
+                                                if (err) {
+                                                  console.log(err);
+                                                }
+                                                if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
+                                                  newLobby[newLobby.indexOf(user)] = lobbyist.name;
+                                                  var newQueue = {
+                                                    id: queue._id,
+                                                    game: queue.game,
+                                                    desc: queue.description,
+                                                    lobby: newLobby,
+                                                    waiting: queue.waiting,
+                                                    queueMember: queue._id == req._passport.session.user[0].currentQueue,
+                                                    isCreator: firstId == req._passport.session.user[0]._id
+                                                  };
+                                                  newQs.push(newQueue);
+                                                } else if (lobbyist != null && newLobby.indexOf(user) < newLobby.length - 1) {
+                                                  newLobby[newLobby.indexOf(user)] = lobbyist.name;
+                                                } else if (counter == newLobby.length - 1) {
+                                                  var newQueue = {
+                                                    id: queue._id,
+                                                    game: queue.game,
+                                                    desc: queue.description,
+                                                    lobby: newLobby,
+                                                    waiting: queue.waiting,
+                                                    queueMember: queue._id == req._passport.session.user[0].currentQueue,
+                                                    isCreator: firstId == req._passport.session.user[0]._id
+                                                  };
+                                                  newQs.push(newQueue);
+                                                }
+                                                counter++;
+                                                if (newQs.length == queues.length) {
+                                                  console.log(newQs);
+                                                  res.render("private", {
+                                                    hasRequests: true,
+                                                    hasFriends: false,
+                                                    requestedFriends: requested,
+                                                    friends: friendArr,
+                                                    queues: newQs,
+                                                  });
+                                                }
+                                              })
+                                            })
+                                          })
+                                        }
+                                      }
+                                    })
+                                  }
+                                }
+                              })
+                            })
                           }
                         }
                       })
@@ -1232,29 +1501,31 @@ app.post("/leaveQueue", function (req, res) {
           }
           if (queue.waiting.includes(found.name)) {
             Queue.findByIdAndUpdate(currentQueue, {
-            $pull: {
-              waiting: found.name
-            }
-          }, function (err) {
-            if (err) {
-              console.log(err);
-            }
-            User.findOneAndUpdate({name: found.name}, {
-              $set: {
-                inQueue: false,
-                currentQueue: null
+              $pull: {
+                waiting: found.name
               }
-            }, {
-              new: true
             }, function (err) {
-              if(err) {
+              if (err) {
                 console.log(err);
               }
-              req._passport.session.user[0].inQueue = false;
-              req._passport.session.user[0].currentQueue = null;
-              res.redirect("/public");
+              User.findOneAndUpdate({
+                name: found.name
+              }, {
+                $set: {
+                  inQueue: false,
+                  currentQueue: null
+                }
+              }, {
+                new: true
+              }, function (err) {
+                if (err) {
+                  console.log(err);
+                }
+                req._passport.session.user[0].inQueue = false;
+                req._passport.session.user[0].currentQueue = null;
+                res.redirect("/public");
+              });
             });
-          });
           } else {
             var newLobby = queue.lobby;
             for (var i = 0; i < newLobby.length; i++) {

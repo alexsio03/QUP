@@ -91,34 +91,38 @@
     </div>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-9">
+            <div class="col-7">
                 <!-- Will be a React component eventually, temp class item -->
+                <% for(var i = 0; i < queues.length; i++) { %>
                 <div class="q-item shadow rounded-lg">
-                    <h1>Game: Counter Strike Global Offensive (temp)</h1>
+                    <form action="/deleteQueue" id="delete" method="POST"></form>
+                    <form action="/joinQueue" id="join" method="POST"></form>
+                    <form action="/leaveQueue" id="leave" method="POST"></form>
+                    <form action="/joinWaiting" id="joinWait" method="POST"></form>
+                    <div class="col-md-10">
+                        <h1><%= queues[i].game  %></h1>
+                        <p><%= queues[i].desc %></p>
+                    </div>
+                    <% if(queues[i].queueMember) { %>
+                    <div class="col-md-2">
+                        <button class="btn" id="leave-button" form="leave" name="leaveID" value="<%= queues[i].id %>">Leave</button>
+                    </div>
+                    <% } %>
                     <!-- Limit this array to the num of available users in party, make user input??? !maybe have pre-defined for bigger games! -->
                     <ul class="nav d-flex justify-content-around">
-                        <!-- OnClick = user profile -->
+                        <% for(var k = 0; k < queues[i].lobby.length; k++) { %>
+                           <% if(queues[i].lobby[k] != null) { %>
                         <li class="nav-item">
-                            <a class="nav-link" href="">
-                                <img src="../assets/IMG_3463.jpg" alt="">
-                                <span>User 1</span>
+                            <a class="nav-link" href="/profile/<%= queues[i].lobby[k] %>">
+                                <img class="shadow" src="../assets/IMG_3463.jpg" alt="">
+                                <span> <%= queues[i].lobby[k] %> </span>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="">
-                                <img src="../assets/IMG_3463.jpg" alt="">
-                                <span>User 2</span>
-                            </a>
+                        <% } else { %>
+                        <li class="join"><button class="queueButton" form="join" name="joinID" value="<%= queues[i].id %>"><a href=""><i class="fas fa-user-plus fa-3x"></i><span>Join Queue</span></a></button>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt=""><span>User 3</span></a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt=""><span>User 4</span></a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt=""><span>User 5</span></a>
-                        </li>
+                        <% } %>
+                    <% } %>
                     </ul>
                     <hr>
                     <ul class="nav queue">
@@ -128,46 +132,18 @@
                         <!-- EJS for loop of users in queue -->
                         <li>
                             <ol class="nav q-list">
-                                <li><a href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt="">User 6,</a></li>
-                                <li><a href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt="">User 7</a></li>
+                                <% for(var w = 0; w < queues[i].waiting.length; w++) { %>
+                                    <li><a href="/profile/<%= queues[i].waiting[k] %>"><img class="shadow" src="../assets/IMG_3463.jpg" alt=""> <%= queues[i].waiting[w] %> </a></li>
+                                <% } %>
                             </ol>
                         </li>
-                        <li><a href=""><i class="fas fa-user-plus fa-2x"></i></a></li>
+                        <li><button class="queueButton" form="joinWait" name="waitingID" value="<%= queues[i].id %>"><a href=""><i class="fas fa-user-plus fa-2x"></i></a></button></li>
                     </ul>
+                    <% if (queues[i].isCreator) { %>
+                        <button class="btn" id="delete-button" form="delete" name="id" value="<%- queues[i].id %>">Delete</button>
+                    <% } %>
                 </div>
-                <div class="q-item shadow rounded-lg">
-                    <h1>Game: Warzone (temp)</h1>
-                    <!-- Limit this array to the num of available users in party, make user input??? !maybe have pre-defined for bigger games! -->
-                    <ul class="nav d-flex justify-content-around">
-                        <!-- OnClick = user profile -->
-                        <li class="nav-item">
-                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt=""><span>User 1</span></a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt=""><span>User 2</span></a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt=""><span>User 3</span></a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt=""><span>User 4</span></a>
-                        </li>
-                    </ul>
-                    <hr>
-                    <ul class="nav queue">
-                        <li>
-                            <h4>QUEUE:</h4>
-                        </li>
-                        <!-- EJS for loop of users in queue -->
-                        <li>
-                            <ol class="nav q-list">
-                                <li><a href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt="">User 5,</a></li>
-                                <li><a href=""><img class="shadow" src="../assets/IMG_3463.jpg" alt="">User 6</a></li>
-                            </ol>
-                        </li>
-                        <li class="locked"><i class="fas fa-lock fa-2x"></i></li>
-                    </ul>
-                </div>
+                <% } %>
             </div>
             <!-- Will have to list out user's friends, most likely using EJS and for loop -->
             <div class="col-3 h-50 shadow friends-list rounded-left">
