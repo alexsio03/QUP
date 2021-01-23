@@ -91,8 +91,13 @@
     </div>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-7">
+            <div class="col-9">
                 <!-- Will be a React component eventually, temp class item -->
+                <% if (queues.length == 0) { %>
+                    <div class="q-item shadow rounded-lg">
+                        <h1 class="error">No Friends Own A Queue</h1>
+                    </div>
+                <% } else { %>
                 <% for(var i = 0; i < queues.length; i++) { %>
                 <div class="q-item shadow rounded-lg">
                     <form action="/deleteQueue" id="delete" method="POST"></form>
@@ -119,7 +124,7 @@
                             </a>
                         </li>
                         <% } else { %>
-                        <li class="join"><button class="queueButton" form="join" name="joinID" value="<%= queues[i].id %>"><a href=""><i class="fas fa-user-plus fa-3x"></i><span>Join Queue</span></a></button>
+                        <li class="join"><button class="queueButton" form="join" name="joinID" value="<%= queues[i].id %>"><a href=""><i class="fas fa-user-plus fa-6x"></i><span>Join Queue</span></a></button>
                         </li>
                         <% } %>
                     <% } %>
@@ -143,7 +148,7 @@
                         <button class="btn" id="delete-button" form="delete" name="id" value="<%- queues[i].id %>">Delete</button>
                     <% } %>
                 </div>
-                <% } %>
+                <% } } %>
             </div>
             <!-- Will have to list out user's friends, most likely using EJS and for loop -->
             <div class="col-3 h-50 shadow friends-list rounded-left">

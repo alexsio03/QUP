@@ -13,6 +13,9 @@ const bcrypt = require('bcrypt');
 const {
   assert
 } = require('console');
+const {
+  type
+} = require('os');
 const saltRounds = 10;
 
 // Setting up the main packages
@@ -537,76 +540,11 @@ app.get("/private", function (req, res) {
       if (err) {
         console.log(err);
       } else if (user.requestedFriends.length == 0 && user.friends.length == 0) {
-        var queues = [];
-        var count = 0;
-        user.friends.forEach(function (friend) {
-          User.findById(friend, function (err, foundFriend) {
-            if (err) {
-              console.log(err);
-            } else {
-              if (foundFriend.inQueue) {
-                Queue.findById(foundFriend.currentQueue, function (err, friendQueue) {
-                  if (err) {
-                    console.log(err);
-                  } else {
-                    queues.push(friendQueue);
-                    count++;
-                    if (count == user.friends.length) {
-                      var newQs = [];
-                      queues.forEach(function (queue) {
-                        var firstId = queue.lobby[0]._id;
-                        var newLobby = queue.lobby;
-                        var counter = 0;
-                        newLobby.forEach(function (user) {
-                          User.findById(user, function (err, lobbyist) {
-                            if (err) {
-                              console.log(err);
-                            }
-                            if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
-                              newLobby[newLobby.indexOf(user)] = lobbyist.name;
-                              var newQueue = {
-                                id: queue._id,
-                                game: queue.game,
-                                desc: queue.description,
-                                lobby: newLobby,
-                                waiting: queue.waiting,
-                                queueMember: queue._id == req._passport.session.user[0].currentQueue,
-                                isCreator: firstId == req._passport.session.user[0]._id
-                              };
-                              newQs.push(newQueue);
-                            } else if (lobbyist != null && newLobby.indexOf(user) < newLobby.length - 1) {
-                              newLobby[newLobby.indexOf(user)] = lobbyist.name;
-                            } else if (counter == newLobby.length - 1) {
-                              var newQueue = {
-                                id: queue._id,
-                                game: queue.game,
-                                desc: queue.description,
-                                lobby: newLobby,
-                                waiting: queue.waiting,
-                                queueMember: queue._id == req._passport.session.user[0].currentQueue,
-                                isCreator: firstId == req._passport.session.user[0]._id
-                              };
-                              newQs.push(newQueue);
-                            }
-                            counter++;
-                            if (newQs.length == queues.length) {
-                              console.log(newQs);
-                              res.render("private", {
-                                hasRequests: false,
-                                hasFriends: false,
-                                queues: newQs,
-                              });
-                            }
-                          })
-                        })
-                      })
-                    }
-                  }
-                })
-              }
-            }
-          })
-        })
+        res.render("private", {
+          hasRequests: false,
+          hasFriends: false,
+          queues: [],
+        });
       } else if (user.requestedFriends.length == 0 && user.friends.length > 0) {
         let firstFriendArr = [];
         user.friends.forEach(function (friendsId) {
@@ -627,64 +565,13 @@ app.get("/private", function (req, res) {
                     } else {
                       count++;
                       if (foundFriend.inQueue) {
+                        console.log(count);
                         Queue.findById(foundFriend.currentQueue, function (err, friendQueue) {
                           if (err) {
                             console.log(err);
                           } else {
-                            queues.push(friendQueue);
-                            console.log(count);
-                            // Figure out how to stop the forEach here
-                            if (count == user.friends.length) {
-                              console.log("step 2");
-                              var newQs = [];
-                              queues.forEach(function (queue) {
-                                var firstId = queue.lobby[0]._id;
-                                var newLobby = queue.lobby;
-                                var counter = 0;
-                                newLobby.forEach(function (user) {
-                                  User.findById(user, function (err, lobbyist) {
-                                    if (err) {
-                                      console.log(err);
-                                    }
-                                    if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
-                                      newLobby[newLobby.indexOf(user)] = lobbyist.name;
-                                      var newQueue = {
-                                        id: queue._id,
-                                        game: queue.game,
-                                        desc: queue.description,
-                                        lobby: newLobby,
-                                        waiting: queue.waiting,
-                                        queueMember: queue._id == req._passport.session.user[0].currentQueue,
-                                        isCreator: firstId == req._passport.session.user[0]._id
-                                      };
-                                      newQs.push(newQueue);
-                                    } else if (lobbyist != null && newLobby.indexOf(user) < newLobby.length - 1) {
-                                      newLobby[newLobby.indexOf(user)] = lobbyist.name;
-                                    } else if (counter == newLobby.length - 1) {
-                                      var newQueue = {
-                                        id: queue._id,
-                                        game: queue.game,
-                                        desc: queue.description,
-                                        lobby: newLobby,
-                                        waiting: queue.waiting,
-                                        queueMember: queue._id == req._passport.session.user[0].currentQueue,
-                                        isCreator: firstId == req._passport.session.user[0]._id
-                                      };
-                                      newQs.push(newQueue);
-                                    }
-                                    counter++;
-                                    if (newQs.length == queues.length) {
-                                      console.log(newQs);
-                                      res.render("private", {
-                                        hasRequests: false,
-                                        hasFriends: true,
-                                        friends: firstFriendArr,
-                                        queues: newQs,
-                                      });
-                                    }
-                                  })
-                                })
-                              })
+                            if (foundFriend._id.equals(friendQueue.creator)) {
+                              queues.push(friendQueue);
                             }
                           }
                         })
@@ -692,10 +579,74 @@ app.get("/private", function (req, res) {
                     }
                   })
                 })
+                console.log(count);
+                // Figure out how to stop the forEach here
+                if (count == user.friends.length) {
+                  console.log("step 2");
+                  console.log(queues);
+                  if (queues.length == 0) {
+                    res.render("private", {
+                      hasRequests: false,
+                      hasFriends: true,
+                      friends: firstFriendArr,
+                      queues: [],
+                    });
+                  }
+                  var newQs = [];
+                  queues.forEach(function (queue) {
+                    var firstId = queue.lobby[0]._id;
+                    var newLobby = queue.lobby;
+                    var counter = 0;
+                    newLobby.forEach(function (user) {
+                      User.findById(user, function (err, lobbyist) {
+                        if (err) {
+                          console.log(err);
+                        }
+                        if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
+                          newLobby[newLobby.indexOf(user)] = lobbyist.name;
+                          var newQueue = {
+                            id: queue._id,
+                            game: queue.game,
+                            desc: queue.description,
+                            lobby: newLobby,
+                            waiting: queue.waiting,
+                            queueMember: queue._id == req._passport.session.user[0].currentQueue,
+                            isCreator: firstId == req._passport.session.user[0]._id
+                          };
+                          newQs.push(newQueue);
+                        } else if (lobbyist != null && newLobby.indexOf(user) < newLobby.length - 1) {
+                          newLobby[newLobby.indexOf(user)] = lobbyist.name;
+                        } else if (counter == newLobby.length - 1) {
+                          var newQueue = {
+                            id: queue._id,
+                            game: queue.game,
+                            desc: queue.description,
+                            lobby: newLobby,
+                            waiting: queue.waiting,
+                            queueMember: queue._id == req._passport.session.user[0].currentQueue,
+                            isCreator: firstId == req._passport.session.user[0]._id
+                          };
+                          newQs.push(newQueue);
+                        }
+                        counter++;
+                        if (newQs.length == queues.length) {
+                          console.log(newQs);
+                          res.render("private", {
+                            hasRequests: false,
+                            hasFriends: true,
+                            friends: firstFriendArr,
+                            queues: newQs,
+                          });
+                        }
+                      })
+                    })
+                  })
+                }
+
               }
             }
-          });
-        });
+          })
+        })
       } else {
         let requested = [];
         user.requestedFriends.forEach(function (foundId) {
@@ -711,78 +662,12 @@ app.get("/private", function (req, res) {
                   if (err) {
                     console.log(err);
                   } else if (main.friends.length == 0) {
-                    var queues = [];
-                    var count = 0;
-                    user.friends.forEach(function (friend) {
-                      User.findById(friend, function (err, foundFriend) {
-                        if (err) {
-                          console.log(err);
-                        } else {
-                          if (foundFriend.inQueue) {
-                            Queue.findById(foundFriend.currentQueue, function (err, friendQueue) {
-                              if (err) {
-                                console.log(err);
-                              } else {
-                                queues.push(friendQueue);
-                                count++;
-                                // Figure out how to stop the forEach here
-                                if (count == user.friends.length) {
-                                  var newQs = [];
-                                  queues.forEach(function (queue) {
-                                    var firstId = queue.lobby[0]._id;
-                                    var newLobby = queue.lobby;
-                                    var counter = 0;
-                                    newLobby.forEach(function (user) {
-                                      User.findById(user, function (err, lobbyist) {
-                                        if (err) {
-                                          console.log(err);
-                                        }
-                                        if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
-                                          newLobby[newLobby.indexOf(user)] = lobbyist.name;
-                                          var newQueue = {
-                                            id: queue._id,
-                                            game: queue.game,
-                                            desc: queue.description,
-                                            lobby: newLobby,
-                                            waiting: queue.waiting,
-                                            queueMember: queue._id == req._passport.session.user[0].currentQueue,
-                                            isCreator: firstId == req._passport.session.user[0]._id
-                                          };
-                                          newQs.push(newQueue);
-                                        } else if (lobbyist != null && newLobby.indexOf(user) < newLobby.length - 1) {
-                                          newLobby[newLobby.indexOf(user)] = lobbyist.name;
-                                        } else if (counter == newLobby.length - 1) {
-                                          var newQueue = {
-                                            id: queue._id,
-                                            game: queue.game,
-                                            desc: queue.description,
-                                            lobby: newLobby,
-                                            waiting: queue.waiting,
-                                            queueMember: queue._id == req._passport.session.user[0].currentQueue,
-                                            isCreator: firstId == req._passport.session.user[0]._id
-                                          };
-                                          newQs.push(newQueue);
-                                        }
-                                        counter++;
-                                        if (newQs.length == queues.length) {
-                                          console.log(newQs);
-                                          res.render("private", {
-                                            hasRequests: true,
-                                            hasFriends: false,
-                                            requestedFriends: requested,
-                                            queues: newQs,
-                                          });
-                                        }
-                                      })
-                                    })
-                                  })
-                                }
-                              }
-                            })
-                          }
-                        }
-                      })
-                    })
+                    res.render("private", {
+                      hasRequests: true,
+                      hasFriends: false,
+                      requestedFriends: requested,
+                      queues: [],
+                    });
                   } else {
                     let friendArr = [];
                     main.friends.forEach(function (friendId) {
@@ -799,15 +684,26 @@ app.get("/private", function (req, res) {
                                 if (err) {
                                   console.log(err);
                                 } else {
+                                  count++;
                                   if (foundFriend.inQueue) {
                                     Queue.findById(foundFriend.currentQueue, function (err, friendQueue) {
                                       if (err) {
                                         console.log(err);
                                       } else {
-                                        queues.push(friendQueue);
-                                        count++;
+                                        if (foundFriend._id.equals(friendQueue.creator)) {
+                                          queues.push(friendQueue);
+                                        }
                                         // Figure out how to stop the forEach here
                                         if (count == user.friends.length) {
+                                          if (queues.length == 0) {
+                                            res.render("private", {
+                                              hasRequests: true,
+                                              hasFriends: true,
+                                              friends: friendArr,
+                                              requestedFriends: requested,
+                                              queues: [],
+                                            });
+                                          }
                                           var newQs = [];
                                           queues.forEach(function (queue) {
                                             var firstId = queue.lobby[0]._id;
@@ -849,7 +745,7 @@ app.get("/private", function (req, res) {
                                                   console.log(newQs);
                                                   res.render("private", {
                                                     hasRequests: true,
-                                                    hasFriends: false,
+                                                    hasFriends: true,
                                                     requestedFriends: requested,
                                                     friends: friendArr,
                                                     queues: newQs,

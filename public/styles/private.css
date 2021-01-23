@@ -63,3 +63,9 @@ span {
     text-align: center;
     margin-top: 10px;
 }
+
+.error {
+    color: crimson;
+    text-align: center;
+    margin: 40px 0;
+}
