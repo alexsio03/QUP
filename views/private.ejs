@@ -104,15 +104,18 @@
                     <form action="/joinQueue" id="join" method="POST"></form>
                     <form action="/leaveQueue" id="leave" method="POST"></form>
                     <form action="/joinWaiting" id="joinWait" method="POST"></form>
-                    <div class="col-md-10">
+                    <div class="row">
+                        <div class="col-md-10">
                         <h1><%= queues[i].game  %></h1>
                         <p><%= queues[i].desc %></p>
-                    </div>
+                        </div>
+                    
                     <% if(queues[i].queueMember) { %>
                     <div class="col-md-2">
                         <button class="btn" id="leave-button" form="leave" name="leaveID" value="<%= queues[i].id %>">Leave</button>
                     </div>
                     <% } %>
+                    </div>
                     <!-- Limit this array to the num of available users in party, make user input??? !maybe have pre-defined for bigger games! -->
                     <ul class="nav d-flex justify-content-around">
                         <% for(var k = 0; k < queues[i].lobby.length; k++) { %>
