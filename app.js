@@ -557,15 +557,13 @@ app.get("/private", function (req, res) {
                 console.log("step 1");
                 var queues = [];
                 var count = 0;
-                console.log(user.friends.length);
-                user.friends.forEach(function (friend) {
-                  User.findById(friend, function (err, foundFriend) {
+                for (var i = 0; i < user.friends.length; i++) {
+                  User.findById(user.friends[i], function (err, foundFriend) {
+                    count++;
                     if (err) {
                       console.log(err);
                     } else {
-                      count++;
                       if (foundFriend.inQueue) {
-                        console.log(count);
                         Queue.findById(foundFriend.currentQueue, function (err, friendQueue) {
                           if (err) {
                             console.log(err);
@@ -573,76 +571,73 @@ app.get("/private", function (req, res) {
                             if (foundFriend._id.equals(friendQueue.creator)) {
                               queues.push(friendQueue);
                             }
+                            if (count == user.friends.length) {
+                              console.log("step 2");
+                              console.log(queues);
+                              if (queues.length == 0) {
+                                res.render("private", {
+                                  hasRequests: false,
+                                  hasFriends: true,
+                                  friends: firstFriendArr,
+                                  queues: [],
+                                });
+                              }
+                              var newQs = [];
+                              queues.forEach(function (queue) {
+                                var firstId = queue.lobby[0]._id;
+                                var newLobby = queue.lobby;
+                                var counter = 0;
+                                newLobby.forEach(function (user) {
+                                  User.findById(user, function (err, lobbyist) {
+                                    if (err) {
+                                      console.log(err);
+                                    }
+                                    if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
+                                      newLobby[newLobby.indexOf(user)] = lobbyist.name;
+                                      var newQueue = {
+                                        id: queue._id,
+                                        game: queue.game,
+                                        desc: queue.description,
+                                        lobby: newLobby,
+                                        waiting: queue.waiting,
+                                        queueMember: queue._id == req._passport.session.user[0].currentQueue,
+                                        isCreator: firstId == req._passport.session.user[0]._id
+                                      };
+                                      newQs.push(newQueue);
+                                    } else if (lobbyist != null && newLobby.indexOf(user) < newLobby.length - 1) {
+                                      newLobby[newLobby.indexOf(user)] = lobbyist.name;
+                                    } else if (counter == newLobby.length - 1) {
+                                      var newQueue = {
+                                        id: queue._id,
+                                        game: queue.game,
+                                        desc: queue.description,
+                                        lobby: newLobby,
+                                        waiting: queue.waiting,
+                                        queueMember: queue._id == req._passport.session.user[0].currentQueue,
+                                        isCreator: firstId == req._passport.session.user[0]._id
+                                      };
+                                      newQs.push(newQueue);
+                                    }
+                                    counter++;
+                                    if (newQs.length == queues.length) {
+                                      console.log(newQs);
+                                      res.render("private", {
+                                        hasRequests: false,
+                                        hasFriends: true,
+                                        friends: firstFriendArr,
+                                        queues: newQs,
+                                      });
+                                    }
+                                  })
+                                })
+                              })
+                            }
                           }
                         })
                       }
                     }
                   })
-                })
-                console.log(count);
-                // Figure out how to stop the forEach here
-                if (count == user.friends.length) {
-                  console.log("step 2");
-                  console.log(queues);
-                  if (queues.length == 0) {
-                    res.render("private", {
-                      hasRequests: false,
-                      hasFriends: true,
-                      friends: firstFriendArr,
-                      queues: [],
-                    });
-                  }
-                  var newQs = [];
-                  queues.forEach(function (queue) {
-                    var firstId = queue.lobby[0]._id;
-                    var newLobby = queue.lobby;
-                    var counter = 0;
-                    newLobby.forEach(function (user) {
-                      User.findById(user, function (err, lobbyist) {
-                        if (err) {
-                          console.log(err);
-                        }
-                        if (newLobby.indexOf(user) == newLobby.length - 1 && lobbyist != null) {
-                          newLobby[newLobby.indexOf(user)] = lobbyist.name;
-                          var newQueue = {
-                            id: queue._id,
-                            game: queue.game,
-                            desc: queue.description,
-                            lobby: newLobby,
-                            waiting: queue.waiting,
-                            queueMember: queue._id == req._passport.session.user[0].currentQueue,
-                            isCreator: firstId == req._passport.session.user[0]._id
-                          };
-                          newQs.push(newQueue);
-                        } else if (lobbyist != null && newLobby.indexOf(user) < newLobby.length - 1) {
-                          newLobby[newLobby.indexOf(user)] = lobbyist.name;
-                        } else if (counter == newLobby.length - 1) {
-                          var newQueue = {
-                            id: queue._id,
-                            game: queue.game,
-                            desc: queue.description,
-                            lobby: newLobby,
-                            waiting: queue.waiting,
-                            queueMember: queue._id == req._passport.session.user[0].currentQueue,
-                            isCreator: firstId == req._passport.session.user[0]._id
-                          };
-                          newQs.push(newQueue);
-                        }
-                        counter++;
-                        if (newQs.length == queues.length) {
-                          console.log(newQs);
-                          res.render("private", {
-                            hasRequests: false,
-                            hasFriends: true,
-                            friends: firstFriendArr,
-                            queues: newQs,
-                          });
-                        }
-                      })
-                    })
-                  })
                 }
-
               }
             }
           })
